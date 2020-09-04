@@ -9,5 +9,10 @@ using namespace noise;
 /// set rng seed using GSL
 
 /// make landscape as perlin module
-module::Perlin landscape;
+void initNoise(const int nOctaves, const double frequency) {
+    module::Perlin landscape;
+    landscape.SetOctaveCount(nOctaves);
+    landscape.SetFrequency(frequency);
+}
+
 #endif // LANDSCAPE_H
