@@ -50,8 +50,8 @@ public:
 
     // do move
     void wrapPosition(float newX, float newY, const float maxPos, const float minPos);
-    void doMove(const float now);
-    void doForage(const float now);
+    void doMove(module::Perlin landscape, const float now);
+    void doForage(module::Perlin landscape, const float now);
     std::vector<float> getAnnWeights();
 };
 
@@ -83,7 +83,7 @@ void Agent::wrapPosition(float newX, float newY,
 }
 
 /// agent function to choose a new position
-void Agent::doMove(const float now) {
+void Agent::doMove(module::Perlin landscape, const float now) {
     // agents use ANN to move
     // ANN senses perlin values at some offset
     Ann::input_t inputs;
@@ -106,7 +106,7 @@ void Agent::doMove(const float now) {
 }
 
 /// agent function to forage
-void Agent::doForage(const float now) {
+void Agent::doForage(module::Perlin landscape, const float now) {
 
     energy += static_cast<float> (landscape.GetValue(x + 1, y + 1, now) +
                landscape.GetValue(x + 1, y - 1, now) +
@@ -116,10 +116,10 @@ void Agent::doForage(const float now) {
 
 /* population level functions */
 /// population moves about and forages
-void popMoveForage(std::vector<Agent>& pop, const float now) {
+void popMoveForage(std::vector<Agent>& pop, const float now, module::Perlin landscape) {
     for(auto& indiv : pop) {
-        indiv.doMove(now);
-        indiv.doForage(now);
+        indiv.doMove(landscape, now);
+        indiv.doForage(landscape, now);
     }
 }
 
@@ -170,8 +170,9 @@ void doReproduce(std::vector<Agent>& pop) {
 
         // replicate ANN
         tmpPop[a].annMove = pop[idParent].annMove;
-        // get random position
-        tmpPop[a].pos = pop[idParent].pos;
+        // get parent position
+        tmpPop[a].x = pop[idParent].x;
+        tmpPop[a].y = pop[idParent].y;
 
         // mutate ann
         for (auto& w : tmpPop[a].annMove) {

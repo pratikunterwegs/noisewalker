@@ -20,7 +20,8 @@ HEADERS += \
         ann-lib-linux/ann2.hpp \
         landscape.hpp \
         noiseutils.h \
-        parameters.hpp
+        parameters.hpp \
+        simulation.hpp
 
 LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm
 

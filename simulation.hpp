@@ -7,8 +7,10 @@
 #include <agent.hpp>
 
 /// function to evolve population
+/// THIS WHOLE THING NEEDS TO CHANGE
 void evolvePop(std::vector<Agent> &pop,
-               const int genmax, const int timesteps)
+               const int genmax, const int timesteps,
+               module::Perlin landscape)
 {
     auto t1 = std::chrono::high_resolution_clock::now();
     // loop through timesteps
@@ -18,7 +20,7 @@ void evolvePop(std::vector<Agent> &pop,
                 doReproduce(pop);
             }
             // if gen has not changed then move and forage
-            popMoveForage(pop, t);
+            popMoveForage(pop, t, landscape);
         }
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
@@ -39,7 +41,7 @@ void do_simulation(std::vector<std::string> cliArgs){
 
     // init pop & landscape
     std::vector<Agent> pop (popSize);
-    initNoise(nOctaves, frequency);
+    module::Perlin landscape = makeNoise(nOctaves, frequency);
     // force sensory range
     forceSrange(pop, newSrange);
 
@@ -47,7 +49,7 @@ void do_simulation(std::vector<std::string> cliArgs){
     // std::cout << "data at " << thisOutpath[0] << thisOutpath[1] << "\n";
 
     // do evolution
-    evolvePop(pop, genmax, timesteps);
+    evolvePop(pop, genmax, timesteps, landscape);
     
     std::cout << "pop evolved!" << "\n";
 
