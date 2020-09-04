@@ -83,22 +83,22 @@ void Agent::wrapPosition(float newX, float newY,
 }
 
 /// agent function to choose a new position
-void Agent::doMoveForage(const float now) {
+void Agent::doMove(const float now) {
     // agents use ANN to move
     // ANN senses perlin values at some offset
     Ann::input_t inputs;
 
-    inputs[0] = landscape.getValues(x + 1, y + 1, now);
-    inputs[1] = landscape.getValues(x + 1, y - 1, now);
-    inputs[2] = landscape.getValues(x - 1, y + 1, now);
-    inputs[3] = landscape.getValues(x - 1, y - 1, now);
+    inputs[0] = static_cast<float>(landscape.GetValue(x + 1, y + 1, now));
+    inputs[1] = static_cast<float>(landscape.GetValue(x + 1, y - 1, now));
+    inputs[2] = static_cast<float>(landscape.GetValue(x - 1, y + 1, now));
+    inputs[3] = static_cast<float>(landscape.GetValue(x - 1, y - 1, now));
 
     // output 0 is distance, 1 is angle
     auto output = annMove(inputs);
 
     // new unwrapped position
     float newX = x + (output[0] * cosf(output[1])); // is the angle correctly handled?
-    float newY = y + (output[0] * sinf(output[1]))
+    float newY = y + (output[0] * sinf(output[1]));
 
     // wrap new position
     wrapPosition(newX, newY, 0.f, landsize); // needs a landsize in params
@@ -108,10 +108,10 @@ void Agent::doMoveForage(const float now) {
 /// agent function to forage
 void Agent::doForage(const float now) {
 
-    energy += (landscape.getValues(x + 1, y + 1, now) +
-               landscape.getValues(x + 1, y - 1, now) +
-               landscape.getValues(x - 1, y + 1, now) +
-               landscape.getValues(x - 1, y - 1, now)) / 4.f;
+    energy += (landscape.GetValue(x + 1, y + 1, now) +
+               landscape.GetValue(x + 1, y - 1, now) +
+               landscape.GetValue(x - 1, y + 1, now) +
+               landscape.GetValue(x - 1, y - 1, now)) / 4.f;
 }
 
 #endif // AGENT_H
