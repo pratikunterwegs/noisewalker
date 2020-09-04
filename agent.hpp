@@ -5,7 +5,8 @@
 #include <vector>
 #include <cassert>
 #include "parameters.hpp"
-#include "landscape.hpp"
+#include <libnoise/noise.h>
+#include "noiseutils.h"
 #include "ann-lib-linux/rnd.hpp"
 #include "ann-lib-linux/rndutils.hpp"
 #include "ann-lib-linux/ann2.hpp"
