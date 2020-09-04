@@ -134,7 +134,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		ann-lib-linux/ann2.hpp \
 		landscape.hpp \
 		noiseutils.h \
-		parameters.hpp main.cpp
+		parameters.hpp \
+		simulation.hpp main.cpp
 QMAKE_TARGET  = noisewalker
 DESTDIR       = 
 TARGET        = noisewalker
@@ -312,7 +313,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents agent.hpp ann-lib-linux/rnd.hpp ann-lib-linux/rndutils.hpp ann-lib-linux/ann2.hpp landscape.hpp noiseutils.h parameters.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents agent.hpp ann-lib-linux/rnd.hpp ann-lib-linux/rndutils.hpp ann-lib-linux/ann2.hpp landscape.hpp noiseutils.h parameters.hpp simulation.hpp $(DISTDIR)/
 	$(COPY_FILE) --parents main.cpp $(DISTDIR)/
 
 
@@ -361,7 +362,13 @@ compiler_clean: compiler_moc_predefs_clean
 
 ####### Compile
 
-main.o: main.cpp 
+main.o: main.cpp parameters.hpp \
+		landscape.hpp \
+		agent.hpp \
+		ann-lib-linux/rnd.hpp \
+		ann-lib-linux/rndutils.hpp \
+		ann-lib-linux/ann2.hpp \
+		simulation.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 ####### Install

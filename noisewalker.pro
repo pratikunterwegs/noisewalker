@@ -12,18 +12,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+        noiseutils.cpp
 HEADERS += \
         agent.hpp \
         ann-lib-linux/rnd.hpp \
         ann-lib-linux/rndutils.hpp \
         ann-lib-linux/ann2.hpp \
-        landscape.hpp \
         noiseutils.h \
         parameters.hpp \
         simulation.hpp
 
-LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm
+LIBS += -L/usr/local/lib -lnoise -lgsl -lgslcblas -lm
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
