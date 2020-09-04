@@ -21,7 +21,8 @@ HEADERS += \
         ann-lib-linux/ann2.hpp \
         noiseutils.h \
         parameters.hpp \
-        simulation.hpp
+        simulation.hpp \
+        noisewalker_tools.hpp
 
 LIBS += -L/usr/local/lib -lnoise -lgsl -lgslcblas -lm
 

@@ -47,6 +47,8 @@ public:
 
     // Agents need a brain, an age, fitness, and movement decision
     float energy, sRange, x, y;
+    std::array<float, 2> annOutput (const float v1, const float v2,
+                                    const float v3, const float v4);
     Ann annMove;
 
     // do move
@@ -83,26 +85,35 @@ void Agent::wrapPosition(float newX, float newY,
     y = wrapper(newY, minPos, maxPos);
 }
 
+/// get ANN output
+std::array<float, 2> Agent::annOutput(const float v1, const float v2,
+                           const float v3, const float v4) {
+    // def inputs
+    Ann::input_t inputs;
+    // pass inputs
+    inputs[0] = v1;
+    inputs[1] = v2;
+    inputs[2] = v3;
+    inputs[3] = v4;
+    // get output
+    auto distAngle = annMove(inputs);
+
+    return distAngle;
+}
+
 /// agent function to choose a new position
 void Agent::doMove(module::Perlin landscape, const float now) {
     // agents use ANN to move
     // ANN senses perlin values at some offset
-    Ann::input_t inputs;
-
-    inputs[0] = static_cast<float>(landscape.GetValue(x + 1, y + 1, now));
-    inputs[1] = static_cast<float>(landscape.GetValue(x + 1, y - 1, now));
-    inputs[2] = static_cast<float>(landscape.GetValue(x - 1, y + 1, now));
-    inputs[3] = static_cast<float>(landscape.GetValue(x - 1, y - 1, now));
-
     // output 0 is distance, 1 is angle
-    auto output = annMove(inputs);
+    std::array<float, 2> output = annOutput(static_cast<float>(landscape.GetValue(x + 1, y + 1, now)),
+                                            static_cast<float>(landscape.GetValue(x + 1, y - 1, now)),
+                                            static_cast<float>(landscape.GetValue(x - 1, y + 1, now)),
+                                            static_cast<float>(landscape.GetValue(x - 1, y - 1, now)));
 
-    // new unwrapped position
+    // new unwrapped position, returns floats?
     x = x + (output[0] * cosf(output[1])); // is the angle correctly handled?
     y = y + (output[0] * sinf(output[1]));
-
-    // wrap new position
-//    wrapPosition(newX, newY, 0.f, landsize); // needs a landsize in params
 
 }
 
@@ -188,6 +199,28 @@ void doReproduce(std::vector<Agent>& pop) {
     // swap tmp pop for pop
     std::swap(pop, tmpPop);
     tmpPop.clear();
+}
+
+/* tools for agent weights */
+/// get individual weights
+std::vector<float> Agent::getAnnWeights() {
+    // make vec
+    std::vector<float> vecWeights;
+    for (auto& w : annMove) {
+        vecWeights.push_back(w);
+    }
+    return vecWeights;
+}
+
+/// get population weights
+std::vector<std::vector<float> > getPopAnnWts(std::vector<Agent> &pop) {
+    // vec of indivs
+    std::vector<std::vector<float> > popWeights(popSize);
+    for(size_t indiv = 0; static_cast<int>(indiv) < popSize; ++indiv) {
+        popWeights[indiv] = pop[indiv].getAnnWeights();
+    }
+
+    return popWeights;
 }
 
 #endif // AGENT_H

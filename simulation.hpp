@@ -4,8 +4,9 @@
 #include <iostream>
 #include <libnoise/noise.h>
 #include "noiseutils.h"
-#include <parameters.hpp>
-#include <agent.hpp>
+#include "parameters.hpp"
+#include "agent.hpp"
+#include "noisewalker_tools.hpp"
 
 /// function to evolve population
 void evolvePop(std::vector<Agent> &pop,
@@ -16,6 +17,9 @@ void evolvePop(std::vector<Agent> &pop,
     auto t1 = std::chrono::high_resolution_clock::now();
     double coordZ = 0.0;
     for (int gen = 0; gen < genmax; ++gen) {
+        if (gen % 25 == 0) {
+            std::cout << "gen = " << gen << "\n";
+        }        
         for (int t = 0; t < timesteps; ++t) {
             // if gen has not changed then move and forage
             popMoveForage(pop, coordZ, landscape);
@@ -50,11 +54,15 @@ void do_simulation(std::vector<std::string> cliArgs){
 
     forceSrange(pop, newSrange);
 
+    // idenity outpath
+    std::vector<std::string> thisOutpath = identifyOutpath(frequency, tempRate, rep);
+
     // print outpath for test
-    // std::cout << "data at " << thisOutpath[0] << thisOutpath[1] << "\n";
+     std::cout << "data at " << thisOutpath[0] << thisOutpath[1] << "\n";
 
     // do evolution
     evolvePop(pop, genmax, timesteps, tempRate, noise);
+    printReacNorm(pop, thisOutpath);
     
     std::cout << "pop evolved!" << "\n";
 
