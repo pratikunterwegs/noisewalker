@@ -10,7 +10,9 @@
 
 // population params
 const int popSize = 500; // not too many
-const int genmax = 1000; // a few generations
+const int generations = 1000;
+const int timePerGen = 100;
+const int maxTimesteps = timePerGen * generations; // a few generations
 
 // landscape params
 const float landsize = 100.f;
