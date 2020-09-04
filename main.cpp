@@ -1,8 +1,12 @@
-#include <QCoreApplication>
+#include <iostream>
+#include <libnoise/noise.h>
+
+using namespace noise;
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    // make module
+    module::Perlin landscape;
 
-    return a.exec();
+    return 0;
 }

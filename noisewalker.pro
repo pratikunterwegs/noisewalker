@@ -17,8 +17,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp
 HEADERS += \
+        agent.hpp \
         ann-lib-linux/* \
-        noiseutils.h
+        landscape.hpp \
+        noiseutils.h \
+        parameters.hpp
+LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm -libnoise
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
