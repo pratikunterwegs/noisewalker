@@ -98,11 +98,11 @@ void Agent::doMove(module::Perlin landscape, const float now) {
     auto output = annMove(inputs);
 
     // new unwrapped position
-    float newX = x + (output[0] * cosf(output[1])); // is the angle correctly handled?
-    float newY = y + (output[0] * sinf(output[1]));
+    x = x + (output[0] * cosf(output[1])); // is the angle correctly handled?
+    y = y + (output[0] * sinf(output[1]));
 
     // wrap new position
-    wrapPosition(newX, newY, 0.f, landsize); // needs a landsize in params
+//    wrapPosition(newX, newY, 0.f, landsize); // needs a landsize in params
 
 }
 
