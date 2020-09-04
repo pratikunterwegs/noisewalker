@@ -114,4 +114,78 @@ void Agent::doForage(const float now) {
                landscape.GetValue(x - 1, y - 1, now)) / 4.f;
 }
 
+/* population level functions */
+/// population moves about and forages
+void popMoveForage(std::vector<Agent>& pop, const float now) {
+    for(auto& indiv : pop) {
+        indiv.doMove(now);
+        indiv.doForage(now);
+    }
+}
+
+/// minor function to normalise vector
+void normaliseFitness(std::vector<double> &vecFitness) {
+    float minFitness = 0.0;
+    float maxFitness = 1.0;
+    // get min and max fitness
+    for (size_t vecVal = 0; vecVal < vecFitness.size(); ++vecVal) {
+        if (vecFitness[vecVal] < minFitness) {
+            minFitness = vecFitness[vecVal];
+        }
+        if (vecFitness[vecVal] > maxFitness) {
+            maxFitness = vecFitness[vecVal];
+        }
+    }
+    // rescale values
+    for (size_t vecVal = 0; vecVal < vecFitness.size(); ++vecVal) {
+        vecFitness[vecVal] -= minFitness;
+        vecFitness[vecVal] = vecFitness[vecVal] / (maxFitness - minFitness);
+        // add a small value to avoid zero values
+        vecFitness[vecVal] += 0.0000000001;
+        assert(vecFitness[vecVal] > 0.0 && "Agent energy is 0!");
+    }
+
+}
+
+/// pop reproduces
+void doReproduce(std::vector<Agent>& pop) {
+    // make fitness vec
+    std::vector<double> vecFitness;
+    for (size_t a = 0; static_cast<int>(a) < popSize; a++)
+    {
+        vecFitness.push_back(static_cast<double> (pop[a].energy));
+    }
+    normaliseFitness(vecFitness);
+
+    // weighted lottery
+    std::discrete_distribution<> weightedLottery(vecFitness.begin(), vecFitness.end());
+
+    // create new population
+    std::vector<Agent> tmpPop(popSize);
+
+    // assign parents
+    for (size_t a = 0; static_cast<int>(a) < popSize; a++) {
+
+        size_t idParent = static_cast<size_t> (weightedLottery(rng));
+
+        // replicate ANN
+        tmpPop[a].annMove = pop[idParent].annMove;
+        // get random position
+        tmpPop[a].pos = pop[idParent].pos;
+
+        // mutate ann
+        for (auto& w : tmpPop[a].annMove) {
+            // probabilistic mutation of ANN using GSL
+            // using GSL for historical reasons
+            if (gsl_ran_bernoulli(r, static_cast<double>(mProb)) == 1) {
+                w += static_cast<float> (gsl_ran_cauchy(r, static_cast<double>(mShift)));
+            }
+        }
+    }
+
+    // swap tmp pop for pop
+    std::swap(pop, tmpPop);
+    tmpPop.clear();
+}
+
 #endif // AGENT_H
