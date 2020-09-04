@@ -1,7 +1,6 @@
 #include <iostream>
 #include <libnoise/noise.h>
 #include "parameters.hpp"
-#include "landscape.hpp"
 #include "agent.hpp"
 #include "simulation.hpp"
 
