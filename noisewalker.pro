@@ -1,7 +1,4 @@
-QT -= gui
-
-CONFIG += c++11 console
-CONFIG -= app_bundle
+CONFIG += c++17 console
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -18,11 +15,14 @@ SOURCES += \
         main.cpp
 HEADERS += \
         agent.hpp \
-        ann-lib-linux/* \
+        ann-lib-linux/rnd.hpp \
+        ann-lib-linux/rndutils.hpp \
+        ann-lib-linux/ann2.hpp \
         landscape.hpp \
         noiseutils.h \
         parameters.hpp
-LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm -libnoise
+
+LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
