@@ -108,7 +108,7 @@ void Agent::doMove(const float now) {
 /// agent function to forage
 void Agent::doForage(const float now) {
 
-    energy += (landscape.GetValue(x + 1, y + 1, now) +
+    energy += static_cast<float> (landscape.GetValue(x + 1, y + 1, now) +
                landscape.GetValue(x + 1, y - 1, now) +
                landscape.GetValue(x - 1, y + 1, now) +
                landscape.GetValue(x - 1, y - 1, now)) / 4.f;
