@@ -112,8 +112,8 @@ void Agent::doMove(module::Perlin landscape, const float now) {
                                             static_cast<float>(landscape.GetValue(x - 1, y - 1, now)));
 
     // new unwrapped position, returns floats?
-    x = x + (output[0] * cosf(output[1])); // is the angle correctly handled?
-    y = y + (output[0] * sinf(output[1]));
+    x = x + (abs(output[0]) * cosf(output[1])); // is the angle correctly handled?
+    y = y + (abs(output[0]) * sinf(output[1]));
 
 }
 
