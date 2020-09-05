@@ -54,20 +54,22 @@ void printReacNorm (std::vector<Agent> &pop,
                     std::vector<std::string> outpath) {
     // ofstream
     std::ofstream rnormOfs;
+    std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
 
     // check if okay
     std::ifstream f(outpath[0] + outpath[1] + ".csv");
     if (!f.good()) {
-        std::cout << "data path good to write\n";
+        std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
     }
     // write column names
-    rnormOfs.open(outpath[0]+ outpath[1] + ".csv",
-            std::ofstream::out);
+    rnormOfs.open(outpath[0] + outpath[1] + ".csv",
+            std::ofstream::out | std::ofstream::app);
+
     rnormOfs << "id,cue,distance,angle\n";
 
     // run through individuals and cues
     for (size_t indiv = 0; indiv < pop.size(); ++indiv) {
-        for (float cue_i = -1.f; cue_i <= 1.f; cue_i+= 0.1f) {
+        for (float cue_i = -0.5f; cue_i <= 0.5f; cue_i+= 0.05f) {
             std::array<float, 2> testOutput = pop[indiv].annOutput(cue_i, cue_i, cue_i, cue_i);
 
             rnormOfs << indiv << ","
