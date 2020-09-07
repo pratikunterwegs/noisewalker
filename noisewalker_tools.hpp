@@ -8,7 +8,7 @@
 
 /// construct agent output filename
 std::vector<std::string> identifyOutpath(const float frequency,
-                                         const int tempRate,
+                                         const double tempRate,
                                          const std::string rep){
     // assumes path/type already prepared
     std::string path = "data/";
@@ -35,7 +35,7 @@ std::vector<std::string> identifyOutpath(const float frequency,
     std::ifstream f2(summary_out.c_str());
     if (!f2.good()) {
         summary_ofs.open(summary_out, std::ofstream::out);
-        summary_ofs << "filename,growthRate,sRange,rep\n";
+        summary_ofs << "filename,frequency,tempRate,rep\n";
         summary_ofs.close();
     }
     // append if not
