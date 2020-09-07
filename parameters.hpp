@@ -14,6 +14,9 @@ const int generations = 1000;
 const int timePerGen = 100;
 const int maxTimesteps = timePerGen * generations; // a few generations
 
+// movement cost
+const float move_cost = 0.01f;
+
 // landscape params
 const float landsize = 100.f;
 
