@@ -1,6 +1,7 @@
 #ifndef AGENT_H
 #define AGENT_H
 
+#define _USE_MATH_DEFINES
 /// code to make agents
 #include <vector>
 #include <cassert>
@@ -38,15 +39,16 @@ public:
     Agent() :
         // count agents correctly heritable parameter is s_range
         energy(1.f),
-        sRange(1.f),
-        x(0.f), y(0.f),
+        sRange(1.0),
+        x(0.0), y(0.0),
         annMove(0.f)
 
     {}
     ~Agent() {}
 
     // Agents need a brain, an age, fitness, and movement decision
-    float energy, sRange, x, y;
+    float energy;
+    double sRange, x, y;
     std::array<float, 2> annOutput (const float v1, const float v2,
                                     const float v3, const float v4);
     Ann annMove;
@@ -56,19 +58,41 @@ public:
     void doMove(module::Perlin landscape, const float now);
     void doForage(module::Perlin landscape, const float now);
     std::vector<float> getAnnWeights();
+    void randomWeights();
 };
 
 
 /// functions to initialise the population
 /// force the sensory range of the population
-void forceSrange(std::vector<Agent>& pop, const float s){
+void forceSrange(std::vector<Agent>& pop, const double s){
   for(size_t i = 0; i < pop.size(); i++){
     pop[i].sRange = s;
   }
 }
 
 /// initialise the population at random positions
-/// WIP
+void randomPosition(std::vector<Agent> &pop) {
+    for(size_t i = 0; i < pop.size(); i++){
+      pop[i].x = gsl_rng_uniform(r) * static_cast<double>(landsize);
+      pop[i].y = gsl_rng_uniform(r) * static_cast<double>(landsize);
+    }
+}
+
+/// individual random weights
+void Agent::randomWeights() {
+    for (auto& w : annMove) {
+        // probabilistic mutation of ANN using GSL
+        // using GSL for historical reasons
+        w = static_cast<float> (gsl_ran_gaussian(r, 0.5));
+    }
+}
+
+/// initialise with random weights
+void popRandomWeights(std::vector<Agent> &pop) {
+    for(auto& indiv : pop) {
+        indiv.randomWeights();
+    }
+}
 
 /// generic wrapper function for floats
 // assumes position minimum is zero
@@ -104,26 +128,28 @@ std::array<float, 2> Agent::annOutput(const float v1, const float v2,
 /// agent function to choose a new position
 void Agent::doMove(module::Perlin landscape, const float now) {
     // agents use ANN to move
-    // ANN senses perlin values at some offset
+    // ANN senses Clamp values at some offset
     // output 0 is distance, 1 is angle
-    std::array<float, 2> output = annOutput(static_cast<float>(landscape.GetValue(x + 1, y + 1, now)),
-                                            static_cast<float>(landscape.GetValue(x + 1, y - 1, now)),
-                                            static_cast<float>(landscape.GetValue(x - 1, y + 1, now)),
-                                            static_cast<float>(landscape.GetValue(x - 1, y - 1, now)));
+    std::array<float, 2> output = annOutput(static_cast<float>(landscape.GetValue(x + sRange, y + sRange, now)),
+                                            static_cast<float>(landscape.GetValue(x + sRange, y - sRange, now)),
+                                            static_cast<float>(landscape.GetValue(x - sRange, y + sRange, now)),
+                                            static_cast<float>(landscape.GetValue(x - sRange, y - sRange, now)));
 
     // new unwrapped position, returns floats?
-    x = x + (abs(output[0]) * cosf(output[1])); // is the angle correctly handled?
-    y = y + (abs(output[0]) * sinf(output[1]));
+    x = x + (abs(output[0]) * cosf(M_PI * output[1] / 180.f)); // is the angle correctly handled?
+    y = y + (abs(output[0]) * sinf(M_PI * output[1] / 180.f));
 
+    // apply cost
+    energy -= move_cost * abs(output[0]);
 }
 
 /// agent function to forage
 void Agent::doForage(module::Perlin landscape, const float now) {
 
-    energy += static_cast<float> (landscape.GetValue(x + 1, y + 1, now) +
-               landscape.GetValue(x + 1, y - 1, now) +
-               landscape.GetValue(x - 1, y + 1, now) +
-               landscape.GetValue(x - 1, y - 1, now)) / 4.f;
+    energy += static_cast<float> (landscape.GetValue(x + sRange, y + sRange, now) +
+               landscape.GetValue(x + sRange, y - sRange, now) +
+               landscape.GetValue(x - sRange, y + sRange, now) +
+               landscape.GetValue(x - sRange, y - sRange, now)) / 4.f;
 }
 
 /* population level functions */
