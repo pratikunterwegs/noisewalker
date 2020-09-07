@@ -9,13 +9,13 @@
 
 
 // population params
-const int popSize = 500; // not too many
+const int popSize = 1000; // not too many
 const int generations = 1000;
 const int timePerGen = 100;
 const int maxTimesteps = timePerGen * generations; // a few generations
 
 // movement cost
-const float move_cost = 0.01f;
+const float move_cost = 0.1f;
 
 // landscape params
 const float landsize = 100.f;
