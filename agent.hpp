@@ -83,7 +83,7 @@ void Agent::randomWeights() {
     for (auto& w : annMove) {
         // probabilistic mutation of ANN using GSL
         // using GSL for historical reasons
-        w = static_cast<float> (gsl_ran_gaussian(r, 0.5));
+        w = static_cast<float> (gsl_ran_gaussian(r, 2.0));
     }
 }
 
@@ -139,8 +139,9 @@ void Agent::doMove(module::Perlin landscape, const float now) {
     x = x + (abs(output[0]) * cosf(M_PI * output[1] / 180.f)); // is the angle correctly handled?
     y = y + (abs(output[0]) * sinf(M_PI * output[1] / 180.f));
 
-    // apply cost
+    // apply cost to large distances and angles
     energy -= move_cost * abs(output[0]);
+    energy -= move_cost * abs(output[1]) / 10.f;
 }
 
 /// agent function to forage
