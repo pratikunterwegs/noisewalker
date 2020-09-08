@@ -11,19 +11,16 @@
 /// function to evolve population
 void evolvePop(std::vector<Agent> &pop,
                const int genmax, const int timesteps,
-               const double tempRate,
                module::Perlin noise)
 {
     auto t1 = std::chrono::high_resolution_clock::now();
-    double coordZ = 0.0;
     for (int gen = 0; gen < genmax; ++gen) {
         if (gen % (genmax / 10) == 0) {
             std::cout << "gen = " << gen << "\n";
         }        
         for (int t = 0; t < timesteps; ++t) {
             // if gen has not changed then move and forage
-            popMoveForage(pop, coordZ, noise);
-            coordZ += tempRate;
+            popMoveForage(pop, noise);
         }
         doReproduce(pop);
     }
@@ -41,7 +38,7 @@ void do_simulation(std::vector<std::string> cliArgs){
     const int timesteps = std::stoi(cliArgs[2]);
     const int nOctaves = std::stoi(cliArgs[3]);
     const double frequency = std::stod(cliArgs[4]);
-    const double tempRate = std::stod(cliArgs[5]);
+//    const double tempRate = std::stod(cliArgs[5]);
     const double newSrange = std::stod(cliArgs[6]);
     std::string rep = cliArgs[7];
 
@@ -61,14 +58,14 @@ void do_simulation(std::vector<std::string> cliArgs){
     noise.SetPersistence(0.5);
 
     // idenity outpath
-    std::vector<std::string> thisOutpath = identifyOutpath(frequency, tempRate, rep);
+    std::vector<std::string> thisOutpath = identifyOutpath(nOctaves, frequency, rep);
 
     // print outpath for test
      std::cout << "data at " << thisOutpath[0] << thisOutpath[1] << "\n";
 
     // do evolution
-    evolvePop(pop, genmax, timesteps, tempRate, noise);
-    printReacNorm(pop, thisOutpath);
+    evolvePop(pop, genmax, timesteps, noise);
+    printPopMass(pop, thisOutpath);
     
     std::cout << "pop evolved!" << "\n";
 
