@@ -20,6 +20,8 @@ addons:
       - libnoise-dev # for noise
       - libnoise0
       - cmake
+      - libgsl-dev
+      - libgslcblas0
 env:
   global:
   - MAKEFLAGS="-j 2"
@@ -39,7 +41,6 @@ before_install:
   - R -q -e 'install.packages("devtools")'
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
-  - sudo apt install libgsl-dev libgslcblas0
 
 # install: 
   # - chmod +x install_libnoise.sh
