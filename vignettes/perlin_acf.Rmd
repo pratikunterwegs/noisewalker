@@ -1,0 +1,66 @@
+---
+title: "Autocorrelation in Perlin Noise"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Autocorrelation in Perlin Noise}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+# prepare parameter combinations
+library(noisewalker)
+library(data.table)
+library(ggplot2)
+
+# get data.table of parameter combinations
+data <- CJ(nOctaves = seq(1, 8), 
+           frequency = seq(1, 8, 0.25), 
+           increment = 0.001,#c(0.001, seq(10) / 10), 
+           repl = seq(300))
+```
+
+```{r}
+# get vector of values
+data[, values := mapply(function(a, b, c) {
+ get_values_1d(a, b, c, 100) 
+}, a = nOctaves, b = frequency, c = increment,
+SIMPLIFY = FALSE)]
+```
+
+```{r}
+# get acf of values
+# this is in terms of the step size
+# must be multiplied by step size to get real distance
+data[, acf_range := unlist(lapply(values, function(z) which(z < 0)[1])) * increment]
+
+# fill NA with 0
+data[, acf_range := nafill(acf_range, fill = 0)]
+
+# group by octaves, freq, and increment
+data_plot <- data[, .(acf_range = mean(acf_range)),
+     by = list(nOctaves, frequency)]
+```
+
+```{r}
+# plot acf_range cubes
+ggplot(data_plot)+
+  geom_tile(aes(nOctaves, frequency,
+                fill = acf_range))+
+  # facet_grid(~frequency, 
+  #            labeller = label_both)+
+  scale_fill_viridis_c()+
+  theme_minimal()
+
+ggsave(filename = "figure_acf_range.png")
+```
+
