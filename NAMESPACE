@@ -1,0 +1,3 @@
+useDynLib(noisewalker, .registration=TRUE)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)

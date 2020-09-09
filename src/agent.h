@@ -5,7 +5,7 @@
 /// code to make agents
 #include <vector>
 #include <cassert>
-#include "parameters.hpp"
+#include "parameters.h"
 #include <libnoise/noise.h>
 #include "noiseutils.h"
 #include "ann-lib-linux/rnd.hpp"

@@ -15,7 +15,8 @@ data <- lapply(files, fread)
 # link to file
 data <- mapply(function(df, params) {
   df[,`:=`(octaves = params$octaves,
-           frequency = params$frequency)]
+           frequency = params$frequency,
+           repl = params$rep)]
 }, data, lookup, SIMPLIFY = FALSE)
 
 # rbind list
@@ -23,5 +24,13 @@ data_plot <- rbindlist(data)
 
 # plot
 ggplot(data_plot)+
-  geom_histogram(aes(mass), binwidth = 0.01)+
-  facet_grid(octaves ~ frequency, labeller = label_both)
+  stat_density(aes(mass, col = factor(repl)), 
+                 position = "identity", alpha = 1,
+               geom = "line", lwd = 0.5)+
+  scale_colour_manual(values = pals::kovesi.rainbow(5))+
+  facet_grid(frequency ~ octaves, labeller = label_both,
+             scales = "free")+
+  theme_bw()+
+  coord_cartesian(xlim = c(0, 3))
+
+ggsave(filename = "figures/fig_mass_histogram.png", dpi = 300)

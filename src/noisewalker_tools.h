@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "agent.hpp"
+#include "agent.h"
 
 /// construct agent output filename
 std::vector<std::string> identifyOutpath(const int octaves,
@@ -54,13 +54,13 @@ void printReacNorm (std::vector<Agent> &pop,
                     std::vector<std::string> outpath) {
     // ofstream
     std::ofstream rnormOfs;
-    std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
+    // std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
 
     // check if okay
     std::ifstream f(outpath[0] + outpath[1] + ".csv");
-    if (!f.good()) {
+    /*if (!f.good()) {
         std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
-    }
+    }*/
     // write column names
     rnormOfs.open(outpath[0] + outpath[1] + ".csv",
             std::ofstream::out | std::ofstream::app);
@@ -86,13 +86,13 @@ void printPopMass (std::vector<Agent> &pop,
                     std::vector<std::string> outpath) {
     // ofstream
     std::ofstream rnormOfs;
-    std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
+    // std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
 
     // check if okay
     std::ifstream f(outpath[0] + outpath[1] + ".csv");
-    if (!f.good()) {
-        std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
-    }
+    // if (!f.good()) {
+    //     std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
+    // }
     // write column names
     rnormOfs.open(outpath[0] + outpath[1] + ".csv",
             std::ofstream::out | std::ofstream::app);
@@ -122,9 +122,9 @@ void printAgentWeights(std::vector<Agent> &pop,
 
     // check if okay
     std::ifstream f(outpath[0] + outpath[1] + ".csv");
-    if (!f.good() && gen == 0) {
-        std::cout << "data path good to write\n";
-    }
+    // if (!f.good() && gen == 0) {
+    //     std::cout << "data path good to write\n";
+    // }
     if (gen == 0) {
         annOfs.open(outpath[0]+ outpath[1] + ".csv",
                 std::ofstream::out);
