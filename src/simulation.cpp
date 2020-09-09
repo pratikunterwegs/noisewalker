@@ -45,12 +45,13 @@ void evolvePop(std::vector<Agent> &pop,
 //' result in landscapes with more small scale noise.
 //' @param frequency Frequency of noise. May be thought of as large scale
 //' variability. May be any double value between 1.0 and 16.0. Higher values
+//' mean more patchy landscapes.
 //' @param newSrange The sensory range of the population.
 //' @param rep The replicate number. Designed to be read from a data.frame.
 //' result in noise that is closer to white noise.
 //' @return Nothing. Writes an image to file.
 // [[Rcpp::export]]
-void runNoisewalker(const int genmax, const int timesteps,
+void run_noisewalker(const int genmax, const int timesteps,
                     const int nOctaves, const double frequency,
                     const double newSrange, const std::string rep) {
     
@@ -61,7 +62,6 @@ void runNoisewalker(const int genmax, const int timesteps,
     r = gsl_rng_alloc (T);
 
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
-    gsl_rng_set(r, seed);
 
     // init pop
     std::vector<Agent> pop (popSize);
@@ -77,6 +77,7 @@ void runNoisewalker(const int genmax, const int timesteps,
     noise.SetOctaveCount(nOctaves);
     noise.SetFrequency(frequency);
     noise.SetPersistence(0.5);
+    noise.SetSeed(static_cast<int> (seed));
 
     // idenity outpath
     std::vector<std::string> thisOutpath = identifyOutpath(nOctaves, frequency, rep);
@@ -93,3 +94,60 @@ void runNoisewalker(const int genmax, const int timesteps,
 }
 
 #endif // SIMULATION_H
+
+
+// helper function to print values
+//' Run a transect through 1D Perlin noise.
+//'
+//' @param nOctaves Number of octaves. May be thought of as small scale 
+//' variability. Must be an integer value between 1 and 8. Higher values
+//' result in landscapes with more small scale noise.
+//' @param frequency Frequency of noise. May be thought of as large scale
+//' variability. May be any double value between 1.0 and 16.0. Higher values
+//' @param increment The increment in the X coordinate.
+//' @param nValues How many steps, each of \code{increment} magnitude, to take.
+// [[Rcpp::export]]
+Rcpp::NumericVector get_values_1d(const int nOctaves, const double frequency,
+                                  const double increment, const int nValues) {
+    // get seed
+    unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
+    // make perlin noise
+    module::Perlin noise;
+    noise.SetOctaveCount(nOctaves);
+    noise.SetFrequency(frequency);
+    noise.SetPersistence(0.5);
+    noise.SetSeed(static_cast<int> (seed));
+
+    // make a vector to hold values
+    Rcpp::NumericVector sampleVals (nValues);
+
+    double coordX = static_cast<double> (seed);
+    double coordY, coordZ;
+    coordY = coordZ = 0.0;
+    for (size_t i = 0; i < nValues; ++i) {
+        sampleVals[i] = noise.GetValue(coordX, coordY, coordZ);
+        coordX += increment;
+    }
+    return sampleVals;
+}
+
+// test seed setting
+//' Test seed and random number generation.
+//'
+//' @param increment The increment in the X coordinate.
+//' @param nValues How many steps, each of \code{increment} magnitude, to take.
+// [[Rcpp::export]]
+Rcpp::NumericVector get_rand_values(const int nValues, const double increment) {
+    // get seed
+    unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
+
+    Rcpp::NumericVector sampleVals(nValues);
+
+    // for (size_t i = 0; i < nValues; ++i) {
+    //     sampleVals[i] = coordX;//noise.GetValue(coordX, coordY, coordZ);
+    //     coordX += increment;
+    // }
+
+    return sampleVals;
+
+}
