@@ -11,16 +11,6 @@ r_packages:
 after_success:
   - Rscript -e 'library(covr); codecov()'
 
-addons:
-  apt:
-    packages:
-      - gcc-8
-      - g++-8
-      - libnoise-dev # for noise
-      - libnoise0
-      - cmake
-      - libgsl-dev
-      - libgslcblas0
 env:
   global:
   - MAKEFLAGS="-j 2"
@@ -30,6 +20,9 @@ env:
 
 before_install:
   - sudo apt-get install pkg-config
+  - sudo apt-get install gcc-8 clang-8
+  - sudo apt-get install libnoise-dev libnoise0
+  - sudo apt-get install libgsl-dev libgslcblas0
   - mkdir -p ~/.R && touch ~/.R/Makevars
   - VER=-8
   - echo "CC=gcc$(VER)"        >> ~/.R/Makevars
