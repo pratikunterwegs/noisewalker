@@ -4,11 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "agent.hpp"
+#include "agent.h"
 
 /// construct agent output filename
-std::vector<std::string> identifyOutpath(const float frequency,
-                                         const double tempRate,
+std::vector<std::string> identifyOutpath(const int octaves,
+                                         const float frequency,
                                          const std::string rep){
     // assumes path/type already prepared
     std::string path = "data/";
@@ -35,14 +35,14 @@ std::vector<std::string> identifyOutpath(const float frequency,
     std::ifstream f2(summary_out.c_str());
     if (!f2.good()) {
         summary_ofs.open(summary_out, std::ofstream::out);
-        summary_ofs << "filename,frequency,tempRate,rep\n";
+        summary_ofs << "filename,octaves,frequency,rep\n";
         summary_ofs.close();
     }
     // append if not
     summary_ofs.open(summary_out, std::ofstream::out | std::ofstream::app);
     summary_ofs << output_id << ","
+                << octaves << ","
                 << frequency << ","
-                << tempRate << ","
                 << rep << "\n";
     summary_ofs.close();
 
@@ -54,13 +54,13 @@ void printReacNorm (std::vector<Agent> &pop,
                     std::vector<std::string> outpath) {
     // ofstream
     std::ofstream rnormOfs;
-    std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
+    // std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
 
     // check if okay
     std::ifstream f(outpath[0] + outpath[1] + ".csv");
-    if (!f.good()) {
+    /*if (!f.good()) {
         std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
-    }
+    }*/
     // write column names
     rnormOfs.open(outpath[0] + outpath[1] + ".csv",
             std::ofstream::out | std::ofstream::app);
@@ -70,13 +70,39 @@ void printReacNorm (std::vector<Agent> &pop,
     // run through individuals and cues
     for (size_t indiv = 0; indiv < pop.size(); ++indiv) {
         for (float cue_i = -0.5f; cue_i <= 0.5f; cue_i+= 0.05f) {
-            std::array<float, 2> testOutput = pop[indiv].annOutput(cue_i, cue_i, cue_i, cue_i);
+            std::array<float, 1> testOutput = pop[indiv].annOutput(cue_i, cue_i);
 
             rnormOfs << indiv << ","
                      << cue_i << ","
                      << testOutput[0] << ","
                      << testOutput[1] << "\n";
         }
+    }
+    rnormOfs.close();
+}
+
+/// function to print evolved agent mass
+void printPopMass (std::vector<Agent> &pop,
+                    std::vector<std::string> outpath) {
+    // ofstream
+    std::ofstream rnormOfs;
+    // std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
+
+    // check if okay
+    std::ifstream f(outpath[0] + outpath[1] + ".csv");
+    // if (!f.good()) {
+    //     std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
+    // }
+    // write column names
+    rnormOfs.open(outpath[0] + outpath[1] + ".csv",
+            std::ofstream::out | std::ofstream::app);
+
+    rnormOfs << "id,mass\n";
+
+    // run through individuals and cues
+    for (size_t indiv = 0; indiv < pop.size(); ++indiv) {
+            rnormOfs << indiv << ","
+                     << pop[indiv].mass << "\n";
     }
     rnormOfs.close();
 }
@@ -96,9 +122,9 @@ void printAgentWeights(std::vector<Agent> &pop,
 
     // check if okay
     std::ifstream f(outpath[0] + outpath[1] + ".csv");
-    if (!f.good() && gen == 0) {
-        std::cout << "data path good to write\n";
-    }
+    // if (!f.good() && gen == 0) {
+    //     std::cout << "data path good to write\n";
+    // }
     if (gen == 0) {
         annOfs.open(outpath[0]+ outpath[1] + ".csv",
                 std::ofstream::out);
