@@ -1,0 +1,58 @@
+# dist: bionic
+warnings_are_errors: false
+language: r
+r:
+  - release
+cache:
+  - packages
+  - ccache
+r_packages:
+  - covr
+after_success:
+  - Rscript -e 'library(covr); codecov()'
+
+addons:
+  apt:
+    sources: ['ubuntu-toolchain-r-test']
+    packages:
+      - gcc-8
+      - g++-8
+      - libnoise-dev # for noise
+      - libnoise0
+      - cmake
+env:
+  global:
+  - MAKEFLAGS="-j 2"
+  - COMPILER=g++-8
+  - CC=gcc-8
+  - CXX=g++-8
+
+before_install:
+  - sudo apt-get install pkg-config
+  - mkdir -p ~/.R && touch ~/.R/Makevars
+  - VER=-8
+  - echo "CC=gcc$(VER)"        >> ~/.R/Makevars
+  - echo "CXX=g++$(VER)"       >> ~/.R/Makevars
+  - echo "CXX1X=g++$(VER)"     >> ~/.R/Makevars
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+  # move to home and clone and install libnoise
+  - R -q -e 'install.packages("devtools")'
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+  - sudo apt install libgsl-dev libgslcblas0
+
+# install: 
+  # - chmod +x install_libnoise.sh
+  # - sudo ./install_libnoise.sh
+  
+script:
+  - cd ann-lib-linux/
+  - make
+  - cd ..
+  - Rscript -e 'devtools::check()'
+
+# safelist
+branches:
+  only:
+  - master
+  - develop
