@@ -87,7 +87,7 @@ namespace noise
     /// formations or crystal-like textures
     ///
     /// This noise module requires no source modules.
-    class NOISE_EXPORT Voronoi : public Module
+    class Voronoi: public Module
     {
 
       public:

@@ -66,7 +66,7 @@ namespace noise
     /// that perform the displacement operation.
     ///
     /// This noise module requires four source modules.
-    class NOISE_EXPORT Displace: public Module
+    class Displace: public Module
     {
 
       public:

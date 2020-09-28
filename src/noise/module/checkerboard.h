@@ -51,7 +51,7 @@ namespace noise
     /// for debugging purposes.
     ///
     /// This noise module does not require any source modules.
-    class NOISE_EXPORT Checkerboard: public Module
+    class Checkerboard: public Module
     {
 
       public:

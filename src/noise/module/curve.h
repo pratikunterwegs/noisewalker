@@ -78,7 +78,7 @@ namespace noise
     /// added to the curve.  
     ///
     /// This noise module requires one source module.
-    class NOISE_EXPORT Curve : public Module
+    class Curve: public Module
     {
 
       public:

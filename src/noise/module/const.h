@@ -54,7 +54,7 @@ namespace noise
     /// source module for other noise modules.
     ///
     /// This noise module does not require any source modules.
-    class NOISE_EXPORT Const : public Module
+    class Const: public Module
     {
 
       public:

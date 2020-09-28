@@ -66,7 +66,7 @@ namespace noise
     /// respectively.
     ///
     /// This noise module requires one source module.
-    class NOISE_EXPORT TranslatePoint : public Module
+    class TranslatePoint: public Module
     {
 
       public:

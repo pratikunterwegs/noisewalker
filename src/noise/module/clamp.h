@@ -66,7 +66,7 @@ namespace noise
     /// SetBounds() method.
     ///
     /// This noise module requires one source module.
-    class NOISE_EXPORT Clamp : public Module
+    class Clamp: public Module
     {
 
       public:

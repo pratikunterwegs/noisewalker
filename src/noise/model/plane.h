@@ -50,7 +50,7 @@ namespace noise
     /// - terrain height maps for local areas
     ///
     /// This plane extends infinitely in both directions.
-    class NOISE_EXPORT Plane
+    class Plane
     {
 
       public:

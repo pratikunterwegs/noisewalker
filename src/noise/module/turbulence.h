@@ -110,7 +110,7 @@ namespace noise
     /// and one for the @a z coordinate.
     ///
     /// This noise module requires one source module.
-    class NOISE_EXPORT Turbulence : public Module
+    class Turbulence: public Module
     {
 
       public:

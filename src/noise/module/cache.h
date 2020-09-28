@@ -64,7 +64,7 @@ namespace noise
     /// noise module in which it is included.
     ///
     /// This noise module requires one source module.
-    class NOISE_EXPORT Cache: public Module
+    class Cache: public Module
     {
 
       public:

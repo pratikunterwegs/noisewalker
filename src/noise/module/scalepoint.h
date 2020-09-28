@@ -65,7 +65,7 @@ namespace noise
     /// SetYScale() or SetZScale() methods, respectively.
     ///
     /// This noise module requires one source module.
-    class NOISE_EXPORT ScalePoint : public Module
+    class ScalePoint: public Module
     {
 
       public:

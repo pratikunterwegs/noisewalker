@@ -67,7 +67,7 @@ namespace noise
     /// operation.
     ///
     /// This noise module requires three source modules.
-    class NOISE_EXPORT Blend: public Module
+    class Blend: public Module
     {
 
       public:

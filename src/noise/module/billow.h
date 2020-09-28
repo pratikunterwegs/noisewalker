@@ -75,7 +75,7 @@ namespace noise
     /// this noise module modifies each octave with an absolute-value
     /// function.  See the documentation of noise::module::Perlin for more
     /// information.
-    class NOISE_EXPORT Billow : public Module
+    class Billow: public Module
     {
 
       public:
