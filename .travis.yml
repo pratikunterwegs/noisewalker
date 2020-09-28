@@ -45,7 +45,7 @@ before_install:
   # - sudo ./install_libnoise.sh
   
 script:
-  - cd ann-lib-linux/
+  - cd src/ann-lib-linux/
   - make
   - cd ..
   - Rscript -e 'devtools::check()'
