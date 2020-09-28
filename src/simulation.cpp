@@ -2,7 +2,7 @@
 #define SIMULATION_H
 
 #include <iostream>
-#include <libnoise/noise.h>
+#include "noise/noise.h"
 #include "noiseutils.h"
 #include "parameters.h"
 #include "agent.h"
