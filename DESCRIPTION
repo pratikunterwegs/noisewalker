@@ -10,7 +10,7 @@ Authors@R:
            email = "p.r.gupte@rug.nl",
            comment = c(ORCID = "https://orcid.org/0000-0001-5294-7819")))
 Description: Run the noisewalker simulation using Rcpp.
-License: FALSE
+License: Apache License (>= 2.0)
 Imports: 
     Rcpp
 SystemRequirements: C++14
