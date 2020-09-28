@@ -1,3 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^figures$
+^.*\.out$
+^.*\.yml$
+^.*\.sh$

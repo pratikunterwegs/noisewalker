@@ -89,11 +89,6 @@ void run_noisewalker(const int genmax, const int timesteps,
     evolvePop(pop, genmax, timesteps, noise);
     printPopMass(pop, thisOutpath);
 
-    Rcpp::Rcout << "pop evolved\n";
-    Rcpp::Rcout << "output path = " + thisOutpath[0] + thisOutpath[1] + " \n";
-    
-    // std::cout << "pop evolved!" << "\n";
-
 }
 
 // helper function to print values
