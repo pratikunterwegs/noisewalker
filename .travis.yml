@@ -28,7 +28,7 @@ env:
 before_install:
   - sudo apt-get install pkg-config
   - sudo apt-get install libnoise-dev libnoise0
-  - sudo apt-get install libgsl-dev libgslcblas0
+  - sudo apt-get install libgsl-dev
   - mkdir -p ~/.R && touch ~/.R/Makevars
   - VER=-8
   - echo "CC=gcc$(VER)"        >> ~/.R/Makevars
