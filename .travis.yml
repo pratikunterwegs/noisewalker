@@ -48,7 +48,7 @@ script:
   - cd src/ann-lib-linux/
   - make
   - cd ..
-  - Rscript -e 'devtools::check()'
+  - Rscript -e 'devtools::check(vignettes = FALSE)'
 
 # safelist
 branches:
