@@ -26,7 +26,7 @@ library(ggplot2)
 data <- CJ(nOctaves = seq(8), 
            frequency = seq(1, 8, 0.1), 
            increment = 0.01,#c(0.001, seq(10) / 10), 
-           repl = seq(100))
+           repl = seq(10))
 ```
 
 ```{r}
@@ -45,7 +45,7 @@ get_acf_vals <- function(z, ...) {
 
 # small fun for acf range below 0.2
 get_acf_range <- function(z) {
-  acfr <- which(z < 0.2)[1]
+  acfr <- which(z < 0.1)[1]
   if (is.na(acfr)){
     acfr <- Inf
   }
@@ -74,7 +74,8 @@ ggplot(data)+
             show.legend = F)+
   scale_colour_gradient(low = "blue", high = "red")+
   facet_grid(~nOctaves, labeller = label_both)+
-  theme_test()
+  theme_test()+
+  labs(y = "Range ACF < 0.2")
 
 ggsave(filename = "figures/figure_acf_range.png")
 ```

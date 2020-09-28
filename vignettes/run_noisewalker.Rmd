@@ -1,0 +1,34 @@
+---
+title: "Running Noisewalker"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{run_noisewalker}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+# prepare parameter combinations
+library(noisewalker)
+library(data.table)
+library(ggplot2)
+
+# get data.table of parameter combinations
+data <- CJ(nOctaves = seq(8), 
+           frequency = seq(1, 8, 0.1), 
+           increment = 0.01,#c(0.001, seq(10) / 10), 
+           repl = seq(10))
+```
+
+
+```{r setup}
+library(noisewalker)
+noisewalker::run_noisewalker(1000, 100, 2, 2.0, 0.5, "1")
+```

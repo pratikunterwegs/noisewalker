@@ -88,13 +88,13 @@ void run_noisewalker(const int genmax, const int timesteps,
     // do evolution
     evolvePop(pop, genmax, timesteps, noise);
     printPopMass(pop, thisOutpath);
+
+    Rcpp::Rcout << "pop evolved\n";
+    Rcpp::Rcout << "output path = " + thisOutpath[0] + thisOutpath[1] + " \n";
     
     // std::cout << "pop evolved!" << "\n";
 
 }
-
-#endif // SIMULATION_H
-
 
 // helper function to print values
 //' Run a transect through 1D Perlin noise.
@@ -151,3 +151,5 @@ Rcpp::NumericVector get_rand_values(const int nValues, const double increment) {
     return sampleVals;
 
 }
+
+#endif // SIMULATION_H

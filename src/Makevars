@@ -1,5 +1,5 @@
-CXX14 = g++
 CXXSTD = -std=c++14
+CXX14 = g++
 CXX14STD = -std=c++14
 
 PKG_CPPFLAGS = $(LOCAL_INCLUDE)
