@@ -11,7 +11,8 @@ Authors@R:
            comment = c(ORCID = "https://orcid.org/0000-0001-5294-7819")))
 Description: This is an R frontend for the noisewalker simulation.
 License: file LICENSE
-Imports: Rcpp (>= 1.0.4)
+Imports: 
+    Rcpp
 SystemRequirements: C++14
 LinkingTo: Rcpp
 Encoding: UTF-8
@@ -21,5 +22,6 @@ BugReports: https://github.com/pratikunterwegs/noisewalker/issues
 RoxygenNote: 7.1.0
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
