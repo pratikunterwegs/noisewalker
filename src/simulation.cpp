@@ -2,7 +2,7 @@
 #define SIMULATION_H
 
 #include <iostream>
-#include <libnoise/noise.h>
+#include "noise/noise.h"
 #include "noiseutils.h"
 #include "parameters.h"
 #include "agent.h"
@@ -88,13 +88,8 @@ void run_noisewalker(const int genmax, const int timesteps,
     // do evolution
     evolvePop(pop, genmax, timesteps, noise);
     printPopMass(pop, thisOutpath);
-    
-    // std::cout << "pop evolved!" << "\n";
 
 }
-
-#endif // SIMULATION_H
-
 
 // helper function to print values
 //' Run a transect through 1D Perlin noise.
@@ -151,3 +146,5 @@ Rcpp::NumericVector get_rand_values(const int nValues, const double increment) {
     return sampleVals;
 
 }
+
+#endif // SIMULATION_H

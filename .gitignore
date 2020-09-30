@@ -34,3 +34,4 @@
 # ignore data
 data
 .Rproj.user
+inst/doc
