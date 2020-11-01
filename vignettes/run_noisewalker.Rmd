@@ -12,6 +12,7 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  eval = FALSE,
   comment = "#>"
 )
 ```
@@ -50,21 +51,38 @@ invisible(
 
 ```{r}
 # read data
-data <- fread("data/1604255887875.csv")
+files <- list.files("data/", pattern = "16", full.names = T)
+params <- fread("data/lookup.csv")
+
+# read data
+data <- lapply(files, fread)
+
+# link to params
+data <- Map(function(df, f, ft, repl) {
+  df[, `:=` (f = f, ft = ft, r = repl)]
+}, data, params$frequency, params$fTransfer, params$rep)
 ```
 
 ```{r}
+data_copy <- data
+data_copy <- rbindlist(data)
+
+# get a subset
+data_copy <- data_copy[gen %% 20 == 0,]
+
 # plot figure
-ggplot(data)+
-  geom_path(aes(gen, mass_mean,
+ggplot(data_copy)+
+  geom_pointrange(aes(gen, mass_mean,
                       ymin = mass_mean - mass_sd,
                       ymax = mass_mean + mass_sd,
-                      col = gen < 1000),
-                  size = 0.5,
+                      col = gen < 1000,
+                group = interaction(f, ft, r)),
+                  size = 0.05,
                   show.legend = F)+
   scale_color_brewer(palette = "Dark2")+
-  scale_y_continuous(trans = ggallin::pseudolog10_trans,
-                     limits = c(0, 3))
+  facet_grid(ft ~ f,
+             as.table = F,
+             labeller = label_both)
 
 ggsave("figures/fig_transfer_2.png", dpi = 300)
 ```
