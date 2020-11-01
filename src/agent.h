@@ -6,7 +6,7 @@
 #include <vector>
 #include <cassert>
 #include "parameters.h"
-#include <libnoise/noise.h>
+#include "noise/noise.h"
 #include "noiseutils.h"
 #include "ann-lib-linux/rnd.hpp"
 #include "ann-lib-linux/rndutils.hpp"
