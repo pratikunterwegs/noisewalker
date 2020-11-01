@@ -3,8 +3,10 @@ title: "Running Noisewalker"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{run_noisewalker}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -21,14 +23,49 @@ library(data.table)
 library(ggplot2)
 
 # get data.table of parameter combinations
-data <- CJ(nOctaves = seq(8), 
-           frequency = seq(1, 8, 0.1), 
-           increment = 0.01,#c(0.001, seq(10) / 10), 
-           repl = seq(10))
+data <- CJ(gmax = 1000,
+           tmax = 10,
+           nOctaves = 2, 
+           frequency = seq(0.001, 8, 1),
+           ftransfer = seq(0.001, 8, 1),
+           srange = 0.5,
+           repl = as.character(seq(3)))
 ```
 
 
 ```{r setup}
 library(noisewalker)
-noisewalker::run_noisewalker(1000, 100, 2, 2.0, 0.5, "1")
+
+# run over generations
+invisible(
+  Map(function(gmax, tmax, oct, f, ft, srange, rep) {
+    noisewalker::run_noisewalker(gmax, tmax, oct, f, ft, srange, rep)
+  }, 
+  data$gmax, data$tmax, data$nOctaves, data$frequency,
+  data$ftransfer, data$srange, data$repl)
+)
 ```
+
+## Population transfer experiment
+
+```{r}
+# read data
+data <- fread("data/1604255887875.csv")
+```
+
+```{r}
+# plot figure
+ggplot(data)+
+  geom_path(aes(gen, mass_mean,
+                      ymin = mass_mean - mass_sd,
+                      ymax = mass_mean + mass_sd,
+                      col = gen < 1000),
+                  size = 0.5,
+                  show.legend = F)+
+  scale_color_brewer(palette = "Dark2")+
+  scale_y_continuous(trans = ggallin::pseudolog10_trans,
+                     limits = c(0, 3))
+
+ggsave("figures/fig_transfer_2.png", dpi = 300)
+```
+
