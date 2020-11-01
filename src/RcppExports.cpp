@@ -6,17 +6,18 @@
 using namespace Rcpp;
 
 // run_noisewalker
-void run_noisewalker(const int genmax, const int timesteps, const int nOctaves, const double frequency, const double newSrange, const std::string rep);
-RcppExport SEXP _noisewalker_run_noisewalker(SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP newSrangeSEXP, SEXP repSEXP) {
+void run_noisewalker(const int genmax, const int timesteps, const int nOctaves, const double frequency, const double frequencyTransfer, const double newSrange, const std::string rep);
+RcppExport SEXP _noisewalker_run_noisewalker(SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP frequencyTransferSEXP, SEXP newSrangeSEXP, SEXP repSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int >::type genmax(genmaxSEXP);
     Rcpp::traits::input_parameter< const int >::type timesteps(timestepsSEXP);
     Rcpp::traits::input_parameter< const int >::type nOctaves(nOctavesSEXP);
     Rcpp::traits::input_parameter< const double >::type frequency(frequencySEXP);
+    Rcpp::traits::input_parameter< const double >::type frequencyTransfer(frequencyTransferSEXP);
     Rcpp::traits::input_parameter< const double >::type newSrange(newSrangeSEXP);
     Rcpp::traits::input_parameter< const std::string >::type rep(repSEXP);
-    run_noisewalker(genmax, timesteps, nOctaves, frequency, newSrange, rep);
+    run_noisewalker(genmax, timesteps, nOctaves, frequency, frequencyTransfer, newSrange, rep);
     return R_NilValue;
 END_RCPP
 }
@@ -48,7 +49,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 6},
+    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 7},
     {"_noisewalker_get_values_1d", (DL_FUNC) &_noisewalker_get_values_1d, 4},
     {"_noisewalker_get_rand_values", (DL_FUNC) &_noisewalker_get_rand_values, 2},
     {NULL, NULL, 0}
