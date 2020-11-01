@@ -13,11 +13,12 @@ using namespace Rcpp;
 
 /// function to evolve population
 void evolvePop(std::vector<Agent> &pop,
+               const int genStart,
                const int genmax, const int timesteps,
-               module::Perlin noise)
+               module::Perlin noise,
+               std::vector<std::string> data_path)
 {
-    auto t1 = std::chrono::high_resolution_clock::now();
-    for (int gen = 0; gen < genmax; ++gen) {
+    for (int gen = genStart; gen < genmax + genStart; ++gen) {
         /*if (gen % (genmax / 10) == 0) {
             std::cout << "gen = " << gen << "\n";
         } */       
@@ -25,13 +26,12 @@ void evolvePop(std::vector<Agent> &pop,
             // if gen has not changed then move and forage
             popMoveForage(pop, noise);
         }
+        // print mean and sd of mass
+        printSummaryMass(pop, gen, data_path);
         doReproduce(pop);
     }
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-    // std::cout << "pop evolve time: " << duration << "\n";
-
 }
+
 
 //' Runs the noisewalker simulation.
 //'
@@ -46,6 +46,8 @@ void evolvePop(std::vector<Agent> &pop,
 //' @param frequency Frequency of noise. May be thought of as large scale
 //' variability. May be any double value between 1.0 and 16.0. Higher values
 //' mean more patchy landscapes.
+//' @frequencyTransfer Frequency of noise of the new landscape. A double
+//' value between 1.0 and 16.0.
 //' @param newSrange The sensory range of the population.
 //' @param rep The replicate number. Designed to be read from a data.frame.
 //' result in noise that is closer to white noise.
@@ -53,6 +55,7 @@ void evolvePop(std::vector<Agent> &pop,
 // [[Rcpp::export]]
 void run_noisewalker(const int genmax, const int timesteps,
                     const int nOctaves, const double frequency,
+                    const double frequencyTransfer,
                     const double newSrange, const std::string rep) {
     
     // set the random number generation etc
@@ -72,22 +75,33 @@ void run_noisewalker(const int genmax, const int timesteps,
     // random weights
     popRandomWeights(pop);
 
-    // landscape this is relatively uniform
+    // make the ancestral landscape
     module::Perlin noise;
     noise.SetOctaveCount(nOctaves);
     noise.SetFrequency(frequency);
     noise.SetPersistence(0.5);
     noise.SetSeed(static_cast<int> (seed));
 
+    // make the transplanted landscape
+        // landscape this is relatively uniform
+    module::Perlin newNoise;
+    newNoise.SetOctaveCount(nOctaves);
+    newNoise.SetFrequency(frequencyTransfer);
+    newNoise.SetPersistence(0.5);
+    newNoise.SetSeed(static_cast<int> (seed));
+
     // idenity outpath
-    std::vector<std::string> thisOutpath = identifyOutpath(nOctaves, frequency, rep);
+    std::vector<std::string> thisOutpath = identifyOutpath(nOctaves, frequency, 
+        frequencyTransfer, rep);
 
     // print outpath for test
     // std::cout << "data at " << thisOutpath[0] << thisOutpath[1] << "\n";
 
     // do evolution
-    evolvePop(pop, genmax, timesteps, noise);
-    printPopMass(pop, thisOutpath);
+    evolvePop(pop, 0, genmax, timesteps, noise, thisOutpath);
+    
+    // now transfer the population
+    evolvePop(pop, genmax, genmax, timesteps, newNoise, thisOutpath);
 
 }
 
