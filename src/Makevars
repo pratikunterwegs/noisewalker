@@ -1,10 +1,5 @@
-CXXSTD = -std=c++14
+CXXSTD = -std=c++17
 CXX14 = g++
-CXX14STD = -std=c++14
 
-PKG_CPPFLAGS = -I ../inst/noise/include/ -I src/noise -I../inst/noise/lib/
-
-PKG_LIBS = -I ../inst/noise/lib \
-           -I ../inst/noise/include \
-           -I /ann-lib-linux \
+PKG_LIBS = -I /ann-lib-linux \
            -I /usr/libgsl -lgsl -lgslcblas -lm

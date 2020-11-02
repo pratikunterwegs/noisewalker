@@ -33,15 +33,7 @@ run_noisewalker <- function(genmax, timesteps, nOctaves, frequency, frequencyTra
 #' variability. May be any double value between 1.0 and 16.0. Higher values
 #' @param increment The increment in the X coordinate.
 #' @param nValues How many steps, each of \code{increment} magnitude, to take.
-get_values_1d <- function(nOctaves, frequency, increment, nValues) {
-    .Call(`_noisewalker_get_values_1d`, nOctaves, frequency, increment, nValues)
-}
-
-#' Test seed and random number generation.
-#'
-#' @param increment The increment in the X coordinate.
-#' @param nValues How many steps, each of \code{increment} magnitude, to take.
-get_rand_values <- function(nValues, increment) {
-    .Call(`_noisewalker_get_rand_values`, nValues, increment)
+get_values_1d <- function(frequency, increment, nValues) {
+    .Call(`_noisewalker_get_values_1d`, frequency, increment, nValues)
 }
 

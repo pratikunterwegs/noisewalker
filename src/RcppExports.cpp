@@ -22,36 +22,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_values_1d
-Rcpp::NumericVector get_values_1d(const int nOctaves, const double frequency, const double increment, const int nValues);
-RcppExport SEXP _noisewalker_get_values_1d(SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP incrementSEXP, SEXP nValuesSEXP) {
+Rcpp::NumericVector get_values_1d(const double frequency, const float increment, const int nValues);
+RcppExport SEXP _noisewalker_get_values_1d(SEXP frequencySEXP, SEXP incrementSEXP, SEXP nValuesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type nOctaves(nOctavesSEXP);
     Rcpp::traits::input_parameter< const double >::type frequency(frequencySEXP);
-    Rcpp::traits::input_parameter< const double >::type increment(incrementSEXP);
+    Rcpp::traits::input_parameter< const float >::type increment(incrementSEXP);
     Rcpp::traits::input_parameter< const int >::type nValues(nValuesSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_values_1d(nOctaves, frequency, increment, nValues));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_rand_values
-Rcpp::NumericVector get_rand_values(const int nValues, const double increment);
-RcppExport SEXP _noisewalker_get_rand_values(SEXP nValuesSEXP, SEXP incrementSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type nValues(nValuesSEXP);
-    Rcpp::traits::input_parameter< const double >::type increment(incrementSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_rand_values(nValues, increment));
+    rcpp_result_gen = Rcpp::wrap(get_values_1d(frequency, increment, nValues));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 7},
-    {"_noisewalker_get_values_1d", (DL_FUNC) &_noisewalker_get_values_1d, 4},
-    {"_noisewalker_get_rand_values", (DL_FUNC) &_noisewalker_get_rand_values, 2},
+    {"_noisewalker_get_values_1d", (DL_FUNC) &_noisewalker_get_values_1d, 3},
     {NULL, NULL, 0}
 };
 

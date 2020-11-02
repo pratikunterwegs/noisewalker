@@ -4,19 +4,19 @@
 \alias{get_values_1d}
 \title{Run a transect through 1D Perlin noise.}
 \usage{
-get_values_1d(nOctaves, frequency, increment, nValues)
+get_values_1d(frequency, increment, nValues)
 }
 \arguments{
-\item{nOctaves}{Number of octaves. May be thought of as small scale 
-variability. Must be an integer value between 1 and 8. Higher values
-result in landscapes with more small scale noise.}
-
 \item{frequency}{Frequency of noise. May be thought of as large scale
 variability. May be any double value between 1.0 and 16.0. Higher values}
 
 \item{increment}{The increment in the X coordinate.}
 
 \item{nValues}{How many steps, each of \code{increment} magnitude, to take.}
+
+\item{nOctaves}{Number of octaves. May be thought of as small scale 
+variability. Must be an integer value between 1 and 8. Higher values
+result in landscapes with more small scale noise.}
 }
 \description{
 Run a transect through 1D Perlin noise.
