@@ -30,7 +30,6 @@ before_install:
   # - sudo apt-get install libnoise-dev libnoise0
   - sudo apt-get install libgsl-dev
   - sudo apt-get install libtool libtool-bin
-  - ./configure LIBTOOL='/usr/bin/libtool --tag=CC'
   - mkdir -p ~/.R && touch ~/.R/Makevars
   - VER=-8
   - echo "CC=gcc$(VER)"        >> ~/.R/Makevars
@@ -54,7 +53,7 @@ script:
   - cd ../inst/
   - unzip libnoisesrc-1.0.0.zip
   - cd noise/
-  - CXXFLAGS='-O3 -fomit-frame-pointer' make
+  - CXXFLAGS='-O3 -fomit-frame-pointer' make CC=gcc-8
   - cd lib
   - sudo ldconfig
   - ln -s libnoise.so.0.3 libnoise.so
