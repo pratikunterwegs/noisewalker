@@ -46,7 +46,7 @@ void evolvePop(std::vector<Agent> &pop,
 //' @param frequency Frequency of noise. May be thought of as large scale
 //' variability. May be any double value between 1.0 and 16.0. Higher values
 //' mean more patchy landscapes.
-//' @frequencyTransfer Frequency of noise of the new landscape. A double
+//' @param frequencyTransfer Frequency of noise of the new landscape. A double
 //' value between 1.0 and 16.0.
 //' @param newSrange The sensory range of the population.
 //' @param rep The replicate number. Designed to be read from a data.frame.
