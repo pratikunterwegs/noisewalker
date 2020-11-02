@@ -49,7 +49,7 @@ script:
   - make
   - cd ..
   # making libnoise in inst
-  - cd inst/libnoisesrc-1.0.0/noise/
+  - cd ../inst/libnoisesrc-1.0.0/noise/
   - CXXFLAGS='-O3 -fomit-frame-pointer' make
   - cd lib
   - sudo ldconfig
