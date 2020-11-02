@@ -4,7 +4,15 @@
 \alias{run_noisewalker}
 \title{Runs the noisewalker simulation.}
 \usage{
-run_noisewalker(genmax, timesteps, nOctaves, frequency, newSrange, rep)
+run_noisewalker(
+  genmax,
+  timesteps,
+  nOctaves,
+  frequency,
+  frequencyTransfer,
+  newSrange,
+  rep
+)
 }
 \arguments{
 \item{genmax}{The maximum number of generations per simulation.}
@@ -18,6 +26,9 @@ result in landscapes with more small scale noise.}
 \item{frequency}{Frequency of noise. May be thought of as large scale
 variability. May be any double value between 1.0 and 16.0. Higher values
 mean more patchy landscapes.}
+
+\item{frequencyTransfer}{Frequency of noise of the new landscape. A double
+value between 1.0 and 16.0.}
 
 \item{newSrange}{The sensory range of the population.}
 
