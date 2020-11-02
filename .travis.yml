@@ -27,9 +27,7 @@ env:
 before_install:
   - sudo apt-get install pkg-config
   - sudo apt-get install unzip
-  # - sudo apt-get install libnoise-dev libnoise0
   - sudo apt-get install libgsl-dev
-  - sudo apt-get install libtool libtool-bin
   - mkdir -p ~/.R && touch ~/.R/Makevars
   - VER=-8
   - echo "CC=gcc$(VER)"        >> ~/.R/Makevars
@@ -49,16 +47,8 @@ script:
   - cd src/ann-lib-linux/
   - make
   - cd ..
-  # making libnoise in inst
-  - cd ../inst/
-  - unzip libnoisesrc-1.0.0.zip
-  - cd noise/
-  - CXXFLAGS='-O3 -fomit-frame-pointer' make CC=gcc-8
-  - cd lib
-  - sudo ldconfig
-  - ln -s libnoise.so.0.3 libnoise.so
-  - cd ~/noisewalker
-  - Rscript -e 'devtools::check(vignettes = FALSE)'
+  - Rscript -e 'devtools::build(vignettes = FALSE)'
+  - Rscript -e 'devtools::test()'
 
 # safelist
 branches:
