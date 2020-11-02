@@ -57,7 +57,7 @@ script:
   - cd lib
   - sudo ldconfig
   - ln -s libnoise.so.0.3 libnoise.so
-  - cd ~/
+  - cd ~/noisewalker
   - Rscript -e 'devtools::check(vignettes = FALSE)'
 
 # safelist
