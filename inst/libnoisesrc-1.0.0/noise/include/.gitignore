@@ -1,0 +1,11 @@
+*.o
+*.so
+*.dll
+*.dsp
+*.dsw
+*.ncb
+*.opt
+*.plg
+
+# no headers
+*.h

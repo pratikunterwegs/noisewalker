@@ -1,0 +1,12 @@
+*.o
+*.so
+*.dll
+*.dsp
+*.dsw
+*.ncb
+*.opt
+*.plg
+noise.aps
+
+# folders
+win32
