@@ -26,6 +26,7 @@ env:
 
 before_install:
   - sudo apt-get install pkg-config
+  - sudo apt-get install unzip
   # - sudo apt-get install libnoise-dev libnoise0
   - sudo apt-get install libgsl-dev
   - sudo apt-get install libtool libtool-bin
@@ -49,12 +50,14 @@ script:
   - make
   - cd ..
   # making libnoise in inst
-  - cd ../inst/libnoisesrc-1.0.0/noise/
+  - cd ../inst/
+  - unzip libnoisesrc-1.0.0.zip
+  - cd noise/
   - CXXFLAGS='-O3 -fomit-frame-pointer' make
   - cd lib
   - sudo ldconfig
   - ln -s libnoise.so.0.3 libnoise.so
-  - cd ../../../..
+  - cd ~/
   - Rscript -e 'devtools::check(vignettes = FALSE)'
 
 # safelist
