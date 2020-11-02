@@ -30,7 +30,7 @@ before_install:
   # - sudo apt-get install libnoise-dev libnoise0
   - sudo apt-get install libgsl-dev
   - sudo apt-get install libtool libtool-bin
-  - ./configure LIBTOOL='/usr/bin/libtool --tag=CC
+  - ./configure LIBTOOL='/usr/bin/libtool --tag=CC'
   - mkdir -p ~/.R && touch ~/.R/Makevars
   - VER=-8
   - echo "CC=gcc$(VER)"        >> ~/.R/Makevars
