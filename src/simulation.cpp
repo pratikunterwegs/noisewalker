@@ -27,6 +27,7 @@ void evolvePop(std::vector<Agent> &pop,
         }
         // print mean and sd of mass
         printSummaryMass(pop, gen, data_path);
+        printPopMass(pop, gen, data_path);
         doReproduce(pop);
     }
 }
