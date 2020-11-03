@@ -95,6 +95,13 @@ void popRandomWeights(std::vector<Agent> &pop) {
     }
 }
 
+/// initialise the population with random mass
+void popRandomMass(std::vector<Agent> &pop) {
+    for(size_t i = 0; i < pop.size(); i++){
+      pop[i].mass = gsl_rng_uniform(r) * static_cast<double>(mass_init);
+    }
+}
+
 /// get ANN output
 std::array<float, 1> Agent::annOutput(const float v1, const float v2) {
     // def inputs
