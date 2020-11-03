@@ -15,12 +15,14 @@ const int timePerGen = 100;
 const int maxTimesteps = timePerGen * generations; // a few generations
 
 // movement cost
-const float move_cost = 0.01f;
+// const float move_cost = 0.001f;
 const float mass_min = 0.001f;
-const double mass_move_ratio = 0.1;
+const double mass_move_ratio = 10.f;
+const float mass_cost = 0.1f;
 
 // landscape params
 const float landsize = 100.f;
+const float clamp = 0.5f;
 
 // mutation params
 const float mShift = 0.01f;
