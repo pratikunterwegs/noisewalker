@@ -137,7 +137,7 @@ void Agent::doMove(FastNoiseLite noise) {
 /// agent function to forage
 void Agent::doForage(FastNoiseLite landscape) {
 
-    float energy_here = (landscape.GetNoise(x));
+    float energy_here = (landscape.GetNoise(x, 0.f));
     energy += energy_here < 0.f ? 0.f : energy_here;
 }
 
