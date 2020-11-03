@@ -25,12 +25,18 @@ library(ggplot2)
 
 # get data.table of parameter combinations
 data <- CJ(gmax = 1000,
-           tmax = 10,
-           nOctaves = 2, 
-           frequency = seq(0.001, 8, 1),
-           ftransfer = seq(0.001, 8, 1),
+           tmax = 200,
+           nOctaves = 1, 
+           frequency = c(1.0, 4.0),
+           ftransfer = c(1.0, 4.0),
            srange = 0.5,
            repl = as.character(seq(3)))
+```
+
+## Clear data
+
+```{r}
+system("rm data/*.csv")
 ```
 
 
@@ -51,39 +57,156 @@ invisible(
 
 ```{r}
 # read data
-files <- list.files("data/", pattern = "16", full.names = T)
+mass_files <- list.files("data/", pattern = "(mass)", full.names = T)
 params <- fread("data/lookup.csv")
-
-# read data
-data <- lapply(files, fread)
-
-# link to params
-data <- Map(function(df, f, ft, repl) {
-  df[, `:=` (f = f, ft = ft, r = repl)]
-}, data, params$frequency, params$fTransfer, params$rep)
+# summary_files <- list.files("data/", pattern = "16", full.names = T)
+# summary_files <- setdiff(summary_files, mass_files)
+# 
+# # read data
+# data <- lapply(summary_files, fread)
+# 
+# # link to params
+# data <- Map(function(df, f, ft, repl) {
+#   df[, `:=` (f = f, ft = ft, r = repl)]
+# }, data, params$frequency, params$fTransfer, params$rep)
 ```
 
 ```{r}
-data_copy <- data
-data_copy <- rbindlist(data)
-
-# get a subset
-data_copy <- data_copy[gen %% 20 == 0,]
-
-# plot figure
-ggplot(data_copy)+
-  geom_pointrange(aes(gen, mass_mean,
-                      ymin = mass_mean - mass_sd,
-                      ymax = mass_mean + mass_sd,
-                      col = gen < 1000,
-                group = interaction(f, ft, r)),
-                  size = 0.05,
-                  show.legend = F)+
-  scale_color_brewer(palette = "Dark2")+
-  facet_grid(ft ~ f,
-             as.table = F,
-             labeller = label_both)
-
-ggsave("figures/fig_transfer_2.png", dpi = 300)
+# data_copy <- data
+# data_copy <- rbindlist(data)
+# 
+# # get a subset
+# data_copy <- data_copy[gen %% 20 == 0,]
+# 
+# # plot figure
+# ggplot(data_copy)+
+#   geom_line(aes(gen, mass_mean,
+#                 col = gen < 1000,
+#                 group = interaction(f, ft, r)),
+#             show.legend = F)+
+#   geom_path(aes(gen, mass_mean - mass_sd,
+#             col = gen < 1000,
+#             group = interaction(f, ft, r)),
+#             lwd = 0.1) +
+#   
+#   geom_line(aes(gen, mass_mean + mass_sd,
+#             col = gen < 1000,
+#             group = interaction(f, ft, r)),
+#             lwd = 0.1)+
+#   facet_grid(ft ~ f,
+#              as.table = F,
+#              labeller = label_both)
+# 
+# ggsave("figures/fig_transfer_2.png", dpi = 300)
 ```
 
+## Body mass evolution
+
+```{r}
+# read mass data
+mass_data <- lapply(mass_files, fread)
+
+# get quantiles
+mass_data <- lapply(mass_data, function (df) {
+  df[, mass := lapply(stringi::stri_split(mass, fixed = ";"), as.numeric)]
+})
+
+# summarise
+mass_summary <- lapply(mass_data, function(df) {
+  mass_table <- Map(function(m, g) {
+    dt <- as.data.table(table(round(m, 1)))
+    dt$gen <- g
+    return(dt)
+    }, df$mass, df$gen
+  )
+  return(rbindlist(mass_table))
+})
+```
+
+```{r}
+# add params
+mass_summary <- Map(function(df, f, ft, repl) {
+  df[, `:=` (f = f, ft = ft, r = repl)]
+}, mass_summary, params$frequency, params$fTransfer, params$rep)
+```
+
+
+```{r}
+dm <- rbindlist(mass_summary)
+dm <- split(dm, by = c("f", "ft"))
+
+# plot
+plots <- lapply(dm, function(d){
+  ggplot(d)+
+    geom_vline(xintercept = 1000, lwd = 0.2)+
+    geom_tile(aes(gen, as.numeric(V1), fill = N),
+              show.legend = F)+
+    scale_fill_viridis_c(option = "D")+
+    facet_grid(~r)+
+    coord_cartesian(ylim = c(0, 10))+
+    labs(title = sprintf('ancestral f = %s, new f = %s', unique(d$f), 
+                         unique(d$ft)),
+         y = "mass")
+})
+
+wrap_plots(plots)
+
+ggsave("figures/fig_mass_evol_02.png")
+```
+
+## Movement evolution
+
+```{r}
+# movement files
+move_files <- list.files("data", pattern = "(move)", full.names = T)
+
+# read mass data
+move_data <- lapply(move_files, fread)
+
+# get quantiles
+move_data <- lapply(move_data, function (df) {
+  df[, move := lapply(stringi::stri_split(total_move, fixed = ";"), as.numeric)]
+})
+
+# summarise
+move_summary <- lapply(move_data, function(df) {
+  move_table <- Map(function(m, g) {
+    dt <- as.data.table(table(round(m, -1)))
+    dt$gen <- g
+    return(dt)
+    }, df$move, df$gen
+  )
+  return(rbindlist(move_table))
+})
+```
+
+```{r}
+# add params
+move_summary <- Map(function(df, f, ft, repl) {
+  df[, `:=` (f = f, ft = ft, r = repl)]
+}, move_summary, params$frequency, params$fTransfer, params$rep)
+```
+
+
+```{r}
+dm <- rbindlist(move_summary)
+dm <- split(dm, by = c("f", "ft"))
+
+# plot
+plots <- lapply(dm, function(d){
+  ggplot(d)+
+    geom_vline(xintercept = 1000, lwd = 0.2)+
+    geom_tile(aes(gen, as.numeric(V1) / 100, fill = N),
+              show.legend = F)+
+    scale_fill_viridis_c(option = "D")+
+    facet_grid(~r)+
+    coord_cartesian(ylim = c(0, 5))+
+    labs(title = sprintf('ancestral f = %s, new f = %s', unique(d$f), 
+                         unique(d$ft)),
+         y = "total move dist")
+})
+
+patchwork::wrap_plots(plots)
+
+ggsave("figures/fig_move_evol_02.png")
+```

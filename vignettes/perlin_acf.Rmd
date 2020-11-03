@@ -23,8 +23,7 @@ library(data.table)
 library(ggplot2)
 
 # get data.table of parameter combinations
-data <- CJ(nOctaves = seq(8), 
-           frequency = seq(1, 8, 0.1), 
+data <- CJ(frequency = seq(1, 8, 0.1), 
            increment = 0.01,#c(0.001, seq(10) / 10), 
            repl = seq(10))
 ```
@@ -32,8 +31,8 @@ data <- CJ(nOctaves = seq(8),
 ```{r}
 # get vector of values
 data[, values := mapply(function(a, b, c) {
- noisewalker::get_values_1d(a, b, c, 1000) 
-}, a = nOctaves, b = frequency, c = increment,
+ noisewalker::get_values_1d(b, c, 1000) 
+}, b = frequency, c = increment,
 SIMPLIFY = FALSE)]
 ```
 
@@ -61,22 +60,21 @@ data[, acf_range := unlist(lapply(acf, get_acf_range)) * increment]
 
 # group by octaves, freq, and increment
 data_plot <- data[, .(acf_range = mean(acf_range)),
-     by = list(nOctaves, frequency)]
+     by = list(frequency)]
 ```
 
 ```{r}
 # plot acf_range cubes
 ggplot(data)+
-  geom_line(aes(frequency, acf_range,
-                col = nOctaves,
+  geom_jitter(aes(frequency, acf_range,
                 group = repl),
-                alpha = 0.1,
+                alpha = 0.8,
             show.legend = F)+
   scale_colour_gradient(low = "blue", high = "red")+
-  facet_grid(~nOctaves, labeller = label_both)+
-  theme_test()+
+  # facet_grid(~nOctaves, labeller = label_both)+
   labs(y = "Range ACF < 0.2")
 
-ggsave(filename = "figures/figure_acf_range.png")
+ggsave(filename = "figures/figure_acf_range.png",
+       width = 6, height = 4)
 ```
 
