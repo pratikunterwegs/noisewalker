@@ -38,7 +38,7 @@ public:
     Agent() :
         // count agents correctly heritable parameter is s_range
         energy(1.f),
-        sRange(1.f),
+        sRange(0.1f),
         x(0.f),
         mass(1.0),
         annMove(0.f)
@@ -131,7 +131,7 @@ void Agent::doMove(FastNoiseLite noise) {
 
     // penalise the distance actually moved, not the distance chosen
     // agent max penalty is move cost * mass * mass_move_ratio
-    energy -= move_cost * abs(move_dist);
+    // energy -= move_cost * abs(move_dist);
 }
 
 /// agent function to forage
@@ -139,6 +139,10 @@ void Agent::doForage(FastNoiseLite landscape) {
 
     float energy_here = (landscape.GetNoise(x, 0.f));
     energy += energy_here < 0.f ? 0.f : energy_here;
+
+    // lose energy due to mass upkeep
+    energy -= mass * mass_cost;
+
 }
 
 /* population level functions */
@@ -180,7 +184,9 @@ void doReproduce(std::vector<Agent>& pop) {
     std::vector<double> vecFitness;
     for (size_t a = 0; static_cast<int>(a) < popSize; a++)
     {
-        vecFitness.push_back(static_cast<double> (pop[a].energy));
+        vecFitness.push_back(static_cast<double> (pop[a].energy - 
+            // add a cost to high mass
+            (pop[a].mass * mass_cost * timePerGen)));
     }
     normaliseFitness(vecFitness);
 
@@ -212,7 +218,7 @@ void doReproduce(std::vector<Agent>& pop) {
 
         // mutate mass
         if (gsl_ran_bernoulli(r, static_cast<double>(mProb)) == 1) {
-                tmpPop[a].mass += static_cast<float> (gsl_ran_gaussian(r, static_cast<double>(mShift)));
+                tmpPop[a].mass += static_cast<float> (gsl_ran_cauchy(r, static_cast<double>(mShift)));
                 if (tmpPop[a].mass < mass_min) {
                     tmpPop[a].mass = mass_min;
                 }
