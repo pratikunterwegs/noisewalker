@@ -221,6 +221,8 @@ void doReproduce(std::vector<Agent>& pop) {
 
     // swap tmp pop for pop
     std::swap(pop, tmpPop);
+    // randomise position
+    randomPosition(pop);
     tmpPop.clear();
 }
 
