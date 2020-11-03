@@ -137,8 +137,8 @@ void Agent::doMove(FastNoiseLite noise) {
 /// agent function to forage
 void Agent::doForage(FastNoiseLite landscape) {
 
-    energy += (landscape.GetNoise(x + sRange, 0.f) +
-               landscape.GetNoise(x - sRange, 0.f)) / 2.f;
+    float energy_here = (landscape.GetNoise(x));
+    energy += energy_here < 0.f ? 0.f : energy_here;
 }
 
 /* population level functions */
@@ -213,6 +213,9 @@ void doReproduce(std::vector<Agent>& pop) {
         // mutate mass
         if (gsl_ran_bernoulli(r, static_cast<double>(mProb)) == 1) {
                 tmpPop[a].mass += static_cast<float> (gsl_ran_cauchy(r, static_cast<double>(mShift)));
+                if (tmpPop[a].mass < mass_min) {
+                    tmpPop[a].mass = mass_min;
+                }
             }
     }
 
