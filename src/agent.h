@@ -100,8 +100,8 @@ std::array<float, 1> Agent::annOutput(const float v1, const float v2) {
     // def inputs
     Ann::input_t inputs;
     // pass inputs
-    inputs[0] = v1;
-    inputs[1] = v2;
+    inputs[0] = v1 > clamp ? v1 : 0.f;
+    inputs[1] = v2 > clamp ? v2 : 0.f;
     // get output
     auto distAngle = annMove(inputs);
 
@@ -129,6 +129,7 @@ void Agent::doMove(FastNoiseLite noise) {
     // new unwrapped position, returns floats?
     x += move_dist;
 
+    // nov3 -- no distance penalty
     // penalise the distance actually moved, not the distance chosen
     // agent max penalty is move cost * mass * mass_move_ratio
     // energy -= move_cost * abs(move_dist);
@@ -138,7 +139,7 @@ void Agent::doMove(FastNoiseLite noise) {
 void Agent::doForage(FastNoiseLite landscape) {
 
     float energy_here = (landscape.GetNoise(x, 0.f));
-    energy += energy_here < 0.f ? 0.f : energy_here;
+    energy += energy_here < clamp ? 0.f : energy_here;
 
     // lose energy due to mass upkeep
     energy -= mass * mass_cost;
