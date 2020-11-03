@@ -212,7 +212,7 @@ void doReproduce(std::vector<Agent>& pop) {
 
         // mutate mass
         if (gsl_ran_bernoulli(r, static_cast<double>(mProb)) == 1) {
-                tmpPop[a].mass += static_cast<float> (gsl_ran_cauchy(r, static_cast<double>(mShift)));
+                tmpPop[a].mass += static_cast<float> (gsl_ran_gaussian(r, static_cast<double>(mShift)));
                 if (tmpPop[a].mass < mass_min) {
                     tmpPop[a].mass = mass_min;
                 }
