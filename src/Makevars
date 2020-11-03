@@ -1,5 +1,4 @@
 CXXSTD = -std=c++17
-CXX14 = g++
 
 PKG_LIBS = -I /ann-lib-linux \
            -I /usr/libgsl -lgsl -lgslcblas -lm
