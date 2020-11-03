@@ -74,6 +74,8 @@ void run_noisewalker(const int genmax, const int timesteps,
     randomPosition(pop);
     // random weights
     popRandomWeights(pop);
+    // random mass
+    popRandomMass(pop);
 
     // make the ancestral landscape
     FastNoiseLite noise;
