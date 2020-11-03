@@ -102,27 +102,33 @@ void printReacNorm (std::vector<Agent> &pop,
 
 /// function to print evolved agent mass
 void printPopMass (std::vector<Agent> &pop,
+                    const int gen,
                     std::vector<std::string> outpath) {
     // ofstream
     std::ofstream rnormOfs;
     // std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
 
     // check if okay
-    std::ifstream f(outpath[0] + outpath[1] + ".csv");
+    std::ifstream f(outpath[0] + outpath[1] + "_mass.csv");
     // if (!f.good()) {
     //     std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
     // }
     // write column names
-    rnormOfs.open(outpath[0] + outpath[1] + ".csv",
+    rnormOfs.open(outpath[0] + outpath[1] + "_mass.csv",
             std::ofstream::out | std::ofstream::app);
 
-    rnormOfs << "id,mass\n";
+    if (gen == 0) {
+        rnormOfs << "gen, mass\n";
+    }
+
+    // print gen
+    rnormOfs << gen << ",";
 
     // run through individuals and cues
     for (size_t indiv = 0; indiv < pop.size(); ++indiv) {
-            rnormOfs << indiv << ","
-                     << pop[indiv].mass << "\n";
+            rnormOfs << pop[indiv].mass << ";";
     }
+    rnormOfs << "\n";
     rnormOfs.close();
 }
 
