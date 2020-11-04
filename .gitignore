@@ -41,3 +41,6 @@ inst/doc
 
 # ignore analysis
 *.Rmd
+
+# ignore jobs
+job_noisewalker*
