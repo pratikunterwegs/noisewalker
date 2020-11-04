@@ -1,57 +1,36 @@
----
-title: "Running Noisewalker"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{run_noisewalker}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
-  chunk_output_type: console
----
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  eval = FALSE,
-  comment = "#>"
-)
-```
+# Analyse mass evolution
+
+## Prep libraries
 
 ```{r}
 # prepare parameter combinations
 library(noisewalker)
 library(data.table)
 library(ggplot2)
-
-# get data.table of parameter combinations
-data <- CJ(gmax = 1000,
-           tmax = 200,
-           nOctaves = 1, 
-           frequency = c(1.0, 4.0),
-           ftransfer = c(1.0, 4.0),
-           srange = 0.5,
-           repl = as.character(seq(3)))
 ```
 
 ## Clear data
 
-```{r}
+```{r eval=FALSE}
 system("rm data/*.csv")
 ```
 
+## Get data from Peregrine
 
-```{r setup}
-library(noisewalker)
+```{r}
+# password
+this_password <- readLines("data/password")
 
-# run over generations
-invisible(
-  Map(function(gmax, tmax, oct, f, ft, srange, rep) {
-    noisewalker::run_noisewalker(gmax, tmax, oct, f, ft, srange, rep)
-  }, 
-  data$gmax, data$tmax, data$nOctaves, data$frequency,
-  data$ftransfer, data$srange, data$repl)
-)
+# init session
+s <- ssh::ssh_connect("p284074@peregrine.hpc.rug.nl", passwd = this_password)
+
+# download to data
+ssh::scp_download(s,
+                  files = "noisewalker/slurm-15171086.out", 
+                  to = "data")
 ```
+
 
 ## Population transfer experiment
 
@@ -59,45 +38,6 @@ invisible(
 # read data
 mass_files <- list.files("data/", pattern = "(mass)", full.names = T)
 params <- fread("data/lookup.csv")
-# summary_files <- list.files("data/", pattern = "16", full.names = T)
-# summary_files <- setdiff(summary_files, mass_files)
-# 
-# # read data
-# data <- lapply(summary_files, fread)
-# 
-# # link to params
-# data <- Map(function(df, f, ft, repl) {
-#   df[, `:=` (f = f, ft = ft, r = repl)]
-# }, data, params$frequency, params$fTransfer, params$rep)
-```
-
-```{r}
-# data_copy <- data
-# data_copy <- rbindlist(data)
-# 
-# # get a subset
-# data_copy <- data_copy[gen %% 20 == 0,]
-# 
-# # plot figure
-# ggplot(data_copy)+
-#   geom_line(aes(gen, mass_mean,
-#                 col = gen < 1000,
-#                 group = interaction(f, ft, r)),
-#             show.legend = F)+
-#   geom_path(aes(gen, mass_mean - mass_sd,
-#             col = gen < 1000,
-#             group = interaction(f, ft, r)),
-#             lwd = 0.1) +
-#   
-#   geom_line(aes(gen, mass_mean + mass_sd,
-#             col = gen < 1000,
-#             group = interaction(f, ft, r)),
-#             lwd = 0.1)+
-#   facet_grid(ft ~ f,
-#              as.table = F,
-#              labeller = label_both)
-# 
-# ggsave("figures/fig_transfer_2.png", dpi = 300)
 ```
 
 ## Body mass evolution
