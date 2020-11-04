@@ -5,6 +5,13 @@
 library(noisewalker)
 ```
 
+Read password.
+
+```
+password <- readLines("data/password.txt")
+```
+
+```{r}
 make_jobs(octaves = 1,
           f = c(1, 4, 8),
           ft = c(1, 4, 8),
@@ -13,6 +20,6 @@ make_jobs(octaves = 1,
           tmax = 100,
           n_rep = 5,
           ssh_con = "p284074@peregrine.hpc.rug.nl",
-          password = "Aquila12")
+          password = this_password)
 ```
 
