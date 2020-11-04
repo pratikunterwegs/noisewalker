@@ -38,3 +38,6 @@ inst/noise
 data
 .Rproj.user
 inst/doc
+
+# ignore analysis
+*.Rmd
