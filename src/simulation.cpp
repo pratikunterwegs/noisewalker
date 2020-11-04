@@ -25,8 +25,7 @@ void evolvePop(std::vector<Agent> &pop,
             // if gen has not changed then move and forage
             popMoveForage(pop, noise);
         }
-        // print mean and sd of mass
-        // printSummaryMass(pop, gen, data_path);
+        
         printSummaryMass(pop, gen, 0.1f, data_path);
         doReproduce(pop);
     }
