@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 
 # Making noisewalker jobs
 
@@ -8,7 +13,7 @@ library(noisewalker)
 Read password.
 
 ```{r}
-this_password <- readLines("../data/password")
+this_password <- readLines("data/password")
 ```
 
 ```{r}
