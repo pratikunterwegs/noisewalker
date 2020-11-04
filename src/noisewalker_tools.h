@@ -6,6 +6,8 @@
 #include <vector>
 #include "agent.h"
 #include <cmath>
+#include <algorithm> 
+#include <cassert>
 
 
 /// function to get standard deviation of mass
@@ -139,33 +141,37 @@ std::vector<std::pair<float, int> > getMassTable (std::vector<Agent> &pop,
 {
     // collect masses
     std::vector<float> popMass (pop.size());
-    //make a duplicate
-    std::vector<float> popMassUnique (pop.size());
 
     // round to the nearest multiple of massRound
     for (size_t p_i = 0; p_i < pop.size(); ++p_i)
     {
-        popMass[p_i] = roundf(pop[p_i].mass / massRound) * massRound;
+        popMass[p_i] = pop[p_i].mass;
     }
-    popMassUnique = popMass;
-
-    // get unique masses iterators
-    std::vector<float>::iterator ip;
-    ip = std::unique(popMassUnique.begin(), 
-                    popMassUnique.begin() + popMassUnique.size());
-
-    popMassUnique.resize(std::distance(popMassUnique.begin(), ip));
+    // round to the nearest multiple of massRound
+    for (size_t p_i = 0; p_i < popMass.size(); ++p_i)
+    {
+        popMass[p_i] = roundf(popMass[p_i] / massRound) * massRound;
+    }
+    
+    // make a copy
+    std::vector<float> popMassUnique = popMass;
+    std::sort(popMassUnique.begin(), popMassUnique.end());
+    popMassUnique.erase(unique(popMassUnique.begin(), popMassUnique.end()), 
+                                popMassUnique.end());
 
     // count unique masses in range
-    std::vector<std::pair<float, int> > massTable;
+    std::vector<std::pair<float, int> > massTable (popMassUnique.size());
 
-    for (size_t p_i = 0; p_i < popMassUnique.size(); ++p_i)
+    for (size_t it = 0; it < popMassUnique.size(); ++it)
     {
-        massTable[p_i].first = popMassUnique[p_i];
-        massTable[p_i].second = std::count(popMass.begin(), popMass.end(), 
-                                            popMassUnique[p_i]);
+        massTable[it].first = popMassUnique[it];
+        const float thisVal = popMassUnique[it];
+        massTable[it].second = static_cast<int>(std::count_if(popMass.begin(), popMass.end(), [thisVal](float f){
+            return fabs(f - thisVal) < 0.00001f; 
+        }) );
     }
 
+    assert(massTable.size() > 0);
     return massTable;
 
 }
@@ -194,6 +200,8 @@ void printSummaryMass (std::vector<Agent> &pop,
     
     // get population mass summary stats
     std::vector<std::pair<float, int> > popSummaryMass = getMassTable(pop, massRound);
+
+    assert(popSummaryMass.size() > 0);
 
     // print mass counts
     for (size_t p_i = 0; p_i < popSummaryMass.size(); ++p_i)
