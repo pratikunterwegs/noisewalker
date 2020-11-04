@@ -140,7 +140,7 @@ std::vector<std::pair<float, int> > getMassTable (std::vector<Agent> &pop,
     // collect masses
     std::vector<float> popMass (pop.size());
     //make a duplicate
-    std::vector<float> popMassUnique (pop.size);
+    std::vector<float> popMassUnique (pop.size());
 
     // round to the nearest multiple of massRound
     for (size_t p_i = 0; p_i < pop.size(); ++p_i)
@@ -150,16 +150,16 @@ std::vector<std::pair<float, int> > getMassTable (std::vector<Agent> &pop,
     popMassUnique = popMass;
 
     // get unique masses iterators
-    vector<float>::iterator ip;
+    std::vector<float>::iterator ip;
     ip = std::unique(popMassUnique.begin(), 
                     popMassUnique.begin() + popMassUnique.size());
 
-    popMassUnique.resize(popMassUnique.begin(), ip);
+    popMassUnique.resize(std::distance(popMassUnique.begin(), ip));
 
     // count unique masses in range
     std::vector<std::pair<float, int> > massTable;
 
-    for (p_i = 0; p_i < popMassUnique.size(); ++p_i)
+    for (size_t p_i = 0; p_i < popMassUnique.size(); ++p_i)
     {
         massTable[p_i].first = popMassUnique[p_i];
         massTable[p_i].second = std::count(popMass.begin(), popMass.end(), 
