@@ -50,7 +50,7 @@ make_jobs <- function(octaves = 1L,
                                _f_{fnow}_ft{ft}_rep{this_rep}")
 
       # make command and write to file
-      # command_build <- "Rscript -e 'devtools::install()'"
+      command_pre <- "cd noisewalker"
       command_main <- glue::glue('Rscript --slave -e \\
         "noisewalker::run_noisewalker(\\
         {genmax},{tmax},{octaves},{fnow},{ft},{s_range}, \'{this_rep}\')"')
@@ -60,7 +60,7 @@ make_jobs <- function(octaves = 1L,
       writeLines(
         c(
           shebang,
-          # command_build,
+          command_pre,
           command_main
         ),
         con = glue::glue("jobs/{jobfile}")
