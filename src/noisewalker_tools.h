@@ -6,9 +6,27 @@
 #include <vector>
 #include "agent.h"
 
+
+/// function to get standard deviation of mass
+std::vector<double> getSummaryMass (std::vector<Agent> &pop) {
+    std::vector<double> popMass (pop.size());
+    for(size_t p_i = 0; p_i  < pop.size(); ++p_i) {
+        popMass[p_i] = pop[p_i].mass;
+    }
+    double popMassMean = std::accumulate(popMass.begin(), popMass.end(), 0.0);
+    popMassMean = popMassMean / static_cast<double>(popMass.size());
+    
+    double sqSum = std::inner_product(popMass.begin(), popMass.end(), 
+        popMass.begin(), 0.0);
+    double stdev = std::sqrt(sqSum / popMass.size() - popMassMean * popMassMean);
+
+    return (std::vector<double> {popMassMean, stdev});
+}
+
 /// construct agent output filename
 std::vector<std::string> identifyOutpath(const int octaves,
                                          const float frequency,
+                                         const float frequencyTransfer,
                                          const std::string rep){
     // assumes path/type already prepared
     std::string path = "data/";
@@ -35,7 +53,7 @@ std::vector<std::string> identifyOutpath(const int octaves,
     std::ifstream f2(summary_out.c_str());
     if (!f2.good()) {
         summary_ofs.open(summary_out, std::ofstream::out);
-        summary_ofs << "filename,octaves,frequency,rep\n";
+        summary_ofs << "filename,octaves,frequency,fTransfer,rep\n";
         summary_ofs.close();
     }
     // append if not
@@ -43,6 +61,7 @@ std::vector<std::string> identifyOutpath(const int octaves,
     summary_ofs << output_id << ","
                 << octaves << ","
                 << frequency << ","
+                << frequencyTransfer << ","
                 << rep << "\n";
     summary_ofs.close();
 
@@ -83,6 +102,39 @@ void printReacNorm (std::vector<Agent> &pop,
 
 /// function to print evolved agent mass
 void printPopMass (std::vector<Agent> &pop,
+                    const int gen,
+                    std::vector<std::string> outpath) {
+    // ofstream
+    std::ofstream rnormOfs;
+    // std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
+
+    // check if okay
+    std::ifstream f(outpath[0] + outpath[1] + "_mass.csv");
+    // if (!f.good()) {
+    //     std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
+    // }
+    // write column names
+    rnormOfs.open(outpath[0] + outpath[1] + "_mass.csv",
+            std::ofstream::out | std::ofstream::app);
+
+    if (gen == 0) {
+        rnormOfs << "gen, mass\n";
+    }
+
+    // print gen
+    rnormOfs << gen << ",";
+
+    // run through individuals and cues
+    for (size_t indiv = 0; indiv < pop.size(); ++indiv) {
+            rnormOfs << pop[indiv].mass << ";";
+    }
+    rnormOfs << "\n";
+    rnormOfs.close();
+}
+
+/// function to print mass summary stats
+void printSummaryMass (std::vector<Agent> &pop,
+                    const int gen,
                     std::vector<std::string> outpath) {
     // ofstream
     std::ofstream rnormOfs;
@@ -97,13 +149,16 @@ void printPopMass (std::vector<Agent> &pop,
     rnormOfs.open(outpath[0] + outpath[1] + ".csv",
             std::ofstream::out | std::ofstream::app);
 
-    rnormOfs << "id,mass\n";
-
-    // run through individuals and cues
-    for (size_t indiv = 0; indiv < pop.size(); ++indiv) {
-            rnormOfs << indiv << ","
-                     << pop[indiv].mass << "\n";
+    if (gen == 0) {
+        rnormOfs << "gen,mass_mean,mass_sd\n";
     }
+    
+    // get population mass summary stats
+    std::vector<double> popSummaryMass = getSummaryMass(pop);
+
+    rnormOfs << gen << "," << popSummaryMass[0] << "," << popSummaryMass[1]
+             << "\n";
+
     rnormOfs.close();
 }
 
@@ -161,6 +216,5 @@ void printAgentWeights(std::vector<Agent> &pop,
 
     annOfs.close();
 }
-
 
 #endif // NOISEWALKER_TOOLS_H

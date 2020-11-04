@@ -31,7 +31,16 @@
 *.out
 *.app
 
+# ignore built libraries
+inst/noise
+
 # ignore data
 data
 .Rproj.user
 inst/doc
+
+# ignore analysis
+*.Rmd
+
+# ignore jobs
+job_noisewalker*

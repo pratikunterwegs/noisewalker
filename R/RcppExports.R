@@ -14,12 +14,14 @@
 #' @param frequency Frequency of noise. May be thought of as large scale
 #' variability. May be any double value between 1.0 and 16.0. Higher values
 #' mean more patchy landscapes.
+#' @param frequencyTransfer Frequency of noise of the new landscape. A double
+#' value between 1.0 and 16.0.
 #' @param newSrange The sensory range of the population.
 #' @param rep The replicate number. Designed to be read from a data.frame.
 #' result in noise that is closer to white noise.
 #' @return Nothing. Writes an image to file.
-run_noisewalker <- function(genmax, timesteps, nOctaves, frequency, newSrange, rep) {
-    invisible(.Call(`_noisewalker_run_noisewalker`, genmax, timesteps, nOctaves, frequency, newSrange, rep))
+run_noisewalker <- function(genmax, timesteps, nOctaves, frequency, frequencyTransfer, newSrange, rep) {
+    invisible(.Call(`_noisewalker_run_noisewalker`, genmax, timesteps, nOctaves, frequency, frequencyTransfer, newSrange, rep))
 }
 
 #' Run a transect through 1D Perlin noise.
@@ -31,15 +33,7 @@ run_noisewalker <- function(genmax, timesteps, nOctaves, frequency, newSrange, r
 #' variability. May be any double value between 1.0 and 16.0. Higher values
 #' @param increment The increment in the X coordinate.
 #' @param nValues How many steps, each of \code{increment} magnitude, to take.
-get_values_1d <- function(nOctaves, frequency, increment, nValues) {
-    .Call(`_noisewalker_get_values_1d`, nOctaves, frequency, increment, nValues)
-}
-
-#' Test seed and random number generation.
-#'
-#' @param increment The increment in the X coordinate.
-#' @param nValues How many steps, each of \code{increment} magnitude, to take.
-get_rand_values <- function(nValues, increment) {
-    .Call(`_noisewalker_get_rand_values`, nValues, increment)
+get_values_1d <- function(frequency, increment, nValues) {
+    .Call(`_noisewalker_get_values_1d`, frequency, increment, nValues)
 }
 
