@@ -7,8 +7,8 @@ library(noisewalker)
 
 Read password.
 
-```
-password <- readLines("data/password.txt")
+```{r}
+this_password <- readLines("../data/password")
 ```
 
 ```{r}
