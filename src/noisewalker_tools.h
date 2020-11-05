@@ -45,7 +45,7 @@ std::vector<std::string> identifyOutpath(const int octaves,
 
         
     // }
-    output_id = output_id + "f" + std::to_string(frequency) + "ft" + 
+    output_id = output_id + "_f" + std::to_string(frequency) + "ft" + 
         std::to_string(frequencyTransfer) + "rep" + rep;
 
     // write summary with filename to agent data
