@@ -10,7 +10,6 @@ editor_options:
 
 ```{r}
 # prepare parameter combinations
-library(noisewalker)
 library(data.table)
 library(ggplot2)
 ```
@@ -21,11 +20,25 @@ library(ggplot2)
 system("rm data/*.csv")
 ```
 
-## Population transfer experiment
+## Get new data
 
 ```{r}
-# read data
-mass_files <- list.files("data/", pattern = "(mass)", full.names = T)
+password <- readLines("data/password")
+# get new data
+s <- ssh::ssh_connect("peregrine.hpc.rug.nl", passwd = password)
+
+ssh::scp_download(s,
+                  files = "noisewalker/data/",
+                  to = ".")
+
+ssh::ssh_disconnect(s)
+```
+
+## Read mass summary data
+
+```{r}
+# read data of mass summary
+mass_files <- list.files("data/", pattern = "(summary)", full.names = T)
 params <- fread("data/lookup.csv")
 ```
 
