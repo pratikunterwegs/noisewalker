@@ -40,7 +40,7 @@ public:
         energy(1.f),
         sRange(0.1f),
         x(0.f),
-        mass(1.0),
+        mass(1.0f),
         annMove(0.f)
 
     {}
