@@ -27,8 +27,8 @@ s <- ssh::ssh_connect("p284074@peregrine.hpc.rug.nl", passwd = this_password)
 
 # download to data
 ssh::scp_download(s,
-                  files = "noisewalker/slurm-15171086.out", 
-                  to = "data")
+                  files = "noisewalker/data", 
+                  to = ".")
 ```
 
 
@@ -44,7 +44,7 @@ params <- fread("data/lookup.csv")
 
 ```{r}
 # read mass data
-mass_data <- lapply(mass_files, fread)
+mass_data <- lapply(mass_files[[1]], fread)
 
 # get quantiles
 mass_data <- lapply(mass_data, function (df) {
