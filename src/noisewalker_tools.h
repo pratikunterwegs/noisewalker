@@ -34,17 +34,19 @@ std::vector<std::string> identifyOutpath(const int octaves,
     // assumes path/type already prepared
     std::string path = "data/";
     // output filename as milliseconds since epoch
-    std::string output_id;
-    {
-        auto now = std::chrono::system_clock::now();
-        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-        auto value = now_ms.time_since_epoch();
-        // add a random number to be sure of discrete values
-        long duration = value.count() +
-                static_cast<long>(gsl_rng_uniform_int(r, 10000));
+    std::string output_id = std::to_string(static_cast<long>(gsl_rng_uniform_int(r, 10000)));
+    // {
+        // auto now = std::chrono::system_clock::now();
+        // auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+        // auto value = now_ms.time_since_epoch();
+        // // add a random number to be sure of discrete values
+        // long duration = value.count() +
+        
 
-        output_id = std::to_string(duration);
-    }
+        
+    // }
+    output_id = output_id + "f" + std::to_string(frequency) + "ft" + 
+        std::to_string(frequencyTransfer) + "rep" + rep;
 
     // write summary with filename to agent data
     // and parameter files
