@@ -12,21 +12,15 @@ using namespace Rcpp;
 
 /// function to evolve population
 void evolvePop(std::vector<Agent> &pop,
-               const int genStart,
                const int genmax, const int timesteps,
                FastNoiseLite noise,
-               std::vector<std::string> data_path)
+               const double landsize)
 {
-    for (int gen = genStart; gen < genmax + genStart; ++gen) {
-        /*if (gen % (genmax / 10) == 0) {
-            std::cout << "gen = " << gen << "\n";
-        } */       
+    for (int gen = 0; gen < genmax; ++gen) {
         for (int t = 0; t < timesteps; ++t) {
             // if gen has not changed then move and forage
-            popMoveForage(pop, noise);
+            popMoveForage(pop, noise, landsize);
         }
-        
-        printSummaryMass(pop, gen, 0.1f, data_path);
         doReproduce(pop);
     }
 }
@@ -37,6 +31,7 @@ void evolvePop(std::vector<Agent> &pop,
 //' @description Run the noisewalker simulation using parameters passed as
 //' arguments to the corresponding R function.
 //' 
+//' @param popsize The population size.
 //' @param genmax The maximum number of generations per simulation.
 //' @param timesteps The number of timesteps per generation.
 //' @param nOctaves Number of octaves. May be thought of as small scale 
@@ -45,63 +40,43 @@ void evolvePop(std::vector<Agent> &pop,
 //' @param frequency Frequency of noise. May be thought of as large scale
 //' variability. May be any double value between 1.0 and 16.0. Higher values
 //' mean more patchy landscapes.
-//' @param frequencyTransfer Frequency of noise of the new landscape. A double
-//' value between 1.0 and 16.0.
-//' @param newSrange The sensory range of the population.
-//' @param rep The replicate number. Designed to be read from a data.frame.
-//' result in noise that is closer to white noise.
-//' @return Nothing. Writes an image to file.
+//' @param landsize The landscape size.
+//' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
-void run_noisewalker(const int genmax, const int timesteps,
-                    const int nOctaves, const double frequency,
-                    const double frequencyTransfer,
-                    const double newSrange, const std::string rep) {
+Rcpp::DataFrame run_noisewalker(
+        const int popsize,
+        const int genmax, const int timesteps,
+        const int nOctaves, const double frequency,
+        const double landsize) {
     
     // set the random number generation etc
     const gsl_rng_type * T;
     gsl_rng_env_setup();
     T = gsl_rng_default;
     r = gsl_rng_alloc (T);
-
+    
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
-
+    
     // init pop
-    std::vector<Agent> pop (popSize);
-    // force sensory range
-    forceSrange(pop, newSrange);
+    std::vector<Agent> pop (popsize, Agent(1, 1.f));
     // random position
-    randomPosition(pop);
+    popRandomPos(pop, landsize);
     // random weights
     popRandomWeights(pop);
-    // random mass
-    popRandomMass(pop);
-
+    
     // make the ancestral landscape
     FastNoiseLite noise;
     noise.SetSeed(seed);
     noise.SetFrequency(frequency);
     noise.SetFractalOctaves(nOctaves);
-
-    // make the transplanted landscape
-    // landscape this is relatively uniform
-    FastNoiseLite newNoise;
-    newNoise.SetSeed(seed);
-    newNoise.SetFrequency(frequencyTransfer);
-    newNoise.SetFractalOctaves(nOctaves);
-
-    // idenity outpath
-    std::vector<std::string> thisOutpath = identifyOutpath(nOctaves, frequency, 
-        frequencyTransfer, rep);
-
-    // print outpath for test
-    // std::cout << "data at " << thisOutpath[0] << thisOutpath[1] << "\n";
-
-    // do evolution
-    evolvePop(pop, 0, genmax, timesteps, noise, thisOutpath);
     
-    // now transfer the population
-    evolvePop(pop, genmax, genmax, timesteps, newNoise, thisOutpath);
-
+    // do evolution
+    evolvePop(pop, genmax, timesteps, noise, landsize);
+    
+    return Rcpp::DataFrame::create(
+        Named("strategy") = std::vector<int> {1, 2, 3},
+        Named("prop") = getPopStrategyProp(pop)
+    );
 }
 
 // helper function to print values
@@ -125,10 +100,10 @@ Rcpp::NumericVector get_values_1d(const double frequency,
     noise.SetSeed(seed);
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noise.SetFrequency(frequency);
-
+    
     // make a vector to hold values
     Rcpp::NumericVector sampleVals (nValues);
-
+    
     float coordX = static_cast<float> (seed) / static_cast<float> (1e8);
     float coordY = 0.f;
     for (size_t i = 0; i < nValues; ++i) {
