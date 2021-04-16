@@ -55,7 +55,7 @@ public:
     int strategy;
 
     // agent functions
-    void doMove(FastNoiseLite landscape);
+    void doMove(FastNoiseLite landscape, const double landsize);
     void doForage(FastNoiseLite landscape);
     std::vector<float> getAnnWeights();
     
@@ -66,6 +66,19 @@ public:
     std::array<float, 2> annOutput (const float v1, const float v2, 
                                     const float v3, const float v4);
 };
+
+/// function to count strategy proportions
+std::vector<double> getPopStrategyProp (std::vector<Agent> &pop) {
+  std::vector<int> vCount (3, 0);
+  for(size_t i = 0; i < pop.size(); i++) {
+    vCount[pop[i].strategy - 1]++;
+  }
+  std::vector<double> vProp (3, 0.f);
+  for(size_t i = 0; i < vCount.size(); i++) {
+    vProp[i] = static_cast<double> (vCount[i]) / static_cast<double> (pop.size());
+  }
+  return vProp;
+}
 
 // strategy probabilities
 std::vector<double> strategyProb (3, 0.33);
@@ -117,7 +130,7 @@ std::array<float, 2> Agent::annOutput(const float v1, const float v2,
 }
 
 /// agent function to choose a new position
-void Agent::doMove(FastNoiseLite noise) {
+void Agent::doMove(FastNoiseLite noise, const double landsize) {
     // agents use ANN to move
     // ANN senses values at some offset based on strategy
     // output 0 is distance, 1 is angle
@@ -165,9 +178,10 @@ void Agent::doForage(FastNoiseLite landscape) {
 
 /* population level functions */
 /// population moves about and forages
-void popMoveForage(std::vector<Agent>& pop, FastNoiseLite landscape) {
+void popMoveForage(std::vector<Agent>& pop, FastNoiseLite landscape,
+                   const double landsize) {
     for(auto& indiv : pop) {
-        indiv.doMove(landscape);
+        indiv.doMove(landscape, landsize);
         indiv.doForage(landscape);
     }
 }
@@ -210,7 +224,7 @@ void doReproduce(std::vector<Agent>& pop) {
     std::discrete_distribution<> weightedLottery(vecFitness.begin(), vecFitness.end());
 
     // create new population
-    std::vector<Agent> tmpPop(popSize);
+    std::vector<Agent> tmpPop(popSize, Agent(1, 1.f));
 
     // assign parents
     for (size_t a = 0; static_cast<int>(a) < popSize; a++) {
