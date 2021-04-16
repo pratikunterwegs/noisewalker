@@ -4,17 +4,11 @@
 \alias{run_noisewalker}
 \title{Runs the noisewalker simulation.}
 \usage{
-run_noisewalker(
-  genmax,
-  timesteps,
-  nOctaves,
-  frequency,
-  frequencyTransfer,
-  newSrange,
-  rep
-)
+run_noisewalker(popsize, genmax, timesteps, nOctaves, frequency, landsize)
 }
 \arguments{
+\item{popsize}{The population size.}
+
 \item{genmax}{The maximum number of generations per simulation.}
 
 \item{timesteps}{The number of timesteps per generation.}
@@ -27,16 +21,10 @@ result in landscapes with more small scale noise.}
 variability. May be any double value between 1.0 and 16.0. Higher values
 mean more patchy landscapes.}
 
-\item{frequencyTransfer}{Frequency of noise of the new landscape. A double
-value between 1.0 and 16.0.}
-
-\item{newSrange}{The sensory range of the population.}
-
-\item{rep}{The replicate number. Designed to be read from a data.frame.
-result in noise that is closer to white noise.}
+\item{landsize}{The landscape size.}
 }
 \value{
-Nothing. Writes an image to file.
+A dataframe of evolved pop strategy count.
 }
 \description{
 Run the noisewalker simulation using parameters passed as
