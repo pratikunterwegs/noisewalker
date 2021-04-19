@@ -72,6 +72,7 @@ Rcpp::List run_noisewalker(
     popRandomPos(pop, landsize);
     // random weights
     popRandomWeights(pop);
+    popRandomStrategy(pop);
     
     // make the ancestral landscape
     FastNoiseLite noise;
