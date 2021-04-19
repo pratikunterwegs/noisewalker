@@ -61,6 +61,7 @@ public:
     
     void randomWeights();
     void randomPosition(const float landsize);
+    void randomStrategy();
     
     
     std::array<float, 2> annOutput (const float v1, const float v2, 
@@ -99,6 +100,10 @@ void Agent::randomWeights() {
     }
 }
 
+void Agent::randomStrategy(){
+    strategy = rndStrategy(rng);
+}
+
 /// initialise with random position
 void popRandomPos(std::vector<Agent> &pop, const float landsize) {
   for(auto& indiv : pop) {
@@ -110,6 +115,12 @@ void popRandomPos(std::vector<Agent> &pop, const float landsize) {
 void popRandomWeights(std::vector<Agent> &pop) {
     for(auto& indiv : pop) {
         indiv.randomWeights();
+    }
+}
+
+void popRandomStrategy(std::vector<Agent> &pop){
+    for(auto& indiv : pop) {
+        indiv.randomStrategy();
     }
 }
 
@@ -213,10 +224,10 @@ void normaliseFitness(std::vector<double> &vecFitness) {
 /// pop reproduces
 void doReproduce(std::vector<Agent>& pop) {
     // make fitness vec
-    std::vector<double> vecFitness;
-    for (size_t a = 0; static_cast<int>(a) < popSize; a++)
+    std::vector<double> vecFitness (pop.size());
+    for (size_t a = 0; a < pop.size(); a++)
     {
-        vecFitness.push_back(static_cast<double> (pop[a].energy));
+        vecFitness[a] = (static_cast<double> (pop[a].energy));
     }
     normaliseFitness(vecFitness);
 
@@ -224,10 +235,10 @@ void doReproduce(std::vector<Agent>& pop) {
     std::discrete_distribution<> weightedLottery(vecFitness.begin(), vecFitness.end());
 
     // create new population
-    std::vector<Agent> tmpPop(popSize, Agent(1, 1.f));
+    std::vector<Agent> tmpPop(pop.size(), Agent(1, 1.f));
 
     // assign parents
-    for (size_t a = 0; static_cast<int>(a) < popSize; a++) {
+    for (size_t a = 0; a < pop.size(); a++) {
 
         size_t idParent = static_cast<size_t> (weightedLottery(rng));
 
@@ -272,8 +283,8 @@ std::vector<float> Agent::getAnnWeights() {
 /// get population weights
 std::vector<std::vector<float> > getPopAnnWts(std::vector<Agent> &pop) {
     // vec of indivs
-    std::vector<std::vector<float> > popWeights(popSize);
-    for(size_t indiv = 0; static_cast<int>(indiv) < popSize; ++indiv) {
+    std::vector<std::vector<float> > popWeights(pop.size());
+    for(size_t indiv = 0; indiv < pop.size(); ++indiv) {
         popWeights[indiv] = pop[indiv].getAnnWeights();
     }
 
