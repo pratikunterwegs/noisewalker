@@ -84,24 +84,18 @@ std::vector<double> getPopStrategyProp (std::vector<Agent> &pop) {
 std::vector<double> strategyProb (3, 0.33);
 std::discrete_distribution <> rndStrategy (strategyProb.begin(), strategyProb.end());
 
-/// uniform distribution
-std::uniform_real_distribution<> randPos(0.0, static_cast<double>(landsize));
-
 /// initialise the population at random positions
 void Agent::randomPosition(const float landsize) {
-    x = randPos(rng);
-    y = randPos(rng);
+    x = gsl_rng_uniform(r) * static_cast<double>(landsize);
+    y = gsl_rng_uniform(r) * static_cast<double>(landsize);
 }
-
-/// normal distribution for weights
-std::normal_distribution<> randWt (0.0, 2.0);
 
 /// individual random weights
 void Agent::randomWeights() {
     for (auto& w : annMove) {
         // probabilistic mutation of ANN using GSL
         // using GSL for historical reasons
-        w = static_cast<float> (randWt(rng));
+        w = static_cast<float> (gsl_ran_gaussian(r, 2.0));
     }
 }
 
