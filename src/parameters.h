@@ -2,11 +2,6 @@
 #define PARAMETERS_H
 
 #include <random>
-// gsl libs
-#include <stdio.h>
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-
 
 // population params
 const int popSize = 1000; // not too many
@@ -30,8 +25,7 @@ const float mShift = 0.01f;
 const float mProb = 0.01f;
 const float mShiftA = 0.05f;
 
-// make a gsl rng and a regular rng
-gsl_rng * r ;
+// init rng
 std::mt19937 rng;
 
 #endif // PARAMETERS_H
