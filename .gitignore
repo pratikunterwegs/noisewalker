@@ -37,6 +37,7 @@ inst/noise
 # ignore data
 data/*.csv
 data/password
+!data/parameters
 .Rproj.user
 inst/doc
 
