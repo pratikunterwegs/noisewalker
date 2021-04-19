@@ -1,6 +1,6 @@
 QT -= gui
 
-CONFIG += c++11 console
+CONFIG += c++17
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -14,8 +14,37 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+R_HOME = $$system(R RHOME)
+
+## include headers and libraries for R
+RCPPFLAGS =         $$system($$R_HOME/bin/R CMD config --cppflags)
+RLDFLAGS =      $$system($$R_HOME/bin/R CMD config --ldflags)
+RBLAS =         $$system($$R_HOME/bin/R CMD config BLAS_LIBS)
+RLAPACK =       $$system($$R_HOME/bin/R CMD config LAPACK_LIBS)
+
+## if you need to set an rpath to R itself, also uncomment
+RRPATH =        -Wl,-rpath,$$R_HOME/lib
+
+## include headers and libraries for Rcpp interface classes
+## note that RCPPLIBS will be empty with Rcpp (>= 0.11.0) and can be omitted
+RCPPINCL =      $$system($$R_HOME/bin/Rscript -e \"Rcpp:::CxxFlags\(\)\")
+RCPPLIBS =      $$system($$R_HOME/bin/Rscript -e \"Rcpp:::LdFlags\(\)\")
+
 SOURCES += \
+        ../src/simulation.cpp \
         main.cpp
+
+HEADERS += \
+    ../src/noiseutils.h \
+    ../src/agent.h \
+    ../src/noisewalker_tools.h \
+    ../src/parameters.h
+
+QMAKE_CXXFLAGS += $$RCPPWARNING $$RCPPFLAGS $$RCPPINCL
+QMAKE_LIBS += $$RLDFLAGS $$RBLAS $$RLAPACK $$RCPPLIBS
+
+LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm \
+        -I /usr/libnoise -lnoise
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
