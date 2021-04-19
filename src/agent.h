@@ -248,6 +248,7 @@ void doReproduce(std::vector<Agent>& pop) {
         tmpPop[a].x = pop[idParent].x;
         tmpPop[a].y = pop[idParent].y;
         tmpPop[a].strategy = pop[idParent].strategy;
+        tmpPop[a].energy = 0.0000000001f;
 
         // mutate ann and strategy
         for (auto& w : tmpPop[a].annMove) {
