@@ -6,38 +6,25 @@
 using namespace Rcpp;
 
 // run_noisewalker
-Rcpp::DataFrame run_noisewalker(const int popsize, const int genmax, const int timesteps, const int nOctaves, const double frequency, const double landsize);
-RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP landsizeSEXP) {
+Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float t_increment, const int nOctaves, const double frequency, const double landsize);
+RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP t_incrementSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP landsizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int >::type popsize(popsizeSEXP);
     Rcpp::traits::input_parameter< const int >::type genmax(genmaxSEXP);
     Rcpp::traits::input_parameter< const int >::type timesteps(timestepsSEXP);
+    Rcpp::traits::input_parameter< const float >::type t_increment(t_incrementSEXP);
     Rcpp::traits::input_parameter< const int >::type nOctaves(nOctavesSEXP);
     Rcpp::traits::input_parameter< const double >::type frequency(frequencySEXP);
     Rcpp::traits::input_parameter< const double >::type landsize(landsizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, genmax, timesteps, nOctaves, frequency, landsize));
-    return rcpp_result_gen;
-END_RCPP
-}
-// get_values_1d
-Rcpp::NumericVector get_values_1d(const double frequency, const float increment, const int nValues);
-RcppExport SEXP _noisewalker_get_values_1d(SEXP frequencySEXP, SEXP incrementSEXP, SEXP nValuesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const double >::type frequency(frequencySEXP);
-    Rcpp::traits::input_parameter< const float >::type increment(incrementSEXP);
-    Rcpp::traits::input_parameter< const int >::type nValues(nValuesSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_values_1d(frequency, increment, nValues));
+    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, genmax, timesteps, t_increment, nOctaves, frequency, landsize));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 6},
-    {"_noisewalker_get_values_1d", (DL_FUNC) &_noisewalker_get_values_1d, 3},
+    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 7},
     {NULL, NULL, 0}
 };
 
