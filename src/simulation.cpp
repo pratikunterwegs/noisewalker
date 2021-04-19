@@ -25,6 +25,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
             // if gen has not changed then move and forage
             popMoveForage(pop, noise, landsize, time);
         }
+        time = 0.f;
         thisGenData.updateGenData(pop, gen);
         doReproduce(pop);
     }
@@ -79,7 +80,9 @@ Rcpp::List run_noisewalker(
     noise.SetFractalOctaves(nOctaves);
     
     // do evolution
-    return evolvePop(pop, genmax, timesteps, t_increment, noise, landsize);
+    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, t_increment, noise, landsize);
+
+    return thisData;
 }
 
 #endif // SIMULATION_H
