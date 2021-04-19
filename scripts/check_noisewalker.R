@@ -17,13 +17,14 @@ a = noisewalker::run_noisewalker(
     landsize = 200
 )
 
-params = CJ(t_increment = c(0.1, 1, 10),
-            frequency = c(2,4))
+params = CJ(t_increment = c(0.01, 0.1, 1, 10),
+            frequency = c(2,4),
+            replicate = seq(5))
 
-data = Map(function(ti, fr, re) {
+data = Map(function(ti, fr) {
     noisewalker::run_noisewalker(
-        popsize = 500,
-        genmax = 100,
+        popsize = 1000,
+        genmax = 500,
         timesteps = 100,
         t_increment = ti,
         nOctaves = 2,
@@ -31,13 +32,21 @@ data = Map(function(ti, fr, re) {
         landsize = 100)  
 }, params$t_increment, params$frequency)
 
+data = lapply(data, rbindlist)
 
-b = do.call(rbind.data.frame, a)
+data_copy = copy(params)
+data_copy$data = data
 
-ggplot(b)+
+# unlist
+data_copy = data_copy[,unlist(data, recursive = F),
+    by = c("t_increment", "frequency", "replicate")]
+
+ggplot(data_copy)+
     geom_hline(yintercept = 0.33,
                col = "grey")+
     geom_path(
         aes(gen, prop,
-            colour = factor(strategy))
-    )
+            colour = factor(strategy),
+            group = interaction(strategy, replicate))
+    )+
+    facet_grid(t_increment ~ frequency)
