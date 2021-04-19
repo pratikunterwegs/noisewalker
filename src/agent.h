@@ -130,10 +130,10 @@ std::array<float, 2> Agent::annOutput(const float v1, const float v2,
     // def inputs
     Ann::input_t inputs;
     // pass inputs
-    inputs[0] = v1;
-    inputs[1] = v2;
-    inputs[2] = v3;
-    inputs[3] = v4;
+    inputs[0] = v1 > clamp ? v1 : 0.f;
+    inputs[1] = v2 > clamp ? v2 : 0.f;
+    inputs[2] = v3 > clamp ? v3 : 0.f;
+    inputs[3] = v4 > clamp ? v4 : 0.f;
     // get output
     auto distAngle = annMove(inputs);
 
