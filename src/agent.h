@@ -175,16 +175,12 @@ void Agent::doMove(FastNoiseLite noise, const double landsize, const float t_) {
     // get new position
     x = x + (move_dist * cos(angle));
     y = y + (move_dist * sin(angle));
-    
-    // make the move on the wrapped landscape
-    x = fmod(x, landsize);
-    y = fmod(y, landsize);
 }
 
 /// agent function to forage
 void Agent::doForage(FastNoiseLite landscape, const float t_) {
     float energy_here = (landscape.GetNoise(x, y, t_));
-    energy += energy_here < 0.f ? 0.f : energy_here;
+    energy += (energy_here < 0.f ? 0.f : energy_here);
 }
 
 /* population level functions */
