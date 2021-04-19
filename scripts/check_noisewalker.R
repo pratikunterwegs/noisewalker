@@ -9,12 +9,12 @@ install()
 library(noisewalker)
 a = noisewalker::run_noisewalker(
     popsize = 100,
-    genmax = 50,
+    genmax = 60,
     timesteps = 100,
     t_increment = 1,
     nOctaves = 2,
     frequency = 2,
-    landsize = 100
+    landsize = 200
 )
 
 params = CJ(t_increment = c(0.1, 1, 10),
@@ -22,8 +22,8 @@ params = CJ(t_increment = c(0.1, 1, 10),
 
 data = Map(function(ti, fr, re) {
     noisewalker::run_noisewalker(
-        popsize = 50,
-        genmax = 10,
+        popsize = 500,
+        genmax = 100,
         timesteps = 100,
         t_increment = ti,
         nOctaves = 2,
