@@ -16,8 +16,6 @@ public:
     std::vector<std::vector<int> > gen;
     std::vector<std::vector<int> > strategy;
     std::vector<std::vector<double> > prop;
-
-    // fun
     void updateGenData (std::vector<Agent> &pop, const int gen);
     Rcpp::List returnGenData ();
 };
@@ -33,12 +31,14 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
 }
 
 Rcpp::List genData::returnGenData() {
-    Rcpp::List genDataList (gen.size());
+    assert(gen.size() > 0 && "poor gen size");
+    Rcpp::List genDataList;
+
     for(size_t li = 0; li < gen.size(); li++) {
-        genDataList[li] = Rcpp::DataFrame::create(
+        genDataList.push_back(Rcpp::DataFrame::create(
                     Named("gen") = gen[li],
                     Named("strategy") = strategy[li],
-                    Named("prop") = prop[li]);
+                    Named("prop") = prop[li]));
     }
 
     return genDataList;
