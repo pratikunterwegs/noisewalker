@@ -39,8 +39,8 @@ public:
         // count agents correctly heritable parameter is s_range
         energy(0.01f),
         perception(perception_range),
-        y(0.f),
         x(0.f),
+        y(0.f),
         annMove(0.f),
         strategy(strategy_int) // 1 = scout, 2 = forecaster, 3 = lorekeeper
 
@@ -55,8 +55,8 @@ public:
     int strategy;
 
     // agent functions
-    void doMove(FastNoiseLite landscape, const double landsize);
-    void doForage(FastNoiseLite landscape);
+    void doMove(FastNoiseLite landscape, const double landsize, const float t_);
+    void doForage(FastNoiseLite landscape, const float t_);
     std::vector<float> getAnnWeights();
     
     void randomWeights();
@@ -130,28 +130,28 @@ std::array<float, 2> Agent::annOutput(const float v1, const float v2,
 }
 
 /// agent function to choose a new position
-void Agent::doMove(FastNoiseLite noise, const double landsize) {
+void Agent::doMove(FastNoiseLite noise, const double landsize, const float t_) {
     // agents use ANN to move
     // ANN senses values at some offset based on strategy
     // output 0 is distance, 1 is angle
     std::array<float, 2> output;
     if (strategy == 1) { // sense around
-      output = annOutput((noise.GetNoise(x + perception, y + perception)), // x+1,y+1
-                         (noise.GetNoise(x - perception, y + perception)), // x-1,y+1
-                         (noise.GetNoise(x + perception, y - perception)), // x+1,y-1
-                         (noise.GetNoise(x - perception, y - perception))  // x-1,y-1
+      output = annOutput((noise.GetNoise(x + perception, y + perception, t_)), // x+1,y+1
+                         (noise.GetNoise(x - perception, y + perception, t_)), // x-1,y+1
+                         (noise.GetNoise(x + perception, y - perception, t_)), // x+1,y-1
+                         (noise.GetNoise(x - perception, y - perception, t_))  // x-1,y-1
       ); 
     } else if (strategy == 2) { // sense here but four timesteps ahead
-      output = annOutput((noise.GetNoise(x, y, perception)), 
-                         (noise.GetNoise(x, y, perception * 2)), 
-                         (noise.GetNoise(x, y, perception * 3)), 
-                         (noise.GetNoise(x, y, perception * 4))
+      output = annOutput((noise.GetNoise(x, y, t_ + perception)),
+                         (noise.GetNoise(x, y, t_ + perception * 2)),
+                         (noise.GetNoise(x, y, t_ + perception * 3)),
+                         (noise.GetNoise(x, y, t_ + perception * 4))
       );
     } else {
-      output = annOutput((noise.GetNoise(x, y, -perception)), 
-                         (noise.GetNoise(x, y, -perception * 2)), 
-                         (noise.GetNoise(x, y, -perception * 3)), 
-                         (noise.GetNoise(x, y, -perception * 4))
+      output = annOutput((noise.GetNoise(x, y, t_ -perception)),
+                         (noise.GetNoise(x, y, t_ -perception * 2)),
+                         (noise.GetNoise(x, y, t_ -perception * 3)),
+                         (noise.GetNoise(x, y, t_ -perception * 4))
       );
     }
 
@@ -171,18 +171,18 @@ void Agent::doMove(FastNoiseLite noise, const double landsize) {
 }
 
 /// agent function to forage
-void Agent::doForage(FastNoiseLite landscape) {
-    float energy_here = (landscape.GetNoise(x, y));
+void Agent::doForage(FastNoiseLite landscape, const float t_) {
+    float energy_here = (landscape.GetNoise(x, y, t_));
     energy += energy_here < 0.f ? 0.f : energy_here;
 }
 
 /* population level functions */
 /// population moves about and forages
 void popMoveForage(std::vector<Agent>& pop, FastNoiseLite landscape,
-                   const double landsize) {
+                   const double landsize, const float t_) {
     for(auto& indiv : pop) {
-        indiv.doMove(landscape, landsize);
-        indiv.doForage(landscape);
+        indiv.doMove(landscape, landsize, t_);
+        indiv.doForage(landscape, t_);
     }
 }
 

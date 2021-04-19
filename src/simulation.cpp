@@ -11,18 +11,24 @@
 using namespace Rcpp;
 
 /// function to evolve population
-void evolvePop(std::vector<Agent> &pop,
+Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int genmax, const int timesteps,
+               const float t_increment,
                FastNoiseLite noise,
                const double landsize)
 {
+    genData thisGenData;
+    float time = 0.f;
     for (int gen = 0; gen < genmax; ++gen) {
         for (int t = 0; t < timesteps; ++t) {
+            time += t_increment;
             // if gen has not changed then move and forage
-            popMoveForage(pop, noise, landsize);
+            popMoveForage(pop, noise, landsize, time);
         }
+        thisGenData.updateGenData(pop, gen);
         doReproduce(pop);
     }
+    return thisGenData.returnGenData();
 }
 
 
@@ -34,6 +40,7 @@ void evolvePop(std::vector<Agent> &pop,
 //' @param popsize The population size.
 //' @param genmax The maximum number of generations per simulation.
 //' @param timesteps The number of timesteps per generation.
+//' @param t_increment Rate of landscape change.
 //' @param nOctaves Number of octaves. May be thought of as small scale 
 //' variability. Must be an integer value between 1 and 8. Higher values
 //' result in landscapes with more small scale noise.
@@ -43,9 +50,10 @@ void evolvePop(std::vector<Agent> &pop,
 //' @param landsize The landscape size.
 //' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
-Rcpp::DataFrame run_noisewalker(
+Rcpp::List run_noisewalker(
         const int popsize,
         const int genmax, const int timesteps,
+        const float t_increment,
         const int nOctaves, const double frequency,
         const double landsize) {
     
@@ -71,46 +79,7 @@ Rcpp::DataFrame run_noisewalker(
     noise.SetFractalOctaves(nOctaves);
     
     // do evolution
-    evolvePop(pop, genmax, timesteps, noise, landsize);
-    
-    return Rcpp::DataFrame::create(
-        Named("strategy") = std::vector<int> {1, 2, 3},
-        Named("prop") = getPopStrategyProp(pop)
-    );
-}
-
-// helper function to print values
-//' Run a transect through 1D Perlin noise.
-//'
-//' @param nOctaves Number of octaves. May be thought of as small scale 
-//' variability. Must be an integer value between 1 and 8. Higher values
-//' result in landscapes with more small scale noise.
-//' @param frequency Frequency of noise. May be thought of as large scale
-//' variability. May be any double value between 1.0 and 16.0. Higher values
-//' @param increment The increment in the X coordinate.
-//' @param nValues How many steps, each of \code{increment} magnitude, to take.
-// [[Rcpp::export]]
-Rcpp::NumericVector get_values_1d(const double frequency,
-                                  const float increment, const int nValues) {
-    // get seed
-    unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
-    
-    // make perlin noise
-    FastNoiseLite noise;
-    noise.SetSeed(seed);
-    noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    noise.SetFrequency(frequency);
-    
-    // make a vector to hold values
-    Rcpp::NumericVector sampleVals (nValues);
-    
-    float coordX = static_cast<float> (seed) / static_cast<float> (1e8);
-    float coordY = 0.f;
-    for (size_t i = 0; i < nValues; ++i) {
-        sampleVals[i] = noise.GetNoise(coordX, coordY);
-        coordX += increment;
-    }
-    return sampleVals;
+    return evolvePop(pop, genmax, timesteps, t_increment, noise, landsize);
 }
 
 #endif // SIMULATION_H
