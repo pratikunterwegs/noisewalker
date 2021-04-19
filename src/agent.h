@@ -69,11 +69,11 @@ public:
 
 /// function to count strategy proportions
 std::vector<double> getPopStrategyProp (std::vector<Agent> &pop) {
-  std::vector<int> vCount (3, 0);
+  std::vector<int> vCount {0, 0, 0};
   for(size_t i = 0; i < pop.size(); i++) {
-    vCount[pop[i].strategy - 1]++;
+    vCount[pop[i].strategy]++;
   }
-  std::vector<double> vProp (3, 0.f);
+  std::vector<double> vProp {0.0, 0.0, 0.0};
   for(size_t i = 0; i < vCount.size(); i++) {
     vProp[i] = static_cast<double> (vCount[i]) / static_cast<double> (pop.size());
   }
@@ -81,7 +81,7 @@ std::vector<double> getPopStrategyProp (std::vector<Agent> &pop) {
 }
 
 // strategy probabilities
-std::vector<double> strategyProb (3, 0.33);
+std::vector<double> strategyProb {0.33, 0.33, 0.33};
 std::discrete_distribution <> rndStrategy (strategyProb.begin(), strategyProb.end());
 
 /// initialise the population at random positions
@@ -135,13 +135,13 @@ void Agent::doMove(FastNoiseLite noise, const double landsize, const float t_) {
     // ANN senses values at some offset based on strategy
     // output 0 is distance, 1 is angle
     std::array<float, 2> output;
-    if (strategy == 1) { // sense around
+    if (strategy == 0) { // sense around
       output = annOutput((noise.GetNoise(x + perception, y + perception, t_)), // x+1,y+1
                          (noise.GetNoise(x - perception, y + perception, t_)), // x-1,y+1
                          (noise.GetNoise(x + perception, y - perception, t_)), // x+1,y-1
                          (noise.GetNoise(x - perception, y - perception, t_))  // x-1,y-1
       ); 
-    } else if (strategy == 2) { // sense here but four timesteps ahead
+    } else if (strategy == 1) { // sense here but four timesteps ahead
       output = annOutput((noise.GetNoise(x, y, t_ + perception)),
                          (noise.GetNoise(x, y, t_ + perception * 2)),
                          (noise.GetNoise(x, y, t_ + perception * 3)),
