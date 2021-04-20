@@ -42,7 +42,8 @@ public:
         x(0.f),
         y(0.f),
         annMove(0.f),
-        strategy(strategy_int) // 1 = scout, 2 = forecaster, 3 = lorekeeper
+        strategy(strategy_int), // 0 = scout, 1 = forecaster, 2 = lorekeeper, 3 = random
+        moved(0.0)
 
     {}
     ~Agent() {}
@@ -53,6 +54,7 @@ public:
     float x, y;
     Ann annMove;
     int strategy;
+    double moved;
 
     // agent functions
     void doMove(FastNoiseLite landscape, const double landsize, const float t_);
@@ -68,21 +70,8 @@ public:
                                     const float v3, const float v4);
 };
 
-/// function to count strategy proportions
-std::vector<double> getPopStrategyProp (std::vector<Agent> &pop) {
-  std::vector<int> vCount {0, 0, 0};
-  for(size_t i = 0; i < pop.size(); i++) {
-    vCount[pop[i].strategy]++;
-  }
-  std::vector<double> vProp {0.0, 0.0, 0.0};
-  for(size_t i = 0; i < vCount.size(); i++) {
-    vProp[i] = static_cast<double> (vCount[i]) / static_cast<double> (pop.size());
-  }
-  return vProp;
-}
-
 // strategy probabilities
-std::vector<double> strategyProb {0.33, 0.33, 0.33};
+std::vector<double> strategyProb {0.25, 0.25, 0.25, 0.25};
 std::discrete_distribution <> rndStrategy (strategyProb.begin(), strategyProb.end());
 
 /// initialise the population at random positions
@@ -130,10 +119,10 @@ std::array<float, 2> Agent::annOutput(const float v1, const float v2,
     // def inputs
     Ann::input_t inputs;
     // pass inputs
-    inputs[0] = v1 > clamp ? v1 : 0.f;
-    inputs[1] = v2 > clamp ? v2 : 0.f;
-    inputs[2] = v3 > clamp ? v3 : 0.f;
-    inputs[3] = v4 > clamp ? v4 : 0.f;
+    inputs[0] = v1;
+    inputs[1] = v2;
+    inputs[2] = v3;
+    inputs[3] = v4;
     // get output
     auto distAngle = annMove(inputs);
 
@@ -158,11 +147,17 @@ void Agent::doMove(FastNoiseLite noise, const double landsize, const float t_) {
                          (noise.GetNoise(x, y, t_ + perception * 3)),
                          (noise.GetNoise(x, y, t_ + perception * 4))
       );
-    } else {
+    } else if (strategy == 2) {
       output = annOutput((noise.GetNoise(x, y, t_ -perception)),
                          (noise.GetNoise(x, y, t_ -perception * 2)),
                          (noise.GetNoise(x, y, t_ -perception * 3)),
                          (noise.GetNoise(x, y, t_ -perception * 4))
+      );
+    } else {
+        output = annOutput(gsl_ran_gaussian(r, 0.2),
+                           gsl_ran_gaussian(r, 0.2),
+                           gsl_ran_gaussian(r, 0.2),
+                           gsl_ran_gaussian(r, 0.2)
       );
     }
 
@@ -172,15 +167,19 @@ void Agent::doMove(FastNoiseLite noise, const double landsize, const float t_) {
     float angle = static_cast<float> (output[1]); // we assume this is degrees
     angle = angle * M_PI / 180.0;
     
+    // moved += move_dist;
+
     // get new position
     x = x + (move_dist * cos(angle));
     y = y + (move_dist * sin(angle));
+
+    energy -= (move_dist * move_cost);
 }
 
 /// agent function to forage
 void Agent::doForage(FastNoiseLite landscape, const float t_) {
     float energy_here = (landscape.GetNoise(x, y, t_));
-    energy += (energy_here < 0.f ? 0.f : energy_here);
+    energy +=  energy_here; //(energy_here < 0.f ? 0.f : energy_here);
 }
 
 /* population level functions */
