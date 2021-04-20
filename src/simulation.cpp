@@ -17,6 +17,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                FastNoiseLite noise,
                const double landsize)
 {
+    fitnessData thisFitnessData;
     genData thisGenData;
     float time = 0.f;
     for (int gen = 0; gen < genmax; ++gen) {
@@ -25,11 +26,15 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
             // if gen has not changed then move and forage
             popMoveForage(pop, noise, landsize, time);
         }
-        time = 0.f;
+        // time = 0.f;
         thisGenData.updateGenData(pop, gen);
+        thisFitnessData.updateFitnessData(pop, gen);
         doReproduce(pop);
     }
-    return thisGenData.returnGenData();
+    return Rcpp::List::create(
+        Named("pop_comp") = thisGenData.returnGenData(),
+        Named("fitness") = thisFitnessData.returnFitnessData()
+    );
 }
 
 
