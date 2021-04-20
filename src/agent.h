@@ -85,7 +85,7 @@ void Agent::randomWeights() {
     for (auto& w : annMove) {
         // probabilistic mutation of ANN using GSL
         // using GSL for historical reasons
-        w = static_cast<float> (gsl_ran_gaussian(r, 2.0));
+        w = static_cast<float> (gsl_ran_gaussian(r, 10.0));
     }
 }
 
@@ -143,15 +143,15 @@ void Agent::doMove(FastNoiseLite noise, const double landsize, const float t_) {
       ); 
     } else if (strategy == 1) { // sense here but four timesteps ahead
       output = annOutput((noise.GetNoise(x, y, t_ + perception)),
-                         (noise.GetNoise(x, y, t_ + perception * 2)),
-                         (noise.GetNoise(x, y, t_ + perception * 3)),
-                         (noise.GetNoise(x, y, t_ + perception * 4))
+                         (noise.GetNoise(x, y, t_ + perception * 1.5f)) + static_cast<float>(gsl_ran_gaussian(r, 0.001)),
+                         (noise.GetNoise(x, y, t_ + perception * 1.75f)) + static_cast<float>(gsl_ran_gaussian(r, 0.002)),
+                         (noise.GetNoise(x, y, t_ + perception * 2.f)) + static_cast<float>(gsl_ran_gaussian(r, 0.004))
       );
     } else if (strategy == 2) {
       output = annOutput((noise.GetNoise(x, y, t_ -perception)),
-                         (noise.GetNoise(x, y, t_ -perception * 2)),
-                         (noise.GetNoise(x, y, t_ -perception * 3)),
-                         (noise.GetNoise(x, y, t_ -perception * 4))
+                         (noise.GetNoise(x, y, t_ -perception * 1.5f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.001)),
+                         (noise.GetNoise(x, y, t_ -perception * 1.75f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.002)),
+                         (noise.GetNoise(x, y, t_ -perception * 2.f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.004))
       );
     } else {
         output = annOutput(gsl_ran_gaussian(r, 0.2),
@@ -167,7 +167,7 @@ void Agent::doMove(FastNoiseLite noise, const double landsize, const float t_) {
     float angle = static_cast<float> (output[1]); // we assume this is degrees
     angle = angle * M_PI / 180.0;
     
-    // moved += move_dist;
+    moved += move_dist;
 
     // get new position
     x = x + (move_dist * cos(angle));
