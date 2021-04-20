@@ -26,7 +26,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
             // if gen has not changed then move and forage
             popMoveForage(pop, noise, landsize, time);
         }
-        // time = 0.f;
+        time = 0.f;
         thisGenData.updateGenData(pop, gen);
         thisFitnessData.updateFitnessData(pop, gen);
         doReproduce(pop);
