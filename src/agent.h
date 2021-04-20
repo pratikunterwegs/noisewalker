@@ -231,6 +231,7 @@ void doReproduce(std::vector<Agent>& pop) {
 
     // create new population
     std::vector<Agent> tmpPop(pop.size(), Agent(1, 1.f));
+    popRandomPos(tmpPop, 100.0);
 
     // assign parents
     for (size_t a = 0; a < pop.size(); a++) {
@@ -240,8 +241,8 @@ void doReproduce(std::vector<Agent>& pop) {
         // replicate ANN
         tmpPop[a].annMove = pop[idParent].annMove;
         // get parent position
-        tmpPop[a].x = pop[idParent].x;
-        tmpPop[a].y = pop[idParent].y;
+        // tmpPop[a].x = pop[idParent].x;
+        // tmpPop[a].y = pop[idParent].y;
         tmpPop[a].strategy = pop[idParent].strategy;
         tmpPop[a].energy = 0.0000000001f;
 
