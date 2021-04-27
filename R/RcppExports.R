@@ -7,6 +7,7 @@
 #' arguments to the corresponding R function.
 #' 
 #' @param popsize The population size.
+#' @param percep_range The perception range.
 #' @param genmax The maximum number of generations per simulation.
 #' @param timesteps The number of timesteps per generation.
 #' @param t_increment Rate of landscape change.
@@ -18,7 +19,7 @@
 #' mean more patchy landscapes.
 #' @param landsize The landscape size.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, genmax, timesteps, t_increment, nOctaves, frequency, landsize) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, t_increment, nOctaves, frequency, landsize)
+run_noisewalker <- function(popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, landsize) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, landsize)
 }
 
