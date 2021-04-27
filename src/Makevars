@@ -1,4 +1,3 @@
 CXXSTD = -std=c++17
 
-PKG_LIBS = -I /ann-lib-linux \
-           -I /usr/libgsl -lgsl -lgslcblas -lm
+PKG_LIBS = -I /ann-lib-windows
