@@ -5,162 +5,101 @@
 #include <fstream>
 #include <vector>
 #include "agent.h"
+#include <cmath>
+#include <algorithm> 
+#include <cassert>
+#include <Rcpp.h>
 
-/// construct agent output filename
-std::vector<std::string> identifyOutpath(const int octaves,
-                                         const float frequency,
-                                         const std::string rep){
-    // assumes path/type already prepared
-    std::string path = "data/";
-    // output filename as milliseconds since epoch
-    std::string output_id;
-    {
-        auto now = std::chrono::system_clock::now();
-        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-        auto value = now_ms.time_since_epoch();
-        // add a random number to be sure of discrete values
-        long duration = value.count() +
-                static_cast<long>(gsl_rng_uniform_int(r, 10000));
+using namespace Rcpp;
+struct genData {
+public:
+    std::vector<std::vector<int> > gen;
+    std::vector<std::vector<int> > strategy;
+    std::vector<std::vector<double> > prop;
+    std::vector<std::vector<double> > dist_moved;
+    void updateGenData (std::vector<Agent> &pop, const int gen);
+    Rcpp::List returnGenData ();
+};
 
-        output_id = std::to_string(duration);
-    }
+struct fitnessData {
+public:
+    std::vector<int> gen;
+    std::vector<double> meanFitness;
+    void updateFitnessData(std::vector<Agent> &pop, const int gen);
+    Rcpp::List returnFitnessData ();
+};
 
-    // write summary with filename to agent data
-    // and parameter files
-    // start with output id
-    const std::string summary_out = path + "/lookup.csv";
-    std::ofstream summary_ofs;
-
-    // if not exists write col names
-    std::ifstream f2(summary_out.c_str());
-    if (!f2.good()) {
-        summary_ofs.open(summary_out, std::ofstream::out);
-        summary_ofs << "filename,octaves,frequency,rep\n";
-        summary_ofs.close();
-    }
-    // append if not
-    summary_ofs.open(summary_out, std::ofstream::out | std::ofstream::app);
-    summary_ofs << output_id << ","
-                << octaves << ","
-                << frequency << ","
-                << rep << "\n";
-    summary_ofs.close();
-
-    return std::vector<std::string> {path, output_id};
+/// function to count strategy proportions
+std::vector<double> getPopStrategyProp (std::vector<Agent> &pop) {
+  std::vector<int> vCount (5, 0);
+  for(size_t i = 0; i < pop.size(); i++) {
+    vCount[pop[i].strategy]++;
+  }
+  std::vector<double> vProp (5, 0.0);
+  for(size_t i = 0; i < vCount.size(); i++) {
+    vProp[i] = static_cast<double> (vCount[i]) / static_cast<double> (pop.size());
+  }
+  return vProp;
 }
 
-/// function for agent reaction norms
-void printReacNorm (std::vector<Agent> &pop,
-                    std::vector<std::string> outpath) {
-    // ofstream
-    std::ofstream rnormOfs;
-    // std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
-
-    // check if okay
-    std::ifstream f(outpath[0] + outpath[1] + ".csv");
-    /*if (!f.good()) {
-        std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
-    }*/
-    // write column names
-    rnormOfs.open(outpath[0] + outpath[1] + ".csv",
-            std::ofstream::out | std::ofstream::app);
-
-    rnormOfs << "id,cue,distance,angle\n";
-
-    // run through individuals and cues
-    for (size_t indiv = 0; indiv < pop.size(); ++indiv) {
-        for (float cue_i = -0.5f; cue_i <= 0.5f; cue_i+= 0.05f) {
-            std::array<float, 1> testOutput = pop[indiv].annOutput(cue_i, cue_i);
-
-            rnormOfs << indiv << ","
-                     << cue_i << ","
-                     << testOutput[0] << ","
-                     << testOutput[1] << "\n";
-        }
+std::vector<double> getPopStrategyDistance(std::vector<Agent> &pop) {
+    std::vector<double> vMoved (5, 0.0);
+    std::vector<int> vCount (5, 0);
+    for(size_t i = 0; i < pop.size(); i++) {
+      vCount[pop[i].strategy]++;
+      vMoved[pop[i].strategy] += pop[i].moved;
     }
-    rnormOfs.close();
+    for(size_t i= 0; i < vMoved.size(); i++) {
+        vMoved[i] = vMoved[i] / static_cast<double>(vCount[i]);
+    }
+    return vMoved;
 }
 
-/// function to print evolved agent mass
-void printPopMass (std::vector<Agent> &pop,
-                    std::vector<std::string> outpath) {
-    // ofstream
-    std::ofstream rnormOfs;
-    // std::cout << "data path = " << outpath[0] + outpath[1] << "\n";
+void genData::updateGenData (std::vector<Agent> &pop, const int g) {
 
-    // check if okay
-    std::ifstream f(outpath[0] + outpath[1] + ".csv");
-    // if (!f.good()) {
-    //     std::cout << "data path " << outpath[0] + outpath[1] << " good to write\n";
-    // }
-    // write column names
-    rnormOfs.open(outpath[0] + outpath[1] + ".csv",
-            std::ofstream::out | std::ofstream::app);
+    std::vector<double> strategyProp = getPopStrategyProp(pop);
+    std::vector<double> strategyMoved = getPopStrategyDistance(pop);
+    std::vector<int> stratvec = {0, 1, 2, 3, 4};
 
-    rnormOfs << "id,mass\n";
-
-    // run through individuals and cues
-    for (size_t indiv = 0; indiv < pop.size(); ++indiv) {
-            rnormOfs << indiv << ","
-                     << pop[indiv].mass << "\n";
-    }
-    rnormOfs.close();
+    gen.push_back(std::vector<int> (5, g));
+    strategy.push_back(stratvec);
+    prop.push_back(strategyProp);
+    dist_moved.push_back(strategyMoved);
 }
 
-/// function to print agent weights
-void printAgentWeights(std::vector<Agent> &pop,
-                       std::vector<std::string> outpath,
-                       int gen) {
-    // get output stream
-    std::ofstream annOfs;
-
-    // flexibly get the number of weights
-    const int nWeights = static_cast<int> (pop[0].getAnnWeights().size());
-
-    // get population weights
-    const std::vector<std::vector<float> > popWeights = getPopAnnWts(pop);
-
-    // check if okay
-    std::ifstream f(outpath[0] + outpath[1] + ".csv");
-    // if (!f.good() && gen == 0) {
-    //     std::cout << "data path good to write\n";
-    // }
-    if (gen == 0) {
-        annOfs.open(outpath[0]+ outpath[1] + ".csv",
-                std::ofstream::out);
-        annOfs << "gen,id,";
-        // print wt_number in a loop
-        for (size_t wlen = 0; wlen < static_cast<size_t>(nWeights); ++wlen) {
-            // print commas or newline as appropriate
-            if (wlen < static_cast<size_t> (nWeights) - 1) {
-                annOfs << "wt_" + std::to_string(wlen) << ",";
-            } else {
-                annOfs << "wt_" + std::to_string(wlen) << "\n";
-            }
-        }
-        annOfs.close();
+void fitnessData::updateFitnessData(std::vector<Agent> &pop, const int g) {
+    gen.push_back(g);
+    double meanFitness_ = 0.0;
+    for(size_t i = 0; i < pop.size(); i++) {
+        meanFitness_ += pop[i].energy;
     }
-    // open ofs
-    annOfs.open(outpath[0] + outpath[1] + ".csv",
-            std::ofstream::out | std::ofstream::app);
-    // loop through agents and print weights
-    for (size_t i_print = 0; i_print < pop.size(); ++i_print) {
-
-        annOfs << gen << ","
-               << i_print << ",";
-
-        // print weights
-        for (size_t wlen = 0; wlen < static_cast<size_t>(nWeights); ++wlen) {
-            if (wlen < static_cast<size_t> (nWeights) - 1) {
-                annOfs << popWeights[i_print][wlen] << ",";
-            } else {
-                annOfs << popWeights[i_print][wlen] << "\n";
-            }
-        }
-    }
-
-    annOfs.close();
+    meanFitness.push_back(meanFitness_/static_cast<double>(pop.size()));
 }
 
+Rcpp::List genData::returnGenData() {
+    assert(gen.size() > 0 && "poor gen size");
+    Rcpp::List genDataList;
+
+    for(size_t li = 0; li < gen.size(); li++) {
+        genDataList.push_back(Rcpp::DataFrame::create(
+                    Named("gen") = gen[li],
+                    Named("strategy") = strategy[li],
+                    Named("prop") = prop[li],
+                    Named("mean_distance") = dist_moved[li]));
+    }
+
+    return genDataList;
+}
+
+Rcpp::List fitnessData::returnFitnessData() {
+    assert(gen.size() > 0 && "poor gen size");
+    Rcpp::List fitnessDataList;
+    for(size_t li = 0; li < gen.size(); li++) {
+        fitnessDataList.push_back(Rcpp::DataFrame::create(
+                    Named("gen") = gen[li],
+                    Named("mean_fitness") = meanFitness[li]));
+    }
+    return fitnessDataList;
+}
 
 #endif // NOISEWALKER_TOOLS_H

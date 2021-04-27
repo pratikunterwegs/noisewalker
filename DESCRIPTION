@@ -9,16 +9,19 @@ Authors@R:
            role = c("aut", "cre"),
            email = "p.r.gupte@rug.nl",
            comment = c(ORCID = "https://orcid.org/0000-0001-5294-7819")))
-Description: This is an R frontend for the noisewalker simulation.
-License: file LICENSE
-Imports: Rcpp (>= 1.0.4)
+Description: Run the noisewalker simulation using Rcpp.
+License: Apache License (>= 2.0)
+Imports: 
+    Rcpp
 SystemRequirements: C++14
 LinkingTo: Rcpp
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/pratikunterwegs/noisewalker
 BugReports: https://github.com/pratikunterwegs/noisewalker/issues
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests:
-    knitr
+    knitr,
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr

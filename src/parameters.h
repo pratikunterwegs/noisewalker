@@ -15,15 +15,15 @@ const int timePerGen = 100;
 const int maxTimesteps = timePerGen * generations; // a few generations
 
 // movement cost
-const float move_cost = 0.1f;
-const double mass_move_ratio = 0.1;
+const float move_cost = 0.01f;
 
 // landscape params
 const float landsize = 100.f;
+const float clamp = 0.0f;
 
 // mutation params
 const float mShift = 0.01f;
-const float mProb = 0.01f;
+const float mProb = 0.001f;
 const float mShiftA = 0.05f;
 
 // make a gsl rng and a regular rng

@@ -6,8 +6,7 @@
 #include <vector>
 #include <cassert>
 #include "parameters.h"
-#include <libnoise/noise.h>
-#include "noiseutils.h"
+#include "FastNoiseLite.h"
 #include "ann-lib-linux/rnd.hpp"
 #include "ann-lib-linux/rndutils.hpp"
 #include "ann-lib-linux/ann2.hpp"
@@ -16,9 +15,9 @@ using namespace ann;
 
 // spec ann structure
 using Ann = Network<float,
-Layer< Neuron<2, activation::rtlu>, 3>, // for now, 4 input for energy cues
-//    Layer< Neuron<3, activation::rtlu>, 3>,
-Layer< Neuron<3, activation::rtlu>, 1> // two outputs, distance and angle
+Layer< Neuron<4, activation::rtlu>, 3>, // for now, 4 input for energy cues
+Layer< Neuron<3, activation::rtlu>, 3>,
+Layer< Neuron<3, activation::rtlu>, 2> // two outputs, distance and angle
 >;
 
 // clear node state
@@ -36,46 +35,49 @@ struct flush_rec_nodes {
 // Agent class
 class Agent {
 public:
-    Agent() :
+    Agent(const int strategy_int, const float perception_range) :
         // count agents correctly heritable parameter is s_range
-        energy(1.f),
-        sRange(1.0),
-        x(0.0),
-        mass(1.0),
-        annMove(0.f)
+        energy(0.01f),
+        perception(perception_range),
+        x(0.f),
+        y(0.f),
+        annMove(0.f),
+        strategy(strategy_int), // 0 = scout, 1 = forecaster, 2 = lorekeeper, 3 = random, 4 = one forward, three around
+        moved(0.0)
 
     {}
     ~Agent() {}
 
-    // Agents need a brain, an age, fitness, and movement decision
+    // agent attributes
     float energy;
-    double sRange, x, mass;
-    std::array<float, 1> annOutput (const float v1, const float v2);
+    float perception;
+    float x, y;
     Ann annMove;
+    int strategy;
+    double moved;
 
-    // do move
-    // void wrapPosition(float newX, float newY, const float maxPos, const float minPos);
-    void doMove(module::Perlin landscape);
-    void doForage(module::Perlin landscape);
+    // agent functions
+    void doMove(FastNoiseLite landscape, const float t_);
+    void doForage(FastNoiseLite landscape, const float t_);
     std::vector<float> getAnnWeights();
+    
     void randomWeights();
+    void randomPosition(const float landsize);
+    void randomStrategy();
+    
+    
+    std::array<float, 2> annOutput (const float v1, const float v2, 
+                                    const float v3, const float v4);
 };
 
-
-/// functions to initialise the population
-/// force the sensory range of the population
-void forceSrange(std::vector<Agent>& pop, const double s){
-  for(size_t i = 0; i < pop.size(); i++){
-    pop[i].sRange = s;
-  }
-}
+// strategy probabilities
+std::vector<double> strategyProb (5, 0.2);
+std::discrete_distribution <> rndStrategy (strategyProb.begin(), strategyProb.end());
 
 /// initialise the population at random positions
-void randomPosition(std::vector<Agent> &pop) {
-    for(size_t i = 0; i < pop.size(); i++){
-      pop[i].x = gsl_rng_uniform(r) * static_cast<double>(landsize);
-    //   pop[i].y = gsl_rng_uniform(r) * static_cast<double>(landsize);
-    }
+void Agent::randomPosition(const float landsize) {
+    x = gsl_rng_uniform(r) * static_cast<double>(landsize);
+    y = gsl_rng_uniform(r) * static_cast<double>(landsize);
 }
 
 /// individual random weights
@@ -83,8 +85,19 @@ void Agent::randomWeights() {
     for (auto& w : annMove) {
         // probabilistic mutation of ANN using GSL
         // using GSL for historical reasons
-        w = static_cast<float> (gsl_ran_gaussian(r, 2.0));
+        w = static_cast<float> (gsl_ran_gaussian(r, 10.0));
     }
+}
+
+void Agent::randomStrategy(){
+    strategy = rndStrategy(rng);
+}
+
+/// initialise with random position
+void popRandomPos(std::vector<Agent> &pop, const float landsize) {
+  for(auto& indiv : pop) {
+    indiv.randomPosition(landsize);
+  }
 }
 
 /// initialise with random weights
@@ -94,28 +107,22 @@ void popRandomWeights(std::vector<Agent> &pop) {
     }
 }
 
-/// generic wrapper function for floats
-// assumes position minimum is zero
-// float wrapper(float x, float min, float max) {
-//         return min + fmod((max - min) + fmod(x - min, max - min), max - min);
-// }
-
-// distance wrapper float
-/// agent function to wrap position
-// void Agent::wrapPosition(float newX, float newY,
-//                    const float minPos, const float maxPos) {
-
-//     x = wrapper(newX, minPos, maxPos);
-//     y = wrapper(newY, minPos, maxPos);
-// }
+void popRandomStrategy(std::vector<Agent> &pop){
+    for(auto& indiv : pop) {
+        indiv.randomStrategy();
+    }
+}
 
 /// get ANN output
-std::array<float, 1> Agent::annOutput(const float v1, const float v2) {
+std::array<float, 2> Agent::annOutput(const float v1, const float v2,
+                                      const float v3, const float v4) {
     // def inputs
     Ann::input_t inputs;
     // pass inputs
     inputs[0] = v1;
     inputs[1] = v2;
+    inputs[2] = v3;
+    inputs[3] = v4;
     // get output
     auto distAngle = annMove(inputs);
 
@@ -123,51 +130,82 @@ std::array<float, 1> Agent::annOutput(const float v1, const float v2) {
 }
 
 /// agent function to choose a new position
-void Agent::doMove(module::Perlin landscape) {
+void Agent::doMove(FastNoiseLite noise, const float t_) {
     // agents use ANN to move
-    // ANN senses Clamp values at some offset
+    // ANN senses values at some offset based on strategy
     // output 0 is distance, 1 is angle
-    std::array<float, 1> output = annOutput(static_cast<float>(landscape.GetValue(x + sRange, 0.0, 0.0)),
-                                            static_cast<float>(landscape.GetValue(x - sRange, 0.0, 0.0)));
+    std::array<float, 2> output;
+    switch (strategy) {
+    case 0:
+        output = annOutput((noise.GetNoise(x + perception, y + perception, t_)), // x+1,y+1
+                           (noise.GetNoise(x - perception, y + perception, t_)), // x-1,y+1
+                           (noise.GetNoise(x + perception, y - perception, t_)), // x+1,y-1
+                           (noise.GetNoise(x - perception, y - perception, t_))  // x-1,y-1
+        );
+        break;
+    case 1:
+        output = annOutput((noise.GetNoise(x, y, t_ + perception)),
+                           (noise.GetNoise(x, y, t_ + perception * 1.5f)) + static_cast<float>(gsl_ran_gaussian(r, 0.001)),
+                           (noise.GetNoise(x, y, t_ + perception * 1.75f)) + static_cast<float>(gsl_ran_gaussian(r, 0.002)),
+                           (noise.GetNoise(x, y, t_ + perception * 2.f)) + static_cast<float>(gsl_ran_gaussian(r, 0.004))
+        );
+        break;
+    case 2:
+        output = annOutput((noise.GetNoise(x, y, t_ -perception)),
+                           (noise.GetNoise(x, y, t_ -perception * 1.5f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.001)),
+                           (noise.GetNoise(x, y, t_ -perception * 1.75f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.002)),
+                           (noise.GetNoise(x, y, t_ -perception * 2.f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.004))
+        );
+        break;
+    case 3:
+        output = annOutput(gsl_ran_gaussian(r, 0.2),
+                           gsl_ran_gaussian(r, 0.2),
+                           gsl_ran_gaussian(r, 0.2),
+                           gsl_ran_gaussian(r, 0.2)
+        );
+        break;
+    case 4:
+        output = annOutput((noise.GetNoise(x, y, t_ + perception)),
+                           (noise.GetNoise(x - perception, y + perception, t_)) + static_cast<float>(gsl_ran_gaussian(r, 0.001)),
+                           (noise.GetNoise(x + perception, y - perception, t_)) + static_cast<float>(gsl_ran_gaussian(r, 0.002)),
+                           (noise.GetNoise(x - perception, y - perception, t_)) + static_cast<float>(gsl_ran_gaussian(r, 0.004))
+        );
+        break;
+    }
 
     // take either output or 10% body mass whichever is lower
     // only consider abs value to determine the magnitude
-    double move_dist = static_cast<double> (abs(output[0]));
+    float move_dist = static_cast<float> (abs(output[0]));
+    float angle = static_cast<float> (output[1]); // we assume this is degrees
+    angle = angle * M_PI / 180.0;
+    
+    moved += move_dist;
 
-    if (move_dist > mass * mass_move_ratio) {
-        move_dist = mass * mass_move_ratio;
-    }                                      
-    // now assign the sign
-    move_dist = move_dist * (output[0] >= 0.f ? 1.0 : -1.0);
-
-    // new unwrapped position, returns floats?
-    x += move_dist;
-
-    // penalise the distance actually moved, not the distance chosen
-    // agent max penalty is move cost * mass * mass_move_ratio
-    energy -= move_cost * abs(move_dist);
+    // get new position
+    x = x + (move_dist * cos(angle));
+    y = y + (move_dist * sin(angle));
 }
 
 /// agent function to forage
-void Agent::doForage(module::Perlin landscape) {
-
-    energy += static_cast<float> (landscape.GetValue(x + sRange, 0.0, 0.0) +
-               landscape.GetValue(x - sRange, 0.0, 0.0)) / 2.f;
+void Agent::doForage(FastNoiseLite landscape, const float t_) {
+    float energy_here = (landscape.GetNoise(x, y, t_));
+    energy +=  energy_here; //(energy_here < 0.f ? 0.f : energy_here);
 }
 
 /* population level functions */
 /// population moves about and forages
-void popMoveForage(std::vector<Agent>& pop, module::Perlin landscape) {
+void popMoveForage(std::vector<Agent>& pop, FastNoiseLite landscape,
+                   const float t_) {
     for(auto& indiv : pop) {
-        indiv.doMove(landscape);
-        indiv.doForage(landscape);
+        indiv.doMove(landscape, t_);
+        indiv.doForage(landscape, t_);
     }
 }
 
 /// minor function to normalise vector
 void normaliseFitness(std::vector<double> &vecFitness) {
-    float minFitness = 0.0;
-    float maxFitness = 1.0;
+    float minFitness = 0.0f;
+    float maxFitness = 1.0f;
     // get min and max fitness
     for (size_t vecVal = 0; vecVal < vecFitness.size(); ++vecVal) {
         if (vecFitness[vecVal] < minFitness) {
@@ -191,10 +229,10 @@ void normaliseFitness(std::vector<double> &vecFitness) {
 /// pop reproduces
 void doReproduce(std::vector<Agent>& pop) {
     // make fitness vec
-    std::vector<double> vecFitness;
-    for (size_t a = 0; static_cast<int>(a) < popSize; a++)
+    std::vector<double> vecFitness (pop.size());
+    for (size_t a = 0; a < pop.size(); a++)
     {
-        vecFitness.push_back(static_cast<double> (pop[a].energy));
+        vecFitness[a] = (static_cast<double> (pop[a].energy));
     }
     normaliseFitness(vecFitness);
 
@@ -202,10 +240,11 @@ void doReproduce(std::vector<Agent>& pop) {
     std::discrete_distribution<> weightedLottery(vecFitness.begin(), vecFitness.end());
 
     // create new population
-    std::vector<Agent> tmpPop(popSize);
+    std::vector<Agent> tmpPop(pop.size(), Agent(1, 1.f));
+//    popRandomPos(tmpPop, 100.0);
 
     // assign parents
-    for (size_t a = 0; static_cast<int>(a) < popSize; a++) {
+    for (size_t a = 0; a < pop.size(); a++) {
 
         size_t idParent = static_cast<size_t> (weightedLottery(rng));
 
@@ -213,9 +252,11 @@ void doReproduce(std::vector<Agent>& pop) {
         tmpPop[a].annMove = pop[idParent].annMove;
         // get parent position
         tmpPop[a].x = pop[idParent].x;
-        tmpPop[a].mass = pop[idParent].mass;
+        tmpPop[a].y = pop[idParent].y;
+        tmpPop[a].strategy = pop[idParent].strategy;
+        tmpPop[a].energy = 0.0000000001f;
 
-        // mutate ann
+        // mutate ann and strategy
         for (auto& w : tmpPop[a].annMove) {
             // probabilistic mutation of ANN using GSL
             // using GSL for historical reasons
@@ -223,15 +264,15 @@ void doReproduce(std::vector<Agent>& pop) {
                 w += static_cast<float> (gsl_ran_cauchy(r, static_cast<double>(mShift)));
             }
         }
-
-        // mutate mass
         if (gsl_ran_bernoulli(r, static_cast<double>(mProb)) == 1) {
-                tmpPop[a].mass += static_cast<float> (gsl_ran_cauchy(r, static_cast<double>(mShift)));
-            }
+          // draw strategy from discrete distribution
+          tmpPop[a].strategy = rndStrategy(rng);
+        }
     }
-
     // swap tmp pop for pop
     std::swap(pop, tmpPop);
+    // randomise position
+    popRandomPos(tmpPop, landsize);
     tmpPop.clear();
 }
 
@@ -249,8 +290,8 @@ std::vector<float> Agent::getAnnWeights() {
 /// get population weights
 std::vector<std::vector<float> > getPopAnnWts(std::vector<Agent> &pop) {
     // vec of indivs
-    std::vector<std::vector<float> > popWeights(popSize);
-    for(size_t indiv = 0; static_cast<int>(indiv) < popSize; ++indiv) {
+    std::vector<std::vector<float> > popWeights(pop.size());
+    for(size_t indiv = 0; indiv < pop.size(); ++indiv) {
         popWeights[indiv] = pop[indiv].getAnnWeights();
     }
 

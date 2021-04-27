@@ -1,3 +1,10 @@
 ^.*\.Rproj$
+^.*\.Rmd$
 ^\.Rproj\.user$
 ^figures$
+^data$
+^noisewalker_cpp$
+^.*\.out$
+^.*\.yml$
+^.*\.sh$
+^LICENSE\.md$

@@ -6,18 +6,19 @@
 #' @description Run the noisewalker simulation using parameters passed as
 #' arguments to the corresponding R function.
 #' 
+#' @param popsize The population size.
 #' @param genmax The maximum number of generations per simulation.
 #' @param timesteps The number of timesteps per generation.
+#' @param t_increment Rate of landscape change.
 #' @param nOctaves Number of octaves. May be thought of as small scale 
 #' variability. Must be an integer value between 1 and 8. Higher values
 #' result in landscapes with more small scale noise.
 #' @param frequency Frequency of noise. May be thought of as large scale
 #' variability. May be any double value between 1.0 and 16.0. Higher values
-#' @param newSrange The sensory range of the population.
-#' @param rep The replicate number. Designed to be read from a data.frame.
-#' result in noise that is closer to white noise.
-#' @return Nothing. Writes an image to file.
-runNoisewalker <- function(genmax, timesteps, nOctaves, frequency, newSrange, rep) {
-    invisible(.Call(`_noisewalker_runNoisewalker`, genmax, timesteps, nOctaves, frequency, newSrange, rep))
+#' mean more patchy landscapes.
+#' @param landsize The landscape size.
+#' @return A dataframe of evolved pop strategy count.
+run_noisewalker <- function(popsize, genmax, timesteps, t_increment, nOctaves, frequency, landsize) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, t_increment, nOctaves, frequency, landsize)
 }
 

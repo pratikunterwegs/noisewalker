@@ -5,24 +5,26 @@
 
 using namespace Rcpp;
 
-// runNoisewalker
-void runNoisewalker(const int genmax, const int timesteps, const int nOctaves, const double frequency, const double newSrange, const std::string rep);
-RcppExport SEXP _noisewalker_runNoisewalker(SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP newSrangeSEXP, SEXP repSEXP) {
+// run_noisewalker
+Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float t_increment, const int nOctaves, const double frequency, const double landsize);
+RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP t_incrementSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP landsizeSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type popsize(popsizeSEXP);
     Rcpp::traits::input_parameter< const int >::type genmax(genmaxSEXP);
     Rcpp::traits::input_parameter< const int >::type timesteps(timestepsSEXP);
+    Rcpp::traits::input_parameter< const float >::type t_increment(t_incrementSEXP);
     Rcpp::traits::input_parameter< const int >::type nOctaves(nOctavesSEXP);
     Rcpp::traits::input_parameter< const double >::type frequency(frequencySEXP);
-    Rcpp::traits::input_parameter< const double >::type newSrange(newSrangeSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type rep(repSEXP);
-    runNoisewalker(genmax, timesteps, nOctaves, frequency, newSrange, rep);
-    return R_NilValue;
+    Rcpp::traits::input_parameter< const double >::type landsize(landsizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, genmax, timesteps, t_increment, nOctaves, frequency, landsize));
+    return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_noisewalker_runNoisewalker", (DL_FUNC) &_noisewalker_runNoisewalker, 6},
+    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 7},
     {NULL, NULL, 0}
 };
 
