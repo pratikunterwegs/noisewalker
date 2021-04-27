@@ -31,11 +31,11 @@ public:
 
 /// function to count strategy proportions
 std::vector<double> getPopStrategyProp (std::vector<Agent> &pop) {
-  std::vector<int> vCount {0, 0, 0, 0};
+  std::vector<int> vCount (5, 0);
   for(size_t i = 0; i < pop.size(); i++) {
     vCount[pop[i].strategy]++;
   }
-  std::vector<double> vProp {0.0, 0.0, 0.0, 0.0};
+  std::vector<double> vProp (5, 0.0);
   for(size_t i = 0; i < vCount.size(); i++) {
     vProp[i] = static_cast<double> (vCount[i]) / static_cast<double> (pop.size());
   }
@@ -43,8 +43,8 @@ std::vector<double> getPopStrategyProp (std::vector<Agent> &pop) {
 }
 
 std::vector<double> getPopStrategyDistance(std::vector<Agent> &pop) {
-    std::vector<double> vMoved {0.0, 0.0, 0.0, 0.0};
-    std::vector<int> vCount {0,0,0,0};
+    std::vector<double> vMoved (5, 0.0);
+    std::vector<int> vCount (5, 0);
     for(size_t i = 0; i < pop.size(); i++) {
       vCount[pop[i].strategy]++;
       vMoved[pop[i].strategy] += pop[i].moved;
@@ -59,9 +59,9 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
 
     std::vector<double> strategyProp = getPopStrategyProp(pop);
     std::vector<double> strategyMoved = getPopStrategyDistance(pop);
-    std::vector<int> stratvec = {0, 1, 2, 3};
+    std::vector<int> stratvec = {0, 1, 2, 3, 4};
 
-    gen.push_back(std::vector<int> {g, g, g, g});
+    gen.push_back(std::vector<int> (5, g));
     strategy.push_back(stratvec);
     prop.push_back(strategyProp);
     dist_moved.push_back(strategyMoved);
