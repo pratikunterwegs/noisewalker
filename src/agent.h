@@ -62,7 +62,7 @@ public:
     std::vector<float> getAnnWeights();
     
     void randomWeights();
-    void randomPosition(const float landsize);
+    void randomPosition();
     void randomStrategy();
     
     
@@ -70,14 +70,19 @@ public:
                                     const float v3, const float v4);
 };
 
-// strategy probabilities
+// distributions and strategy probabilities
 std::vector<double> strategyProb (5, 0.2);
 std::discrete_distribution <> rndStrategy (strategyProb.begin(), strategyProb.end());
+std::uniform_real_distribution <> rndPos (0.0, landsize);
+std::normal_distribution <> rndWt (0.0, 2.0);
+std::normal_distribution <> rndErr (0.0, 0.1);
+std::bernoulli_distribution <> rndBnl (mProb);
+std::cauchy_distribution <> rndMut ()
 
 /// initialise the population at random positions
-void Agent::randomPosition(const float landsize) {
-    x = gsl_rng_uniform(r) * static_cast<double>(landsize);
-    y = gsl_rng_uniform(r) * static_cast<double>(landsize);
+void Agent::randomPosition() {
+    x = rndPos(rng);
+    y = rndPos(rng);
 }
 
 /// individual random weights
@@ -85,7 +90,7 @@ void Agent::randomWeights() {
     for (auto& w : annMove) {
         // probabilistic mutation of ANN using GSL
         // using GSL for historical reasons
-        w = static_cast<float> (gsl_ran_gaussian(r, 10.0));
+        w = static_cast<float> (rndWt(rng));
     }
 }
 
@@ -96,7 +101,7 @@ void Agent::randomStrategy(){
 /// initialise with random position
 void popRandomPos(std::vector<Agent> &pop, const float landsize) {
   for(auto& indiv : pop) {
-    indiv.randomPosition(landsize);
+    indiv.randomPosition();
   }
 }
 
@@ -145,30 +150,30 @@ void Agent::doMove(FastNoiseLite noise, const float t_) {
         break;
     case 1:
         output = annOutput((noise.GetNoise(x, y, t_ + perception)),
-                           (noise.GetNoise(x, y, t_ + perception * 1.5f)) + static_cast<float>(gsl_ran_gaussian(r, 0.001)),
-                           (noise.GetNoise(x, y, t_ + perception * 1.75f)) + static_cast<float>(gsl_ran_gaussian(r, 0.002)),
-                           (noise.GetNoise(x, y, t_ + perception * 2.f)) + static_cast<float>(gsl_ran_gaussian(r, 0.004))
+                           (noise.GetNoise(x, y, t_ + perception * 1.5f)) + static_cast<float>(rndErr(rng)),
+                           (noise.GetNoise(x, y, t_ + perception * 1.75f)) + static_cast<float>(rndErr(rng)),
+                           (noise.GetNoise(x, y, t_ + perception * 2.f)) + static_cast<float>(rndErr(rng))
         );
         break;
     case 2:
         output = annOutput((noise.GetNoise(x, y, t_ -perception)),
-                           (noise.GetNoise(x, y, t_ -perception * 1.5f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.001)),
-                           (noise.GetNoise(x, y, t_ -perception * 1.75f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.002)),
-                           (noise.GetNoise(x, y, t_ -perception * 2.f)) +  static_cast<float>(gsl_ran_gaussian(r, 0.004))
+                           (noise.GetNoise(x, y, t_ -perception * 1.5f)) +  static_cast<float>(rndErr(rng)),
+                           (noise.GetNoise(x, y, t_ -perception * 1.75f)) +  static_cast<float>(rndErr(rng)),
+                           (noise.GetNoise(x, y, t_ -perception * 2.f)) +  static_cast<float>(rndErr(rng))
         );
         break;
     case 3:
-        output = annOutput(gsl_ran_gaussian(r, 0.2),
-                           gsl_ran_gaussian(r, 0.2),
-                           gsl_ran_gaussian(r, 0.2),
-                           gsl_ran_gaussian(r, 0.2)
+        output = annOutput(static_cast<float>(rndWt(rng)),
+                           static_cast<float>(rndWt(rng)),
+                           static_cast<float>(rndWt(rng)),
+                           static_cast<float>(rndWt(rng))
         );
         break;
     case 4:
         output = annOutput((noise.GetNoise(x, y, t_ + perception)),
-                           (noise.GetNoise(x - perception, y + perception, t_)) + static_cast<float>(gsl_ran_gaussian(r, 0.001)),
-                           (noise.GetNoise(x + perception, y - perception, t_)) + static_cast<float>(gsl_ran_gaussian(r, 0.002)),
-                           (noise.GetNoise(x - perception, y - perception, t_)) + static_cast<float>(gsl_ran_gaussian(r, 0.004))
+                           (noise.GetNoise(x - perception, y + perception, t_)) + static_cast<float>(rndErr(rng)),
+                           (noise.GetNoise(x + perception, y - perception, t_)) + static_cast<float>(rndErr(rng)),
+                           (noise.GetNoise(x - perception, y - perception, t_)) + static_cast<float>(rndErr(rng))
         );
         break;
     }
@@ -258,13 +263,12 @@ void doReproduce(std::vector<Agent>& pop) {
 
         // mutate ann and strategy
         for (auto& w : tmpPop[a].annMove) {
-            // probabilistic mutation of ANN using GSL
-            // using GSL for historical reasons
-            if (gsl_ran_bernoulli(r, static_cast<double>(mProb)) == 1) {
-                w += static_cast<float> (gsl_ran_cauchy(r, static_cast<double>(mShift)));
+            // probabilistic mutation of ANN
+            if (rndBnl(rng)) {
+                w += static_cast<float> (std::cauchy_distribution(static_cast<double>(w), mShift)(rng));
             }
         }
-        if (gsl_ran_bernoulli(r, static_cast<double>(mProb)) == 1) {
+        if (rndBnl(rng)) {
           // draw strategy from discrete distribution
           tmpPop[a].strategy = rndStrategy(rng);
         }
