@@ -42,5 +42,9 @@ data/password
 inst/doc
 data/*.Rdata
 
+# ignore ann-lib-linux
+src/ann-lib-linux/*
+src/ann-lib-windows/*
+
 # ignore jobs
 job_noisewalker*
