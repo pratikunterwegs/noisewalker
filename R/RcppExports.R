@@ -17,9 +17,9 @@
 #' @param frequency Frequency of noise. May be thought of as large scale
 #' variability. May be any double value between 1.0 and 16.0. Higher values
 #' mean more patchy landscapes.
-#' @param landsize The landscape size.
+#' @param burnin Initial, unrecorded generations.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, landsize) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, landsize)
+run_noisewalker <- function(popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, burnin) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, burnin)
 }
 
