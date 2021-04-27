@@ -29,7 +29,7 @@ int main()
     noise.SetFractalOctaves(2);
 
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, 50, 10, 0.01, noise);
+    Rcpp::List thisData = evolvePop(pop, 50, 10, 0.01, noise, 10);
 
     std::cout << "pop evolved";
     return 0;
