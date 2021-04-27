@@ -3,36 +3,56 @@ library(devtools)
 library(ggplot2)
 library(data.table)
 
+Rcpp::compileAttributes()
 build()
 install()
 
 library(noisewalker)
 a = noisewalker::run_noisewalker(
-    popsize = 100,
-    genmax = 60,
-    timesteps = 100,
+    popsize = 500,
+    genmax = 250,
+    timesteps = 1000,
     t_increment = 1,
     nOctaves = 2,
     frequency = 2,
-    landsize = 200
+    burnin = 0,
+    percep_range = 0.1
 )
 
-params = CJ(t_increment = c(0.5, 1, 2),
-            frequency = c(1, 4, 8),
-            replicate = seq(5))
+b = a[["movement"]]
+
+d = rbindlist(a[["pop_comp"]])
+
+ggplot(b)+
+    geom_boxplot(
+        aes(factor(strategy),
+            moved)
+    )
+
+ggplot(d)+
+    geom_line(
+        aes(gen, prop,
+            colour = factor(strategy))
+    )+
+    scale_x_log10()
+
+params = CJ(t_increment = c(0.1),
+            frequency = c(3),
+            replicate = seq(1))
 
 data = Map(function(ti, fr) {
     noisewalker::run_noisewalker(
         popsize = 500,
         genmax = 1000,
-        timesteps = 50,
+        timesteps = 20,
         t_increment = ti,
         nOctaves = 2,
         frequency = fr,
-        landsize = 100)  
+        percep_range = 0.1,
+        burnin = 200)  
 }, params$t_increment, params$frequency)
 
-save(data, file = "data/data_sim_19_04_2021.Rdata")
+save(data, file = "data/data_sim_27_04_2021.Rdata")
 
 data_fitness = lapply(data, function(l) {
     rbindlist(l[["fitness"]])
@@ -77,16 +97,20 @@ ggplot(data_copy)+
     facet_grid(t_increment ~ frequency)+
     scale_x_sqrt()
 
-# see distance moved
-ggplot(data_copy[!is.infinite(mean_distance)])+
-    geom_hline(yintercept = 0.33,
-               col = "grey")+
-    geom_point(
-        aes(gen, mean_distance,
-            colour = factor(strategy),
-            group = interaction(strategy, replicate)),
-        shape = 1
+# get data on movement
+data_move = lapply(data, function(l) {
+    (l[["movement"]])
+})
+data_copy = copy(params)
+data_copy$move = data_move
+
+# unlist
+data_copy = data_copy[,unlist(move, recursive = F),
+    by = c("t_increment", "frequency", "replicate")]
+
+ggplot(data_copy)+
+    geom_boxplot(
+        aes(factor(strategy), moved)
     )+
-    facet_grid(t_increment ~ frequency)+
-    scale_x_sqrt()+
-    scale_y_log10(lim = c(0.1, 1000))
+    facet_grid(t_increment ~ frequency)#+
+    scale_y_sqrt()
