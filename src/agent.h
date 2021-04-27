@@ -7,9 +7,9 @@
 #include <cassert>
 #include "parameters.h"
 #include "FastNoiseLite.h"
-#include "ann-lib-linux/rnd.hpp"
-#include "ann-lib-linux/rndutils.hpp"
-#include "ann-lib-linux/ann2.hpp"
+#include "ann-lib-windows/rnd.hpp"
+#include "ann-lib-windows/rndutils.hpp"
+#include "ann-lib-windows/ann2.hpp"
 
 using namespace ann;
 
