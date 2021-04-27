@@ -85,7 +85,7 @@ void Agent::randomWeights() {
     for (auto& w : annMove) {
         // probabilistic mutation of ANN using GSL
         // using GSL for historical reasons
-        w = static_cast<float> (gsl_ran_gaussian(r, 1.0));
+        w = static_cast<float> (gsl_ran_gaussian(r, 10.0));
     }
 }
 
@@ -175,15 +175,15 @@ void Agent::doMove(FastNoiseLite noise, const float t_) {
 
     // take either output or 10% body mass whichever is lower
     // only consider abs value to determine the magnitude
-    float move_dist = static_cast<float> (abs(output[0]));
-    float angle = static_cast<float> (output[1]); // we assume this is degrees
+    float move_dist = output[0];
+    float angle = output[1]; // we assume this is degrees
     angle = angle * M_PI / 180.0;
     
     moved += move_dist;
 
     // get new position
-    x = x + (move_dist * cos(angle));
-    y = y + (move_dist * sin(angle));
+    x = x + (move_dist * static_cast<float>(cos(angle)));
+    y = y + (move_dist * static_cast<float>(sin(angle)));
 }
 
 /// agent function to forage
