@@ -14,10 +14,12 @@ using namespace Rcpp;
 Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int genmax, const int timesteps,
                const float t_increment,
-               FastNoiseLite noise)
+               FastNoiseLite noise,
+               const int burnin)
 {
     fitnessData thisFitnessData;
     genData thisGenData;
+    moveData thisMoveData;
     float time = 0.f;
     for (int gen = 0; gen < genmax; ++gen) {
         for (int t = 0; t < timesteps; ++t) {
@@ -26,13 +28,21 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
             popMoveForage(pop, noise, time);
         }
         time = 0.f;
-        thisGenData.updateGenData(pop, gen);
-        thisFitnessData.updateFitnessData(pop, gen);
+
+        if (gen > burnin) {
+            thisGenData.updateGenData(pop, gen);
+            thisFitnessData.updateFitnessData(pop, gen);
+        }
+        if (gen == (genmax - 2))
+        {
+            thisMoveData.updateMoveData(pop);
+        }
         doReproduce(pop);
     }
     return Rcpp::List::create(
         Named("pop_comp") = thisGenData.returnGenData(),
-        Named("fitness") = thisFitnessData.returnFitnessData()
+        Named("fitness") = thisFitnessData.returnFitnessData(),
+        Named("movement") = thisMoveData.returnMoveData()
     );
 }
 
@@ -43,6 +53,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' arguments to the corresponding R function.
 //' 
 //' @param popsize The population size.
+//' @param percep_range The perception range.
 //' @param genmax The maximum number of generations per simulation.
 //' @param timesteps The number of timesteps per generation.
 //' @param t_increment Rate of landscape change.
@@ -52,15 +63,16 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' @param frequency Frequency of noise. May be thought of as large scale
 //' variability. May be any double value between 1.0 and 16.0. Higher values
 //' mean more patchy landscapes.
-//' @param landsize The landscape size.
+//' @param burnin Initial, unrecorded generations.
 //' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
 Rcpp::List run_noisewalker(
         const int popsize,
+        const float percep_range,
         const int genmax, const int timesteps,
         const float t_increment,
         const int nOctaves, const double frequency,
-        const double landsize) {
+        const int burnin) {
     
     // set the random number generation etc
     const gsl_rng_type * T;
@@ -71,11 +83,11 @@ Rcpp::List run_noisewalker(
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
     
     // init pop
-    std::vector<Agent> pop (popsize, Agent(1, 1.f));
+    std::vector<Agent> pop (popsize, Agent(1, percep_range));
     // random position
     popRandomPos(pop, landsize);
     // random weights
-//    popRandomWeights(pop);
+    popRandomWeights(pop);
     popRandomStrategy(pop);
     
     // make the ancestral landscape
@@ -85,7 +97,7 @@ Rcpp::List run_noisewalker(
     noise.SetFractalOctaves(nOctaves);
     
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, t_increment, noise);
+    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, t_increment, noise, burnin);
 
     return thisData;
 }
