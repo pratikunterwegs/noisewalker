@@ -85,7 +85,7 @@ void Agent::randomWeights() {
     for (auto& w : annMove) {
         // probabilistic mutation of ANN using GSL
         // using GSL for historical reasons
-        w = static_cast<float> (gsl_ran_gaussian(r, 10.0));
+        w = static_cast<float> (gsl_ran_gaussian(r, 1.0));
     }
 }
 
