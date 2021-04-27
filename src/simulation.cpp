@@ -63,12 +63,13 @@ Rcpp::List run_noisewalker(
         const double landsize) {
     
     // set the random number generation etc
-    const gsl_rng_type * T;
-    gsl_rng_env_setup();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);
+    // const gsl_rng_type * T;
+    // gsl_rng_env_setup();
+    // T = gsl_rng_default;
+    // r = gsl_rng_alloc (T);
     
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
+    rng (seed);
     
     // init pop
     std::vector<Agent> pop (popsize, Agent(1, 1.f));
