@@ -14,8 +14,7 @@ using namespace Rcpp;
 Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int genmax, const int timesteps,
                const float t_increment,
-               FastNoiseLite noise,
-               const double landsize)
+               FastNoiseLite noise)
 {
     fitnessData thisFitnessData;
     genData thisGenData;
@@ -24,7 +23,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         for (int t = 0; t < timesteps; ++t) {
             time += t_increment;
             // if gen has not changed then move and forage
-            popMoveForage(pop, noise, landsize, time);
+            popMoveForage(pop, noise, time);
         }
         time = 0.f;
         thisGenData.updateGenData(pop, gen);
@@ -76,7 +75,7 @@ Rcpp::List run_noisewalker(
     // random position
     popRandomPos(pop, landsize);
     // random weights
-    popRandomWeights(pop);
+//    popRandomWeights(pop);
     popRandomStrategy(pop);
     
     // make the ancestral landscape
@@ -86,7 +85,7 @@ Rcpp::List run_noisewalker(
     noise.SetFractalOctaves(nOctaves);
     
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, t_increment, noise, landsize);
+    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, t_increment, noise);
 
     return thisData;
 }
