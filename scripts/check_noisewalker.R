@@ -5,23 +5,19 @@ library(data.table)
 
 Rcpp::compileAttributes()
 build()
-install()
+sink("install_output.log"); install(); sink()
 
 library(noisewalker)
 a = noisewalker::run_noisewalker(
-    popsize = 500,
-    genmax = 250,
-    timesteps = 1000,
-    t_increment = 1,
-    nOctaves = 2,
-    frequency = 2,
-    burnin = 0,
-    percep_range = 0.1
+    popsize = 20, 
+    genmax = 10, 
+    timesteps = 10, 
+    perception = 1.0, 
+    nOctaves = 2, 
+    frequency = 2
 )
 
-b = a[["movement"]]
-
-d = rbindlist(a[["pop_comp"]])
+# WORK IN PROGRESS --- UNRELIABLE FROM HERE #
 
 ggplot(b)+
     geom_boxplot(
@@ -36,15 +32,15 @@ ggplot(d)+
     )+
     scale_x_log10()
 
-params = CJ(t_increment = c(0.1),
-            frequency = c(3),
-            replicate = seq(1))
+params = CJ(t_increment = c(0.1, 0.5, 1),
+            frequency = c(1, 2, 3),
+            replicate = seq(3))
 
 data = Map(function(ti, fr) {
     noisewalker::run_noisewalker(
         popsize = 500,
         genmax = 1000,
-        timesteps = 20,
+        timesteps = 1000,
         t_increment = ti,
         nOctaves = 2,
         frequency = fr,
