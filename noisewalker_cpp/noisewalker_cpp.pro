@@ -31,21 +31,23 @@ RCPPINCL =      $$system($$R_HOME/bin/Rscript -e \"Rcpp:::CxxFlags\(\)\")
 RCPPLIBS =      $$system($$R_HOME/bin/Rscript -e \"Rcpp:::LdFlags\(\)\")
 
 SOURCES += \
+        ../src/agent.cpp \
+        ../src/datatypes.cpp \
         ../src/simulation.cpp \
         main.cpp
 
 HEADERS += \
-    ../src/noiseutils.h \
-    ../src/agent.h \
-    ../src/noisewalker_tools.h \
-    ../src/parameters.h
+    ../src/agent.hpp \
+    ../src/datatypes.hpp \
+    ../src/parameters.hpp \
+    ../src/simulation.hpp
 
 QMAKE_CXXFLAGS += $$RCPPWARNING $$RCPPFLAGS $$RCPPINCL
 QMAKE_LIBS += $$RLDFLAGS $$RBLAS $$RLAPACK $$RCPPLIBS
 
-LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm \
+LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm -lboost_system \
         -I /usr/libnoise -lnoise
-
+        
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
