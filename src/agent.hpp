@@ -60,7 +60,8 @@ void popRandomPos(std::vector<Agent> &pop, const float landsize);
 
 void popRandomTraits(std::vector<Agent> &pop);
 
-void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite noise, const float perception);
+void popMoveForageCompete(std::vector<Agent> &pop, FastNoiseLite noise, const float perception,
+                          const int directions, const float clamp);
 
 void normaliseFitness(std::vector<double> &vecFitness);
 
