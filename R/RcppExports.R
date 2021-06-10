@@ -7,19 +7,17 @@
 #' arguments to the corresponding R function.
 #' 
 #' @param popsize The population size.
-#' @param percep_range The perception range.
 #' @param genmax The maximum number of generations per simulation.
 #' @param timesteps The number of timesteps per generation.
-#' @param t_increment Rate of landscape change.
+#' @param perception The perception range.
 #' @param nOctaves Number of octaves. May be thought of as small scale 
 #' variability. Must be an integer value between 1 and 8. Higher values
 #' result in landscapes with more small scale noise.
 #' @param frequency Frequency of noise. May be thought of as large scale
 #' variability. May be any double value between 1.0 and 16.0. Higher values
 #' mean more patchy landscapes.
-#' @param burnin Initial, unrecorded generations.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, burnin) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, burnin)
+run_noisewalker <- function(popsize, genmax, timesteps, perception, nOctaves, frequency) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, nOctaves, frequency)
 }
 

@@ -6,26 +6,24 @@
 using namespace Rcpp;
 
 // run_noisewalker
-Rcpp::List run_noisewalker(const int popsize, const float percep_range, const int genmax, const int timesteps, const float t_increment, const int nOctaves, const double frequency, const int burnin);
-RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP percep_rangeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP t_incrementSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP burninSEXP) {
+Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float perception, const int nOctaves, const double frequency);
+RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP perceptionSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int >::type popsize(popsizeSEXP);
-    Rcpp::traits::input_parameter< const float >::type percep_range(percep_rangeSEXP);
     Rcpp::traits::input_parameter< const int >::type genmax(genmaxSEXP);
     Rcpp::traits::input_parameter< const int >::type timesteps(timestepsSEXP);
-    Rcpp::traits::input_parameter< const float >::type t_increment(t_incrementSEXP);
+    Rcpp::traits::input_parameter< const float >::type perception(perceptionSEXP);
     Rcpp::traits::input_parameter< const int >::type nOctaves(nOctavesSEXP);
     Rcpp::traits::input_parameter< const double >::type frequency(frequencySEXP);
-    Rcpp::traits::input_parameter< const int >::type burnin(burninSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, percep_range, genmax, timesteps, t_increment, nOctaves, frequency, burnin));
+    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, genmax, timesteps, perception, nOctaves, frequency));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 8},
+    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 6},
     {NULL, NULL, 0}
 };
 
