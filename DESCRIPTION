@@ -14,7 +14,9 @@ License: Apache License (>= 2.0)
 Imports: 
     Rcpp
 SystemRequirements: C++14
-LinkingTo: Rcpp
+LinkingTo: 
+    Rcpp,
+    BH
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/pratikunterwegs/noisewalker
