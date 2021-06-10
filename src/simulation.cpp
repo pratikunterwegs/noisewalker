@@ -23,7 +23,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         for (int t = 0; t < timesteps; ++t) {
             popMoveForageCompete(pop, noise, perception, 8, 0.f); // set manually
         }
-
+        thisGenData.updateGenData(pop, gen);
         // reproduce once generation is done
         doReproduce(pop);
     }
