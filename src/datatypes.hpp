@@ -12,7 +12,7 @@
 using namespace Rcpp;
 struct genData {
 public:
-    std::vector<std::vector<int> > gen;
+    std::vector<int> gen;
     std::vector<std::vector<float> > genActv;
     std::vector<std::vector<float> > genResp;
     void updateGenData (std::vector<Agent> &pop, const int gen);

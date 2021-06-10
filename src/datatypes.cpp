@@ -13,7 +13,7 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
         vecResp[i] = pop[i].resp;
     }    
     // add to data
-    gen.push_back(std::vector<int> (g));
+    gen.push_back(g);
     genActv.push_back(vecActv);
     genResp.push_back(vecResp);
 }
