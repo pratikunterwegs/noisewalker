@@ -1,6 +1,15 @@
 #pragma once
+// Enable C++14 via this plugin to suppress 'long long' errors
+// [[Rcpp::plugins("cpp14")]]
 
+// [[Rcpp::depends(BH)]]
+#include <Rcpp.h>
+// [[Rcpp::depends(RcppGSL)]]
 #include <random>
+#include <RcppGSL.h>
+
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
 
 // mutation params
 const float mutProb = 0.01f;
@@ -8,4 +17,5 @@ const float mutSize = 0.001f;
 
 // make a gsl rng and a regular rng
 extern std::mt19937 rng;
+extern gsl_rng *r;
 

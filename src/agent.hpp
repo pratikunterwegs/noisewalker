@@ -1,10 +1,5 @@
 #pragma once
 
-// Enable C++14 via this plugin to suppress 'long long' errors
-// [[Rcpp::plugins("cpp14")]]
-
-// [[Rcpp::depends(BH)]]
-
 #define _USE_MATH_DEFINES
 /// code to make agents
 #include <vector>
