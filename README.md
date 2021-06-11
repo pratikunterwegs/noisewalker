@@ -1,3 +1,11 @@
-# The evolution of movement on fluctuating landscapes
+# some tinkering
 
-This is an adaptation of Botero et al. (2015) _PNAS_ in which we examine whether consistent movement modes are evolved in landscapes that fluctuate in space and time. Space-time fluctutation is simulated using Perlin noise (Perlin 1985) provided by the `libnoise` `C++` library.
+GSL on Windows: Download `local323.zip` from http://www.stats.ox.ac.uk/pub/Rtools/libs.html and place contents of `local323/lib/x64` in `C:\local\lib`.
+
+GSL works out of the box on Linux systems with `libgsl` installed.
+
+In `R`, make sure the GSL path is known.
+
+```r
+Sys.setenv("LIB_GSL" = "C:/local323")
+```
