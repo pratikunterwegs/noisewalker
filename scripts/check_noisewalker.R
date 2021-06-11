@@ -14,12 +14,18 @@ document()
 library(noisewalker)
 # test run
 a = noisewalker::run_noisewalker(
-    popsize = 500, 
-    genmax = 500, 
+    popsize = 1000, 
+    genmax = 200, 
     timesteps = 100, 
-    perception = 1.0, 
+    perception = 1.0,
+    directions = 8,
+    costMove = 0.01,
+    costSensing = 0.01,
+    costCompete = 0.01,
     nOctaves = 2, 
-    frequency = 8
+    frequency = 2,
+    landsize = 25,
+    clamp = 0.0
 )
 
 # get data
@@ -29,20 +35,28 @@ data = Map(function(df, g) {
 }, a$pop_data, a$gens)
 data = rbindlist(data)
 
-# do hexbins
-ggplot(data[gen %% 3 == 0, ])+
+# do bin 2d
+ggplot(data[gen %% 10 == 0, ])+
     geom_bin2d(
         aes(actv, resp),
         binwidth = c(0.1, 0.1)
     )+
-    scale_fill_viridis_c(option = "F", direction = -1,
-                         trans = "log10")+
+    scale_fill_viridis_c(option = "C", direction = -1)+
     facet_wrap(~gen)+
     coord_fixed(
         xlim = c(0, 1),
         ylim = c(0, 1)
     )+
-    theme_test(base_size = 6)
+    theme_test(base_size = 6)+
+    theme(
+        axis.title = element_text(size = 12)
+    )+
+    labs(
+        x = "Activity [p(Move)]", y = "Responsiveness [p(Sense)]"
+    )
+ggsave(
+    filename = "figures/fig_prelim_plot.png"
+)
 
 # summarise
 data[,c("actv", "resp") := list(
