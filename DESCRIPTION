@@ -12,7 +12,8 @@ Authors@R:
 Description: Run the noisewalker simulation using Rcpp.
 License: Apache License (>= 2.0)
 Imports: 
-    Rcpp
+    Rcpp,
+    ssh
 SystemRequirements: C++14
 LinkingTo: 
     Rcpp,
