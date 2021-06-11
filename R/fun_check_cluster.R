@@ -28,10 +28,12 @@ check_prepare_cluster <- function(
     else 
        echo "noisewalker does not exist, cloning";
        git clone https://github.com/pratikunterwegs/noisewalker.git noisewalker;
+       cd noisewalker
        chmod +x bash/install_noisewalker.sh;
        ./bash/install_noisewalker.sh;
+       cd ..
     fi
-    git checkout -- bash/install_snevo.sh'
+    git checkout -- bash/install_noisewalker.sh'
   )
   # check for folder snevo
   ssh::ssh_exec_wait(s, command = cluster_check)
