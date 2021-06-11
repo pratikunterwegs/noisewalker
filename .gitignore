@@ -33,6 +33,7 @@
 
 # ignore built libraries
 inst/noise
+Makefile
 
 # ignore data
 data/*.csv
