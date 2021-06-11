@@ -14,15 +14,15 @@ noisewalker::make_parameter_file(
     popsize = 1000, 
     genmax = 1000, 
     timesteps = 100, 
-    perception = c(0.5, 1.0, 2.0),
+    perception = 1,
     directions = 8,
     costMove = 0.01,
     costSensing = 0.01,
     costCompete = 10 ^ seq(-3, 0, 1),
     nOctaves = 2, 
-    frequency = seq(2, 4, 8),
-    landsize = seq(25, 100, 25),
-    clamp = c(-1.0, 0.0),
+    frequency = c(2, 4, 8),
+    landsize = 50,
+    clamp = 0,
     which_file = "data/parameters/parameters_full.csv"
 )
 
