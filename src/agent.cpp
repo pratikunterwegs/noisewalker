@@ -199,7 +199,7 @@ std::bernoulli_distribution randMutEvent(mutProb);
 std::cauchy_distribution<float> randMutSize(0.f, mutSize);
 
 /// pop reproduces
-void doReproduce(std::vector<Agent>& pop) {
+void doReproduce(std::vector<Agent>& pop, const float landsize) {
     // make fitness vec
     std::vector<double> vecFitness (pop.size());
     for (size_t a = 0; a < pop.size(); a++)
