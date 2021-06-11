@@ -15,13 +15,20 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int genmax,
                const int timesteps,
                FastNoiseLite noise,
-               const float perception)
+               const float landsize,
+               const float clamp,
+               const float perception,
+               const int directions,
+               const float costMove,
+               const float costSensing,
+               const float costCompete)
 {
     genData thisGenData;
     // loop through generations
     for (int gen = 0; gen < genmax; ++gen) {
         for (int t = 0; t < timesteps; ++t) {
-            popMoveForageCompete(pop, noise, perception, 8, 0.f); // set manually
+            popMoveForageCompete(pop, noise, perception, directions, landsize, 
+            clamp, costMove, costSensing, costCompete); // set manually
         }
         thisGenData.updateGenData(pop, gen);
         // reproduce once generation is done
