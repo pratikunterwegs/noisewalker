@@ -85,7 +85,8 @@ float Agent::pickAngle(FastNoiseLite noise, const float perception,
 }
 
 /// agent function to choose a new position
-void Agent::doSenseMove(FastNoiseLite noise, const float perception, const int directions) {
+void Agent::doSenseMove(FastNoiseLite noise, const float perception, const int directions, const float landsize,
+    const float costSensing, const float costMove) {
     
     // agents sense based on responsiveness
     float moveAngle = pickAngle(noise, perception, directions);
