@@ -60,8 +60,7 @@ float Agent::pickAngle(FastNoiseLite noise, const float perception,
     const int nDirections, const float costSensing) {
     
     float moveAngle = 0.f;
-    std::bernoulli_distribution randSense(resp);
-    if (randSense(rng)) {
+    if (gsl_ran_bernoulli(r, resp) == 1) {
         float twopi = 2.f * M_PI;
         // what increment for nDirections samples in a circle around the agent
         float increment = twopi / static_cast<float>(nDirections);
@@ -98,8 +97,7 @@ void Agent::doSenseMove(FastNoiseLite noise, const float perception,
     float moveAngle = pickAngle(noise, perception, directions, costSensing);
 
     // agents move based on activity
-    std::bernoulli_distribution randMove(actv);
-    if (randMove(rng)) {
+    if (gsl_ran_bernoulli(r, actv) == 1) {
         // get new position
         x = x + (perception * static_cast<float>(cos(moveAngle)));
         y = y + (perception * static_cast<float>(sin(moveAngle)));
@@ -141,16 +139,11 @@ void Agent::doCompete(const float perception,
 
     BOOST_FOREACH(value const& v, nearAgents) {
         // std::cout << bg::wkt<point> (v.first) << " - " << v.second << "\n";
-        agentId.push_back(v.second);
+        // subtract energy per neighbour within range
+        energy -= costCompete;
     }
 
     nearAgents.clear();
-
-    // std::cout << "near agents = " << agentId.size() << "\n\n";
-
-    // subtract energy per neighbour within range
-    energy -= (static_cast<float> (agentId.size()) * costCompete);
-    
 }
 
 /* population level functions */
