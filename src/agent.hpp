@@ -44,11 +44,14 @@ public:
     float energy, x, y, actv, resp;
     
     // agent functions
-    float pickAngle(FastNoiseLite noise, const float perception, const int nDirections);
-    void doSenseMove(FastNoiseLite noise, const float perception, const int directions);
-    void doMove(FastNoiseLite landscape);
+    float pickAngle(FastNoiseLite noise, const float perception, const int nDirections,
+                    const float costSensing);
+    void doSenseMove(FastNoiseLite noise, const float perception, const int directions,
+        const float landsize,
+        const float costSensing, const float costMove);
     void doForage(FastNoiseLite landscape, const float clamp);
-    void doCompete(const float perception, bgi::rtree< value, bgi::quadratic<16> > agentRtree);
+    void doCompete(const float perception, bgi::rtree< value, bgi::quadratic<16> > agentRtree,
+                    const float costCompete);
     
     void randomTraits();
     void randomPosition(const float landsize);
