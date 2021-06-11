@@ -1,9 +1,14 @@
 #include "agent.hpp"
 #include "parameters.hpp"
 #include <boost/foreach.hpp>
+#include <RcppGSL.h>
+
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
 
 /// random number generator
 std::mt19937 rng;
+gsl_rng *r = gsl_rng_alloc(gsl_rng_mt19937);
 
 /// function to update population Rtree
 bgi::rtree< value, bgi::quadratic<16> > makeRtree (std::vector<Agent> &pop) {
