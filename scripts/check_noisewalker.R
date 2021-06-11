@@ -1,29 +1,48 @@
 # check the simulation
+# libraries for data and plots
 library(devtools)
 library(ggplot2)
 library(data.table)
 
+# libraries to build and install
 Rcpp::compileAttributes()
 build()
 sink("install_output.log"); install(); sink()
+document()
 
+# load the lib, better to restart R
 library(noisewalker)
+# test run
 a = noisewalker::run_noisewalker(
-    popsize = 200, 
-    genmax = 100, 
+    popsize = 500, 
+    genmax = 500, 
     timesteps = 100, 
     perception = 1.0, 
     nOctaves = 2, 
     frequency = 8
 )
 
-# WORK IN PROGRESS --- UNRELIABLE FROM HERE #
 # get data
 data = Map(function(df, g) {
     df$gen = g
     df
 }, a$pop_data, a$gens)
 data = rbindlist(data)
+
+# do hexbins
+ggplot(data[gen %% 3 == 0, ])+
+    geom_bin2d(
+        aes(actv, resp),
+        binwidth = c(0.1, 0.1)
+    )+
+    scale_fill_viridis_c(option = "F", direction = -1,
+                         trans = "log10")+
+    facet_wrap(~gen)+
+    coord_fixed(
+        xlim = c(0, 1),
+        ylim = c(0, 1)
+    )+
+    theme_test(base_size = 6)
 
 # summarise
 data[,c("actv", "resp") := list(

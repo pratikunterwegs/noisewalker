@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // run_noisewalker
-Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float perception, const int nOctaves, const double frequency);
-RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP perceptionSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP) {
+Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float perception, const int directions, const float costMove, const float costSensing, const float costCompete, const int nOctaves, const double frequency, const float landsize, const float clamp);
+RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP perceptionSEXP, SEXP directionsSEXP, SEXP costMoveSEXP, SEXP costSensingSEXP, SEXP costCompeteSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP landsizeSEXP, SEXP clampSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -15,15 +15,21 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type genmax(genmaxSEXP);
     Rcpp::traits::input_parameter< const int >::type timesteps(timestepsSEXP);
     Rcpp::traits::input_parameter< const float >::type perception(perceptionSEXP);
+    Rcpp::traits::input_parameter< const int >::type directions(directionsSEXP);
+    Rcpp::traits::input_parameter< const float >::type costMove(costMoveSEXP);
+    Rcpp::traits::input_parameter< const float >::type costSensing(costSensingSEXP);
+    Rcpp::traits::input_parameter< const float >::type costCompete(costCompeteSEXP);
     Rcpp::traits::input_parameter< const int >::type nOctaves(nOctavesSEXP);
     Rcpp::traits::input_parameter< const double >::type frequency(frequencySEXP);
-    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, genmax, timesteps, perception, nOctaves, frequency));
+    Rcpp::traits::input_parameter< const float >::type landsize(landsizeSEXP);
+    Rcpp::traits::input_parameter< const float >::type clamp(clampSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, genmax, timesteps, perception, directions, costMove, costSensing, costCompete, nOctaves, frequency, landsize, clamp));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 6},
+    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 12},
     {NULL, NULL, 0}
 };
 
