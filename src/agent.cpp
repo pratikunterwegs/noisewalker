@@ -97,6 +97,14 @@ void Agent::doSenseMove(FastNoiseLite noise, const float perception, const int d
         x = x + (perception * static_cast<float>(cos(moveAngle)));
         y = y + (perception * static_cast<float>(sin(moveAngle)));
 
+        // crudely wrap movement
+        if(x > landsize | x < 0.f) {
+            x = std::fabs(std::fmod(x, landsize));
+        }
+        if(y > landsize | y < 0.f) {
+            y = std::fabs(std::fmod(y, landsize));
+        }
+
         energy -= costMove;
     }
 }
