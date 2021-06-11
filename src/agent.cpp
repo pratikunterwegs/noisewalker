@@ -119,7 +119,8 @@ void Agent::doForage(FastNoiseLite landscape, const float clamp) {
 
 /// function to count neighbours
 void Agent::doCompete(const float perception, 
-    bgi::rtree< value, bgi::quadratic<16> > agentRtree) {
+    bgi::rtree< value, bgi::quadratic<16> > agentRtree,
+    const float costCompete) {
 
     // work in progress
     std::vector<int> agentId;
