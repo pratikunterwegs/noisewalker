@@ -150,9 +150,12 @@ void Agent::doCompete(const float perception,
 /* population level functions */
 /// population moves about and forages
 void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite noise,
-    const float perception, const int directions, const float clamp) {
+    const float perception, const int directions, 
+    const float landsize, const float clamp,
+    const float costMove, const float costSensing, const float costCompete) {
     for(auto& indiv : pop) {
-        indiv.doSenseMove(noise, perception, directions);
+        indiv.doSenseMove(noise, perception, directions, landsize, 
+            costSensing, costMove);
         indiv.doForage(noise, clamp);
     }
 
@@ -161,7 +164,7 @@ void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite noise,
 
     // all moves done now count neighbours
     for(auto& indiv : pop) {
-        indiv.doCompete(perception, agentRtree);
+        indiv.doCompete(perception, agentRtree, costCompete);
     }
 }
 
