@@ -69,7 +69,7 @@ void popMoveForageCompete(std::vector<Agent> &pop, FastNoiseLite noise, const fl
 
 void normaliseFitness(std::vector<double> &vecFitness);
 
-void doReproduce(std::vector<Agent>& pop);
+void doReproduce(std::vector<Agent>& pop, const float landsize);
 
 /// function to make Rtree from population
 bgi::rtree< value, bgi::quadratic<16> > makeRtree (std::vector<Agent> &pop);
