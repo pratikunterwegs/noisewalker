@@ -9,21 +9,43 @@ sink("install_output.log"); install(); sink()
 
 library(noisewalker)
 a = noisewalker::run_noisewalker(
-    popsize = 20, 
-    genmax = 10, 
-    timesteps = 10, 
+    popsize = 200, 
+    genmax = 100, 
+    timesteps = 100, 
     perception = 1.0, 
     nOctaves = 2, 
-    frequency = 2
+    frequency = 8
 )
 
 # WORK IN PROGRESS --- UNRELIABLE FROM HERE #
+# get data
+data = Map(function(df, g) {
+    df$gen = g
+    df
+}, a$pop_data, a$gens)
+data = rbindlist(data)
 
-ggplot(b)+
-    geom_boxplot(
-        aes(factor(strategy),
-            moved)
-    )
+# summarise
+data[,c("actv", "resp") := list(
+    plyr::round_any(actv, 0.05), plyr::round_any(resp, 0.05)
+)]
+data_summary = data[,.N, by = c("gen", "actv", "resp")]
+
+# plot as tile for some generations
+# data_summary = data_summary[gen %% 10 == 0,]
+
+ggplot(data_summary)+
+    geom_tile(
+        aes(actv, resp, fill = N)
+    )+
+    scale_fill_viridis_c(option = "F", direction = -1,
+                         trans = "log10")+
+    # coord_fixed(
+    #     xlim = c(0, 1),
+    #     ylim = c(0, 1)
+    # )+
+    theme_grey(base_size = 6)+
+    facet_wrap(~gen, ncol = 16)
 
 ggplot(d)+
     geom_line(
