@@ -216,9 +216,14 @@ void doReproduce(std::vector<Agent>& pop) {
     for(auto& indiv : tmpPop) {
         if (randMutEvent(rng)) {
             indiv.actv += randMutSize(rng);
+
+            // cap at 0 and 1
+            if (indiv.actv > 1.f) indiv.actv = 1.f;
+            if (indiv.actv < 0.f) indiv.actv = 0.f; 
         }
         if (randMutEvent(rng)) {
-            indiv.resp += randMutSize(rng);
+            if (indiv.resp > 1.f) indiv.resp = 1.f;
+            if (indiv.resp < 0.f) indiv.resp = 0.f;
         }
     }
 
