@@ -52,7 +52,7 @@ std::uniform_real_distribution<float> randAngle(0.f, 2.f * M_PI);
 
 /// function to get best angle
 float Agent::pickAngle(FastNoiseLite noise, const float perception,
-    const int nDirections) {
+    const int nDirections, const float costSensing) {
     
     float moveAngle = 0.f;
     std::bernoulli_distribution randSense(resp);
