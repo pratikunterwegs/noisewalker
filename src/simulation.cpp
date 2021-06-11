@@ -32,7 +32,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         }
         thisGenData.updateGenData(pop, gen);
         // reproduce once generation is done
-        doReproduce(pop);
+        doReproduce(pop, landsize);
     }
     return thisGenData.returnGenData();
 }
