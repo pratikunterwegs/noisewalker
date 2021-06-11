@@ -42,5 +42,8 @@ data/password
 inst/doc
 data/*.Rdata
 
+# ignore R files
+.Rhistory
+
 # ignore jobs
 job_noisewalker*
