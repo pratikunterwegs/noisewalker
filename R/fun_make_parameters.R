@@ -8,6 +8,7 @@
 #' @export
 #'
 make_parameter_file <- function(
+  replicates,
   ...,
   which_file = "this_file.csv"
 ) {
