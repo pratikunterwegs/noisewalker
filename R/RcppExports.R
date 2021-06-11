@@ -6,34 +6,18 @@
 #' @description Run the noisewalker simulation using parameters passed as
 #' arguments to the corresponding R function.
 #' 
+#' @param popsize The population size.
 #' @param genmax The maximum number of generations per simulation.
 #' @param timesteps The number of timesteps per generation.
+#' @param perception The perception range.
 #' @param nOctaves Number of octaves. May be thought of as small scale 
 #' variability. Must be an integer value between 1 and 8. Higher values
 #' result in landscapes with more small scale noise.
 #' @param frequency Frequency of noise. May be thought of as large scale
 #' variability. May be any double value between 1.0 and 16.0. Higher values
 #' mean more patchy landscapes.
-#' @param frequencyTransfer Frequency of noise of the new landscape. A double
-#' value between 1.0 and 16.0.
-#' @param newSrange The sensory range of the population.
-#' @param rep The replicate number. Designed to be read from a data.frame.
-#' result in noise that is closer to white noise.
-#' @return Nothing. Writes an image to file.
-run_noisewalker <- function(genmax, timesteps, nOctaves, frequency, frequencyTransfer, newSrange, rep) {
-    invisible(.Call(`_noisewalker_run_noisewalker`, genmax, timesteps, nOctaves, frequency, frequencyTransfer, newSrange, rep))
-}
-
-#' Run a transect through 1D Perlin noise.
-#'
-#' @param nOctaves Number of octaves. May be thought of as small scale 
-#' variability. Must be an integer value between 1 and 8. Higher values
-#' result in landscapes with more small scale noise.
-#' @param frequency Frequency of noise. May be thought of as large scale
-#' variability. May be any double value between 1.0 and 16.0. Higher values
-#' @param increment The increment in the X coordinate.
-#' @param nValues How many steps, each of \code{increment} magnitude, to take.
-get_values_1d <- function(frequency, increment, nValues) {
-    .Call(`_noisewalker_get_values_1d`, frequency, increment, nValues)
+#' @return A dataframe of evolved pop strategy count.
+run_noisewalker <- function(popsize, genmax, timesteps, perception, nOctaves, frequency) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, nOctaves, frequency)
 }
 

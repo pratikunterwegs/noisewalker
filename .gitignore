@@ -35,12 +35,12 @@
 inst/noise
 
 # ignore data
-data
+data/*.csv
+data/password
+!data/parameters
 .Rproj.user
 inst/doc
-
-# ignore analysis
-*.Rmd
+data/*.Rdata
 
 # ignore jobs
 job_noisewalker*

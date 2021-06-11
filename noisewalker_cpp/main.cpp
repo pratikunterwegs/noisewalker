@@ -1,0 +1,32 @@
+#include "../src/parameters.hpp"
+#include "../src/FastNoiseLite.h"
+#include "../src/agent.hpp"
+#include "../src/datatypes.hpp"
+#include "../src/simulation.hpp"
+#include <chrono>
+
+int main()
+{
+    // set the random number generation etc
+    unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
+    rng.seed(seed);
+
+    // init pop
+    std::vector<Agent> pop (10);
+    // random position
+    popRandomPos(pop, landsize);
+    // random weights
+    popRandomTraits(pop);
+
+    // make the ancestral landscape
+    FastNoiseLite noise;
+    noise.SetSeed(seed);
+    noise.SetFrequency(2.0);
+    noise.SetFractalOctaves(2);
+
+    // do evolution
+    Rcpp::List thisData = evolvePop(pop, 50, 10, noise, 1.f);
+
+    std::cout << "pop evolved";
+    return 0;
+}
