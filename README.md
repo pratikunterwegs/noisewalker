@@ -18,7 +18,7 @@ The spatially explicit resource landscape is modelled using `noise`, provided by
 
 ## Competition
 
-Competition among animals is modelled as a cost of proximity to other animals, and inter-individual distances are calculated using [`boost::Rtree`s](https://www.boost.org/doc/libs/1_76_0/libs/geometry/doc/html/geometry/spatial_indexes.html).
+Competition among animals is modelled as a cost of proximity to other animals, and inter-individual distances are calculated using [`boost` Rtrees](https://www.boost.org/doc/libs/1_76_0/libs/geometry/doc/html/geometry/spatial_indexes.html).
 
 ## Fast-ish/er Bernoulli distributions
 
