@@ -4,14 +4,14 @@
 \alias{make_parameter_file}
 \title{Write parameters as CSV.}
 \usage{
-make_parameter_file(..., which_file = "this_file.csv")
+make_parameter_file(replicates, ..., which_file = "this_file.csv")
 }
 \arguments{
+\item{replicates}{How many replicates.}
+
 \item{...}{Pass arguments to \code{run\_noisewalker}.}
 
 \item{which_file}{Where to save these parameters.}
-
-\item{replicates}{How many replicates.}
 }
 \value{
 Writes a parameter file.
