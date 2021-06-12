@@ -33,7 +33,7 @@ check_prepare_cluster <- function(
        ./bash/install_noisewalker.sh;
        cd ..
     fi
-    git checkout -- bash/install_noisewalker.sh'
+    git checkout -- .'
   )
   # check for folder snevo
   ssh::ssh_exec_wait(s, command = cluster_check)
