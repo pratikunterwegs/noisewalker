@@ -44,8 +44,14 @@ data/password
 inst/doc
 data/*.Rdata
 
+# qmake files
+
+# ignore parameters data
+data/parameters
+
 # ignore R files
 .Rhistory
 
 # ignore jobs
 job_noisewalker*
+job_script*
