@@ -30,6 +30,7 @@
 *.exe
 *.out
 *.app
+noisewalker_cpp/noisewalker_cpp
 
 # ignore built libraries
 inst/noise
@@ -45,6 +46,7 @@ inst/doc
 data/*.Rdata
 
 # qmake files
+.qmake.stash
 
 # ignore parameters data
 data/parameters
