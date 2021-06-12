@@ -19,6 +19,7 @@ check_prepare_cluster <- function(
         echo "noisewalker exists, updating";
         cd noisewalker;
         git checkout -- .;
+        rm *.log;
         git remote update;
         if [[ ! `git status --porcelain` ]]; then
             git pull; 
