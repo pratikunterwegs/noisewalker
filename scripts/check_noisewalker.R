@@ -17,14 +17,14 @@ a = noisewalker::run_noisewalker(
     popsize = 1000, 
     genmax = 200, 
     timesteps = 100, 
-    perception = 1.0,
+    perception = 0.05,
     directions = 8,
     costMove = 0.01,
     costSensing = 0.01,
     costCompete = 0.01,
     nOctaves = 2, 
     frequency = 2,
-    landsize = 25,
+    landsize = 5,
     clamp = 0.0
 )
 
