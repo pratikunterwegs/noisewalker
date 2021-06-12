@@ -14,6 +14,7 @@ int main()
     // init pop
     std::vector<Agent> pop (10);
     // random position
+    float landsize = 10.f;
     popRandomPos(pop, landsize);
     // random weights
     popRandomTraits(pop);
@@ -25,7 +26,9 @@ int main()
     noise.SetFractalOctaves(2);
 
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, 50, 10, noise, 1.f);
+    Rcpp::List thisData = evolvePop(pop, 10, 10, noise,
+                                    landsize, 0.f, 1.f,
+                                    8, 0.1f, 0.1f, 0.1f);
 
     std::cout << "pop evolved";
     return 0;
