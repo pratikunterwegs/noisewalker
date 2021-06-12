@@ -6,6 +6,21 @@
 
 using namespace Rcpp;
 
+// getLandscape
+Rcpp::NumericMatrix getLandscape(const float landsize, const int octaves, const float frequency, const float increment, const float clamp);
+RcppExport SEXP _noisewalker_getLandscape(SEXP landsizeSEXP, SEXP octavesSEXP, SEXP frequencySEXP, SEXP incrementSEXP, SEXP clampSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const float >::type landsize(landsizeSEXP);
+    Rcpp::traits::input_parameter< const int >::type octaves(octavesSEXP);
+    Rcpp::traits::input_parameter< const float >::type frequency(frequencySEXP);
+    Rcpp::traits::input_parameter< const float >::type increment(incrementSEXP);
+    Rcpp::traits::input_parameter< const float >::type clamp(clampSEXP);
+    rcpp_result_gen = Rcpp::wrap(getLandscape(landsize, octaves, frequency, increment, clamp));
+    return rcpp_result_gen;
+END_RCPP
+}
 // run_noisewalker
 Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float perception, const int directions, const float costMove, const float costSensing, const float costCompete, const int nOctaves, const double frequency, const float landsize, const float clamp);
 RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP perceptionSEXP, SEXP directionsSEXP, SEXP costMoveSEXP, SEXP costSensingSEXP, SEXP costCompeteSEXP, SEXP nOctavesSEXP, SEXP frequencySEXP, SEXP landsizeSEXP, SEXP clampSEXP) {
@@ -30,6 +45,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_noisewalker_getLandscape", (DL_FUNC) &_noisewalker_getLandscape, 5},
     {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 12},
     {NULL, NULL, 0}
 };
