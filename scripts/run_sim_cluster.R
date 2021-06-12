@@ -39,7 +39,7 @@ data_evolved_pop = Map(function(df, g) {
     df$gen = g
     df
 }, data_evolved_pop$pop_data, data_evolved_pop$gens)
-data_evolved_pop = rbindlist(data_evolved_pop)
+data_evolved_pop = data.table::rbindlist(data_evolved_pop)
 
 # get params as named vector
 these_params = unlist(params[row_n,])
