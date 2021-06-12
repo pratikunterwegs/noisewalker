@@ -34,12 +34,14 @@ SOURCES += \
         ../src/agent.cpp \
         ../src/datatypes.cpp \
         ../src/simulation.cpp \
+        ../src/landscape.cpp \
         main.cpp
 
 HEADERS += \
     ../src/agent.hpp \
     ../src/datatypes.hpp \
     ../src/parameters.hpp \
+    ../src/landscape.hpp \
     ../src/simulation.hpp
 
 QMAKE_CXXFLAGS += $$RCPPWARNING $$RCPPFLAGS $$RCPPINCL
