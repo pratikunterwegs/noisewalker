@@ -54,10 +54,10 @@ data = lapply(seq(nrow(params)),
                   # make dataframe in the form x, y, value
                   land = as.data.table(land)
                   setnames(land, as.character(seq(ncol(land))))
-                  land$x = seq(nrow(land))
+                  land$x = seq(nrow(land)) * params[i]$increment
                   land = melt(land, id.vars = "x", 
                               variable.name = "y")
-                  land$y = as.numeric(land$y)
+                  land$y = as.numeric(land$y) * params[i]$increment
                   
                   # return land and autocorrelation range
                   list(land = land, acfstr = acfstr)
@@ -71,10 +71,16 @@ subplots = Map(function(df, p, l, i) {
         )+
         scale_fill_viridis_c(
             option = "B",
-            limits = c(0, 1)
+            limits = c(0, 1),
+            name = "resource"
         )+
         coord_fixed()+
-        theme_void()+
+        theme_test()+
+        theme(
+            legend.key.height = unit(2, units = "mm"),
+            legend.position = "bottom",
+            legend.text = element_text(size = 4)
+        )+
         labs(title = glue::glue(
             "frequency = {p}
              landsize = {l}
@@ -97,7 +103,10 @@ subplots_acf = Map(function(df, p, l, i) {
             ylim = c(-0.5, 1)
         )+
         theme_test()+
-        labs(title = glue::glue(
+        labs(
+            x = "distance",
+            y = "autocorrelation",
+            title = glue::glue(
             "frequency = {p}
              landsize = {l}
              increment = {i}"
@@ -110,9 +119,14 @@ plot_land = wrap_plots(subplots, ncol = length(subplots)) +
         guides = "collect"
     ) &
     theme(
-        legend.position = "bottom"
+        legend.position = "bottom",
+        title = element_text(size = 6)
     )
-plot_acf = wrap_plots(subplots_acf, ncol = length(subplots))
+plot_acf = wrap_plots(subplots_acf, ncol = length(subplots)) &
+    theme(
+        legend.position = "bottom",
+        title = element_text(size = 6)
+    )
 
 # wrap all plots
 plots = wrap_plots(
