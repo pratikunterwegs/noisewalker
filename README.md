@@ -1,6 +1,16 @@
 # Personality 2D
 
-This is a small model tying together a number of interesting tools to get at a persistent question of the co-variation of two orthogonal but related 'animal personality' traits.
+This is a small `Rcpp` model tying together a number of interesting tools to get at a persistent question of the co-variation of two orthogonal but related 'animal personality' traits.
+
+## Running the model
+
+1. Clone the repository using SSH by running `git clone git@github.com:pratikunterwegs/noisewalker.git`
+
+2. In `R`, build the package using `devtools::build()`
+
+3. In `R`, install the package using `devtools::install()`
+
+4. Try out the model using the script `scripts/check_noisewalker.R`
 
 ## Landscape
 
