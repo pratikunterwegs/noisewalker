@@ -33,7 +33,7 @@
 
 # ignore built libraries
 inst/noise
-Makefile
+# Makefile
 install_output.log
 
 # ignore data
