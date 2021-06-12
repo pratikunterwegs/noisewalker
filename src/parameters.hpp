@@ -3,10 +3,11 @@
 // [[Rcpp::plugins("cpp14")]]
 
 // [[Rcpp::depends(BH)]]
-#include <Rcpp.h>
 // [[Rcpp::depends(RcppGSL)]]
+#include <Rcpp.h>
+
 #include <random>
-#include <RcppGSL.h>
+// #include <RcppGSL.h>
 
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>

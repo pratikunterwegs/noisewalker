@@ -1,7 +1,7 @@
 #include "agent.hpp"
 #include "parameters.hpp"
 #include <boost/foreach.hpp>
-#include <RcppGSL.h>
+//#include <RcppGSL.h>
 
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
