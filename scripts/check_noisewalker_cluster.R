@@ -20,7 +20,7 @@ noisewalker::make_parameter_file(
     costSensing = 0.01,
     costCompete = 10 ^ seq(-3, 0, 1),
     nOctaves = 2, 
-    frequency = c(2, 4, 8),
+    frequency = c(0.1, 0.25, 0.5, 1),
     landsize = 50,
     clamp = 0,
     which_file = "data/parameters/parameters_full.csv"
