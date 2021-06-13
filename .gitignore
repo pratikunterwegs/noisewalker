@@ -51,6 +51,9 @@ data/*.Rdata
 # ignore parameters data
 data/parameters
 
+# ignore data
+data/output/*.Rdata
+
 # ignore R files
 .Rhistory
 
