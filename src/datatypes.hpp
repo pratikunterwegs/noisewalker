@@ -15,6 +15,7 @@ public:
     std::vector<int> gen;
     std::vector<std::vector<float> > genActv;
     std::vector<std::vector<float> > genResp;
+    std::vector<std::vector<float> > genEnergy;
     void updateGenData (std::vector<Agent> &pop, const int gen);
     Rcpp::List returnGenData ();
 };
