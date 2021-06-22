@@ -20,7 +20,6 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const float perception,
                const int directions,
                const float costMove,
-               const float costSensing,
                const float costCompete)
 {
     genData thisGenData;
@@ -50,7 +49,6 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' @param directions The number of points at which agents sense resources,
 //' at a fixed distance of \code{perception} units away from them.
 //' @param costMove The cost per move; distance moved is assumed constant.
-//' @param costSensing The cost per sensing event.
 //' @param costCompete The cost per neighbour within the perception range.
 //' @param nOctaves Number of octaves. May be thought of as small scale 
 //' variability. Must be an integer value between 1 and 8. Higher values
@@ -71,7 +69,6 @@ Rcpp::List run_noisewalker(
         const float perception,
         const int directions,
         const float costMove,
-        const float costSensing,
         const float costCompete,
         const int nOctaves, 
         const double frequency,
@@ -96,7 +93,7 @@ Rcpp::List run_noisewalker(
     noise.SetFractalOctaves(nOctaves);
     
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, clamp, perception, directions, costMove, costSensing, costCompete);
+    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, clamp, perception, directions, costMove, costCompete);
 
     return thisData;
 }

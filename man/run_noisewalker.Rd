@@ -11,7 +11,6 @@ run_noisewalker(
   perception,
   directions,
   costMove,
-  costSensing,
   costCompete,
   nOctaves,
   frequency,
@@ -32,8 +31,6 @@ run_noisewalker(
 at a fixed distance of \code{perception} units away from them.}
 
 \item{costMove}{The cost per move; distance moved is assumed constant.}
-
-\item{costSensing}{The cost per sensing event.}
 
 \item{costCompete}{The cost per neighbour within the perception range.}
 

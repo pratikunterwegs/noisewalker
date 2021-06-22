@@ -15,13 +15,12 @@ library(noisewalker)
 # test run
 a = noisewalker::run_noisewalker(
     popsize = 1000, 
-    genmax = 100, 
+    genmax = 500, 
     timesteps = 50, 
     perception = 0.05,
-    directions = 8,
+    directions = 4,
     costMove = 0.01,
-    costSensing = 0.01,
-    costCompete = 0.01,
+    costCompete = 1,
     nOctaves = 2, 
     frequency = 2,
     landsize = 5,
@@ -35,11 +34,32 @@ data = Map(function(df, g) {
 }, a$pop_data, a$gens)
 data = rbindlist(data)
 
+# tanh transform
+data[, c("coef_food", "coef_nbrs") := lapply(
+    .SD, function(x) tanh(x)
+), .SDcols = c("coef_food", "coef_nbrs")]
+
+# melt data
+data = melt(data[,!"energy"], id.vars = "gen")
+
+# bin 2d
+ggplot(data)+
+    geom_bin2d(
+        aes(gen, value),
+        binwidth = c(2, 0.02)
+    )+
+    scale_fill_viridis_c(
+        option = "D",
+        direction = -1
+    )+
+    coord_cartesian(ylim = c(-2,2))+
+    facet_grid(~variable)
+
 # do bin 2d
 ggplot(data[gen %% 10 == 0, ])+
     geom_bin2d(
         aes(coef_food, coef_nbrs),
-        binwidth = c(0.1, 0.1)
+        binwidth = c(0.05, 0.05)
     )+
     scale_fill_viridis_c(option = "C", direction = -1)+
     facet_wrap(~gen)+
@@ -52,7 +72,7 @@ ggplot(data[gen %% 10 == 0, ])+
         axis.title = element_text(size = 12)
     )+
     labs(
-        x = "Activity [p(Move)]", y = "Responsiveness [p(Sense)]"
+        x = "coef(Food)", y = "coef(Nbrs)"
     )
 ggsave(
     filename = "figures/fig_prelim_plot.png"

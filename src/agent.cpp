@@ -1,14 +1,9 @@
 #include "agent.hpp"
 #include "parameters.hpp"
 #include <boost/foreach.hpp>
-//#include <RcppGSL.h>
-
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
 
 /// random number generator
 std::mt19937 rng;
-gsl_rng *r = gsl_rng_alloc(gsl_rng_mt19937);
 
 /// function to update population Rtree
 bgi::rtree< value, bgi::quadratic<16> > makeRtree (std::vector<Agent> &pop) {
@@ -22,9 +17,8 @@ bgi::rtree< value, bgi::quadratic<16> > makeRtree (std::vector<Agent> &pop) {
     return tmpRtree;
 }
 
-
 /// random trait value dist
-std::uniform_real_distribution<float> randTrait(0.f, 1.f);
+std::uniform_real_distribution<float> randTrait(-2.f, 2.f);
 
 /// initialise the population at random positions
 void Agent::randomPosition(const float landsize) {
@@ -170,12 +164,12 @@ void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite noise,
         indiv.doForage(noise, clamp);
     }
 
-    // update Rtree as agents have moved
-    bgi::rtree< value, bgi::quadratic<16> > newAgentRtree = makeRtree(pop);
+    // // update Rtree as agents have moved
+    // bgi::rtree< value, bgi::quadratic<16> > newAgentRtree = makeRtree(pop);
 
-    // swap rtrees
-    std::swap(agentRtree, newAgentRtree);
-    newAgentRtree.clear();
+    // // swap rtrees
+    // std::swap(agentRtree, newAgentRtree);
+    // newAgentRtree.clear();
 
     // all moves done now count neighbours
     for(auto& indiv : pop) {
