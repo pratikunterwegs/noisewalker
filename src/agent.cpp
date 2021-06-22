@@ -52,6 +52,30 @@ void popRandomTraits(std::vector<Agent> &pop) {
   }
 }
 
+/// function to count neighbours
+int Agent::countNbrsAt(const float perception, 
+    const float xloc, const float yloc,
+    bgi::rtree< value, bgi::quadratic<16> > agentRtree) {
+    // work in progress
+    int nNbrs = 0;
+    std::vector<value> nearAgents;
+    
+    // std::cout << "id = " << id << " at " << bg::wkt<point> (point(coordX[id], coordY[id])) << "\n";
+
+    // query for a simple box
+    agentRtree.query(bgi::satisfies([&](value const& v) {
+        return bg::distance(v.first, point(xloc, yloc)) < perception;}),
+        std::back_inserter(nearAgents));
+
+    BOOST_FOREACH(value const& v, nearAgents) {
+        // std::cout << bg::wkt<point> (v.first) << " - " << v.second << "\n";
+        // subtract energy per neighbour within range
+        nNbrs ++;
+    }
+    nearAgents.clear();
+    return nNbrs;
+}
+
 /// random angle distribution
 std::uniform_real_distribution<float> randAngle(0.f, 2.f * M_PI);
 
