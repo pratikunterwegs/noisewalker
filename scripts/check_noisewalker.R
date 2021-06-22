@@ -15,8 +15,8 @@ library(noisewalker)
 # test run
 a = noisewalker::run_noisewalker(
     popsize = 1000, 
-    genmax = 200, 
-    timesteps = 100, 
+    genmax = 100, 
+    timesteps = 50, 
     perception = 0.05,
     directions = 8,
     costMove = 0.01,
@@ -38,7 +38,7 @@ data = rbindlist(data)
 # do bin 2d
 ggplot(data[gen %% 10 == 0, ])+
     geom_bin2d(
-        aes(actv, resp),
+        aes(coef_food, coef_nbrs),
         binwidth = c(0.1, 0.1)
     )+
     scale_fill_viridis_c(option = "C", direction = -1)+
