@@ -123,10 +123,10 @@ void Agent::doSenseMove(FastNoiseLite noise, const float perception,
     y = y + (perception * static_cast<float>(sin(moveAngle)));
 
     // crudely wrap movement
-    if(x > landsize | x < 0.f) {
+    if((x > landsize) | (x < 0.f)) {
         x = std::fabs(std::fmod(x, landsize));
     }
-    if(y > landsize | y < 0.f) {
+    if((y > landsize) | (y < 0.f)) {
         y = std::fabs(std::fmod(y, landsize));
     }
 
@@ -144,10 +144,6 @@ void Agent::doForage(FastNoiseLite landscape, const float clamp) {
 void Agent::doCompete(const float perception, 
     bgi::rtree< value, bgi::quadratic<16> > agentRtree,
     const float costCompete) {
-
-    // work in progress
-    std::vector<int> agentId;
-    std::vector<value> nearAgents;
     
     // std::cout << "id = " << id << " at " << bg::wkt<point> (point(coordX[id], coordY[id])) << "\n";
 
