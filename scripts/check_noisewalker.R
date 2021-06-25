@@ -19,7 +19,7 @@ a = noisewalker::run_noisewalker(
     timesteps = 50, 
     perception = 0.05,
     directions = 4,
-    costMove = 0.01,
+    costMove = 1,
     costCompete = 1,
     nOctaves = 2, 
     frequency = 2,
@@ -36,7 +36,7 @@ data = rbindlist(data)
 
 # tanh transform
 data[, c("coef_food", "coef_nbrs") := lapply(
-    .SD, function(x) tanh(x)
+    .SD, function(x) tanh(x * 20)
 ), .SDcols = c("coef_food", "coef_nbrs")]
 
 # melt data
@@ -52,7 +52,7 @@ ggplot(data)+
         option = "D",
         direction = -1
     )+
-    coord_cartesian(ylim = c(-2,2))+
+    # coord_cartesian(ylim = c(-2,2))+
     facet_grid(~variable)
 
 # do bin 2d

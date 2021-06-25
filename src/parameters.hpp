@@ -3,7 +3,6 @@
 // [[Rcpp::plugins("cpp14")]]
 
 // [[Rcpp::depends(BH)]]
-// [[Rcpp::depends(RcppGSL)]]
 #include <Rcpp.h>
 
 #include <random>

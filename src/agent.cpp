@@ -77,6 +77,8 @@ std::uniform_real_distribution<float> randAngle(0.f, 2.f * M_PI);
 float Agent::pickAngle(FastNoiseLite noise, const float perception,
     const int nDirections, bgi::rtree< value, bgi::quadratic<16> > agentRtree) {
     
+    // allow staying in place
+    
     float moveAngle = 0.f;
     float twopi = 2.f * M_PI;
     // what increment for nDirections samples in a circle around the agent
@@ -109,11 +111,44 @@ void Agent::doSenseMove(FastNoiseLite noise, const float perception,
     const int directions, const float landsize,
     bgi::rtree< value, bgi::quadratic<16> > agentRtree, const float costMove) {
     
-    // agents sense based on responsiveness
-    float moveAngle = pickAngle(noise, perception, directions, agentRtree);
+    // set default values --- stay in place
+    float newX = x; float newY = y;
+    float foodHere = noise.GetNoise(newX, newY);
+    float nbrsHere = static_cast<float>(countNbrsAt(perception, newX, newY, agentRtree));
+    float best_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere);
+    
+    float moveAngle = 0.f;
+    float twopi = 2.f * M_PI;
+    // what increment for nDirections samples in a circle around the agent
+    float increment = twopi / static_cast<float>(directions);
+    float sampleX, sampleY;
+    // cycle through samples and check for angle with max resources
+    for(float theta = 0.f; theta < twopi - increment; theta += increment) {
+
+        sampleX = x + (perception * static_cast<float>(cos(theta)));
+        sampleY = y + (perception * static_cast<float>(sin(theta)));
+
+        foodHere = noise.GetNoise(sampleX, sampleY);
+
+        nbrsHere = static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree));
+
+        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere);
+
+        if (new_suit > best_suit) {
+            newX = sampleX;
+            newY = sampleY;
+            best_suit = new_suit;            
+        }
+    }
+
+    // subtract cost of movement if any
+    float dist = std::sqrt(std::pow(x - newX, 2.0) + std::pow(y - newY, 2.0));
+    if(dist > 0.00001) {
+        energy -= costMove;
+    }
 
     // get new position
-    x = x + (perception * static_cast<float>(cos(moveAngle)));
+    x = newX; y = newY;
     y = y + (perception * static_cast<float>(sin(moveAngle)));
 
     // crudely wrap movement
@@ -123,8 +158,6 @@ void Agent::doSenseMove(FastNoiseLite noise, const float perception,
     if((y > landsize) | (y < 0.f)) {
         y = std::fabs(std::fmod(y, landsize));
     }
-
-    energy -= costMove;
 }
 
 /// agent function to forage

@@ -16,8 +16,7 @@ Imports:
 SystemRequirements: C++14
 LinkingTo: 
     Rcpp,
-    BH,
-    RcppGSL
+    BH
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/pratikunterwegs/noisewalker
