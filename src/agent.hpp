@@ -44,10 +44,10 @@ public:
                     bgi::rtree< value, bgi::quadratic<16> > agentRtree);
     float pickAngle(FastNoiseLite noise, const float perception,
                     const int nDirections, bgi::rtree< value, bgi::quadratic<16> > agentRtree);
-    void doSenseMove(FastNoiseLite noise, const float perception,
+    void doSenseMove(FastNoiseLite noise, const int t_, const float perception,
                      const int directions, const float landsize,
                      bgi::rtree< value, bgi::quadratic<16> > agentRtree, const float costMove);
-    void doForage(FastNoiseLite landscape, const float clamp);
+    void doForage(FastNoiseLite landscape, const int t_, const float clamp);
     void doCompete(const float perception, bgi::rtree< value, bgi::quadratic<16> > agentRtree,
                     const float costCompete);
     
@@ -61,7 +61,7 @@ void popRandomPos(std::vector<Agent> &pop, const float landsize);
 
 void popRandomTraits(std::vector<Agent> &pop);
 
-void popMoveForageCompete(std::vector<Agent> &pop, FastNoiseLite noise, const float perception,
+void popMoveForageCompete(std::vector<Agent> &pop, FastNoiseLite noise, const int t_, const float perception,
                           const int directions, const float landsize, const float clamp,
                           const float costMove, const float costCompete);
 

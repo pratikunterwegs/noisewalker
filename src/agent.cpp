@@ -107,13 +107,13 @@ float Agent::pickAngle(FastNoiseLite noise, const float perception,
 }
 
 /// agent function to choose a new position
-void Agent::doSenseMove(FastNoiseLite noise, const float perception, 
+void Agent::doSenseMove(FastNoiseLite noise, const int t_, const float perception, 
     const int directions, const float landsize,
     bgi::rtree< value, bgi::quadratic<16> > agentRtree, const float costMove) {
     
     // set default values --- stay in place
     float newX = x; float newY = y;
-    float foodHere = noise.GetNoise(newX, newY);
+    float foodHere = noise.GetNoise(newX, newY, static_cast<float>(t_));
     float nbrsHere = static_cast<float>(countNbrsAt(perception, newX, newY, agentRtree));
     float best_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere);
     
@@ -128,7 +128,7 @@ void Agent::doSenseMove(FastNoiseLite noise, const float perception,
         sampleX = x + (perception * static_cast<float>(cos(theta)));
         sampleY = y + (perception * static_cast<float>(sin(theta)));
 
-        foodHere = noise.GetNoise(sampleX, sampleY);
+        foodHere = noise.GetNoise(sampleX, sampleY, static_cast<float>(t_));
 
         nbrsHere = static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree));
 
@@ -161,8 +161,8 @@ void Agent::doSenseMove(FastNoiseLite noise, const float perception,
 }
 
 /// agent function to forage
-void Agent::doForage(FastNoiseLite landscape, const float clamp) {
-    float energy_here = (landscape.GetNoise(x, y));
+void Agent::doForage(FastNoiseLite landscape, const int t_, const float clamp) {
+    float energy_here = (landscape.GetNoise(x, y, static_cast<float>(t_)));
     // the clamp is defined in parameters.hpp
     energy +=  (energy_here < clamp ? 0.f : energy_here);
 }
@@ -183,6 +183,7 @@ void Agent::doCompete(const float perception,
 /* population level functions */
 /// population moves about and forages
 void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite noise,
+    const int t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,
     const float costMove,
@@ -192,9 +193,9 @@ void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite noise,
     bgi::rtree< value, bgi::quadratic<16> > agentRtree = makeRtree(pop);
 
     for(auto& indiv : pop) {
-        indiv.doSenseMove(noise, perception, directions, landsize, 
+        indiv.doSenseMove(noise, t_, perception, directions, landsize, 
             agentRtree, costMove);
-        indiv.doForage(noise, clamp);
+        indiv.doForage(noise, t_, clamp);
     }
 
     // // update Rtree as agents have moved

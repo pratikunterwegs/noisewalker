@@ -12,17 +12,18 @@ document()
 
 # load the lib, better to restart R
 library(noisewalker)
+
 # test run
 a = noisewalker::run_noisewalker(
-    popsize = 1000, 
+    popsize = 100, 
     genmax = 500, 
     timesteps = 50, 
     perception = 0.05,
     directions = 4,
-    costMove = 1,
-    costCompete = 1,
+    costMove = 0.1,
+    costCompete = 0.1,
     nOctaves = 2, 
-    frequency = 2,
+    frequency = 0.01,
     landsize = 5,
     clamp = 0.0
 )
@@ -36,7 +37,7 @@ data = rbindlist(data)
 
 # tanh transform
 data[, c("coef_food", "coef_nbrs") := lapply(
-    .SD, function(x) tanh(x * 20)
+    .SD, function(x) tanh(x)
 ), .SDcols = c("coef_food", "coef_nbrs")]
 
 # melt data

@@ -26,7 +26,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
     // loop through generations
     for (int gen = 0; gen < genmax; ++gen) {
         for (int t = 0; t < timesteps; ++t) {
-            popMoveForageCompete(pop, noise, perception, directions, landsize, 
+            popMoveForageCompete(pop, noise, t, perception, directions, landsize,
             clamp, costMove, costCompete); // set manually
         }
         thisGenData.updateGenData(pop, gen);
