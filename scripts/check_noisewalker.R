@@ -47,7 +47,7 @@ data = melt(data[,!"energy"], id.vars = "gen")
 ggplot(data)+
     geom_bin2d(
         aes(gen, value),
-        binwidth = c(2, 0.02)
+        binwidth = c(2, 0.01)
     )+
     scale_fill_viridis_c(
         option = "D",

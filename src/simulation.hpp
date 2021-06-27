@@ -1,11 +1,13 @@
 #pragma once
+#include "landscape.hpp"
+#include "agent.hpp"
 
 #include <Rcpp.h>
 
 Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int genmax,
                const int timesteps,
-               FastNoiseLite noise,
+               FastNoiseLite &noise,
                const float landsize,
                const float clamp,
                const float perception,

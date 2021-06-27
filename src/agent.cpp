@@ -49,7 +49,7 @@ void popRandomTraits(std::vector<Agent> &pop) {
 /// function to count neighbours
 int Agent::countNbrsAt(const float perception, 
     const float xloc, const float yloc,
-    bgi::rtree< value, bgi::quadratic<16> > agentRtree) {
+    bgi::rtree< value, bgi::quadratic<16> > &agentRtree) {
     // work in progress
     int nNbrs = 0;
     std::vector<value> nearAgents;
@@ -74,8 +74,8 @@ int Agent::countNbrsAt(const float perception,
 std::uniform_real_distribution<float> randAngle(0.f, 2.f * M_PI);
 
 /// function to get best angle
-float Agent::pickAngle(FastNoiseLite noise, const float perception,
-    const int nDirections, bgi::rtree< value, bgi::quadratic<16> > agentRtree) {
+float Agent::pickAngle(FastNoiseLite &noise, const float perception,
+    const int nDirections, bgi::rtree< value, bgi::quadratic<16> > &agentRtree) {
     
     // allow staying in place
     
@@ -107,9 +107,9 @@ float Agent::pickAngle(FastNoiseLite noise, const float perception,
 }
 
 /// agent function to choose a new position
-void Agent::doSenseMove(FastNoiseLite noise, const int t_, const float perception, 
+void Agent::doSenseMove(FastNoiseLite &noise, const int t_, const float perception,
     const int directions, const float landsize,
-    bgi::rtree< value, bgi::quadratic<16> > agentRtree, const float costMove) {
+    bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove) {
     
     // set default values --- stay in place
     float newX = x; float newY = y;
@@ -161,7 +161,7 @@ void Agent::doSenseMove(FastNoiseLite noise, const int t_, const float perceptio
 }
 
 /// agent function to forage
-void Agent::doForage(FastNoiseLite landscape, const int t_, const float clamp) {
+void Agent::doForage(FastNoiseLite &landscape, const int t_, const float clamp) {
     float energy_here = (landscape.GetNoise(x, y, static_cast<float>(t_)));
     // the clamp is defined in parameters.hpp
     energy +=  (energy_here < clamp ? 0.f : energy_here);
@@ -169,7 +169,7 @@ void Agent::doForage(FastNoiseLite landscape, const int t_, const float clamp) {
 
 /// function to count neighbours
 void Agent::doCompete(const float perception, 
-    bgi::rtree< value, bgi::quadratic<16> > agentRtree,
+    bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
     const float costCompete) {
     
     // std::cout << "id = " << id << " at " << bg::wkt<point> (point(coordX[id], coordY[id])) << "\n";
@@ -182,7 +182,7 @@ void Agent::doCompete(const float perception,
 
 /* population level functions */
 /// population moves about and forages
-void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite noise,
+void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
     const int t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,

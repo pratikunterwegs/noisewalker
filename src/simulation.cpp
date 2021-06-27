@@ -14,7 +14,7 @@ using namespace Rcpp;
 Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int genmax,
                const int timesteps,
-               FastNoiseLite noise,
+               FastNoiseLite &noise,
                const float landsize,
                const float clamp,
                const float perception,
@@ -84,7 +84,7 @@ Rcpp::List run_noisewalker(
     // random position
     popRandomPos(pop, landsize); // landsize is fixed in parameters.hpp
     // random weights
-    popRandomTraits(pop);
+//    popRandomTraits(pop);
     
     // make the ancestral landscape
     FastNoiseLite noise;
