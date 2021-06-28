@@ -29,6 +29,12 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
             popMoveForageCompete(pop, noise, t, perception, directions, landsize,
             clamp, costMove, costCompete); // set manually
         }
+        // subtract cost of traits
+        for (size_t i = 0; i < pop.size(); i++)
+        {
+            pop[i].energy -= ((std::fabs(pop[i].coefFood) + std::fabs(pop[i].coefNbrs)) * static_cast<float>(timesteps));
+        }
+        
         thisGenData.updateGenData(pop, gen);
         // reproduce once generation is done
         doReproduce(pop, landsize);
