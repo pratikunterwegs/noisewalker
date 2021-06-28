@@ -215,7 +215,7 @@ void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
 // THIS IS AN ISSUE IF YOU WANT TO RETURN ENERGY PER GEN AS ENERGY IS NORMED
 void normaliseFitness(std::vector<double> &vecFitness) {
     float minFitness = 0.0f;
-    float maxFitness = 1.0f;
+    float maxFitness = 0.0f;
     // get min and max fitness
     for (size_t vecVal = 0; vecVal < vecFitness.size(); ++vecVal) {
         if (vecFitness[vecVal] < minFitness) {
