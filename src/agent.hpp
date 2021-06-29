@@ -31,13 +31,14 @@ public:
         y(0.f),
         coefFood(0.f),
         coefNbrs(0.f),
-        coefRisk(0.f)
+        coefRisk(0.f),
+        moved(0.f)
 
     {}
     ~Agent() {}
 
     // agent attributes
-    float energy, x, y, coefFood, coefNbrs, coefRisk;
+    float energy, x, y, coefFood, coefNbrs, coefRisk, moved;
     
     // agent functions
     int countNbrsAt(const float perception,

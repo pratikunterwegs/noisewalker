@@ -118,6 +118,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
     float dist = std::sqrt(std::pow(x - newX, 2.0) + std::pow(y - newY, 2.0));
     if(dist > 0.00001) {
         energy -= costMove;
+        moved += 1.f;
     }
 
     // get new position

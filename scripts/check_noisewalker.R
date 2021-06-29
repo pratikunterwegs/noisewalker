@@ -36,9 +36,14 @@ save(a, file = "data/output/test_data.Rds")
 
 # energy plot
 ggplot(data)+
-    geom_bin2d(
+    # geom_bin2d(
+    #     aes(gen, energy),
+    #     binwidth = c(3, 1)
+    # )+
+    geom_point(
         aes(gen, energy),
-        binwidth = c(5, 1)
+        alpha = 0.1,
+        shape = 1
     )+
     scale_fill_viridis_c(
         option = "F",
@@ -46,7 +51,7 @@ ggplot(data)+
         direction = -1
     )+
     coord_cartesian(
-        # xlim = c(0, 30)
+        xlim = c(0, 100)
     )
 
 # tanh transform

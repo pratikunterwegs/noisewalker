@@ -39,8 +39,9 @@ getLandscape <- function(landsize, octaves, frequency, increment, clamp) {
 #' Actually, the landscape is infinite, and does not have a repeating pattern.
 #' @param clamp The threshold value of the landscape below which, the agents
 #' sense and receive zero resources. Needed because noise has values -1 to +1.
+#' @param random_traits Should traits be initialised -1 to +1 or at 0.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp)
+run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits)
 }
 
