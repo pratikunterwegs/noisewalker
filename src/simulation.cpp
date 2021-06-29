@@ -23,16 +23,19 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const float costMove)
 {
     genData thisGenData;
+    float scale_time = 0.1f;
     // loop through generations
     for (int gen = 0; gen < genmax; ++gen) {
         for (int t = 0; t < timesteps; ++t) {
-            popMoveForageCompete(pop, noise, risk, t, perception, directions, landsize,
-            clamp, costMove); // set manually
+            // scale t by minor value
+            popMoveForageCompete(pop, noise, risk, static_cast<float>(t) * scale_time, 
+                perception, directions, landsize,
+                clamp, costMove); // set manually
         }
         // subtract cost of traits
         for (size_t i = 0; i < pop.size(); i++)
         {
-            pop[i].energy -= ((std::fabs(pop[i].coefFood) + std::fabs(pop[i].coefNbrs)) * static_cast<float>(timesteps));
+            pop[i].energy -= ((std::fabs(pop[i].coefFood) + std::fabs(pop[i].coefNbrs)));
         }
         
         thisGenData.updateGenData(pop, gen);
@@ -86,7 +89,7 @@ Rcpp::List run_noisewalker(
     // random position
     popRandomPos(pop, landsize); // landsize is fixed in parameters.hpp
     // random weights
-    popRandomTraits(pop);
+    // popRandomTraits(pop);
     
     // make the ancestral landscape
     FastNoiseLite noise;
