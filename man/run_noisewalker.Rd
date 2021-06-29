@@ -11,9 +11,8 @@ run_noisewalker(
   perception,
   directions,
   costMove,
-  costCompete,
-  nOctaves,
-  frequency,
+  freqRisk,
+  freqRes,
   landsize,
   clamp
 )
@@ -32,13 +31,9 @@ at a fixed distance of \code{perception} units away from them.}
 
 \item{costMove}{The cost per move; distance moved is assumed constant.}
 
-\item{costCompete}{The cost per neighbour within the perception range.}
+\item{freqRisk}{The patchiness of the landscape of costs.}
 
-\item{nOctaves}{Number of octaves. May be thought of as small scale 
-variability. Must be an integer value between 1 and 8. Higher values
-result in landscapes with more small scale noise.}
-
-\item{frequency}{Frequency of noise. May be thought of as large scale
+\item{freqRes}{Frequency of noise. May be thought of as large scale
 variability. May be any double value between 1.0 and 16.0. Higher values
 mean more patchy landscapes.}
 

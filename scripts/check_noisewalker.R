@@ -16,14 +16,13 @@ library(noisewalker)
 # test run
 a = noisewalker::run_noisewalker(
     popsize = 100, 
-    genmax = 500, 
+    genmax = 1000, 
     timesteps = 50, 
     perception = 0.05,
     directions = 4,
-    costMove = 0.1,
-    costCompete = 0.1,
-    nOctaves = 2, 
-    frequency = 0.01,
+    costMove = 0.01,
+    freqRes = 1.2,
+    freqRisk = 2,
     landsize = 5,
     clamp = 0.0
 )
@@ -36,9 +35,9 @@ data = Map(function(df, g) {
 data = rbindlist(data)
 
 # tanh transform
-data[, c("coef_food", "coef_nbrs") := lapply(
-    .SD, function(x) tanh(x)
-), .SDcols = c("coef_food", "coef_nbrs")]
+data[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
+    .SD, function(x) tanh(x * 20)
+), .SDcols = c("coef_food", "coef_nbrs", "coef_risk")]
 
 # melt data
 data = melt(data[,!"energy"], id.vars = "gen")
@@ -49,12 +48,12 @@ ggplot(data)+
         aes(gen, value),
         binwidth = c(2, 0.01)
     )+
-    scale_fill_viridis_c(
-        option = "D",
-        direction = -1
+    scale_fill_distiller(
+        palette = "Reds",
+        direction = 1
     )+
-    # coord_cartesian(ylim = c(-2,2))+
-    facet_grid(~variable)
+    # coord_cartesian(ylim = c(-0.25, 0.25))+
+    facet_wrap(~variable, scales = "free_y")
 
 # do bin 2d
 ggplot(data[gen %% 10 == 0, ])+
