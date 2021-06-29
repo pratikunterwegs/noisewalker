@@ -1,4 +1,4 @@
-
+#include "agent.hpp"
 #include "datatypes.hpp"
 
 /// function to update generation data
@@ -8,13 +8,14 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
     std::vector<float> vecCoefFood (pop.size(), 0.f);
     std::vector<float> vecCoefNbrs (pop.size(), 0.f);
     std::vector<float> vecCoefRisk (pop.size(), 0.f);
-    std::vector<float> vecEnrg (pop.size(), 0.f);
+    std::vector<float> vecEnrg (pop.size(), 1e-5f);
     
     for (size_t i = 0; i < pop.size(); i++)
     {
         vecCoefFood[i] = pop[i].coefFood;
         vecCoefNbrs[i] = pop[i].coefNbrs;
         vecCoefRisk[i] = pop[i].coefRisk;
+        // Rcpp::Rcout << "raw energy total recorded in data = " << pop[i].energy << "\n";
         vecEnrg[i] = pop[i].energy;
     }    
     // add to data
@@ -22,7 +23,7 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
     genCoefFood.push_back(vecCoefFood);
     genCoefNbrs.push_back(vecCoefNbrs);
     genCoefRisk.push_back(vecCoefRisk);
-    genEnergy.push_back(vecEnrg);
+    genEnergy.push_back(vecEnrg); // return absolute, not transformed energy
 }
 
 /// function to get all generations data
