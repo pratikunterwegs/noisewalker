@@ -31,6 +31,9 @@ a = noisewalker::run_noisewalker(
 # get data
 data = handle_rcpp_out(a)
 
+# save data
+save(a, file = "data/output/test_data.Rds")
+
 # energy plot
 ggplot(data)+
     geom_bin2d(
