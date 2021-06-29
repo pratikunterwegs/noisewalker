@@ -66,6 +66,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' Actually, the landscape is infinite, and does not have a repeating pattern.
 //' @param clamp The threshold value of the landscape below which, the agents
 //' sense and receive zero resources. Needed because noise has values -1 to +1.
+//' @param random_traits Should traits be initialised -1 to +1 or at 0.
 //' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
 Rcpp::List run_noisewalker(
@@ -78,7 +79,8 @@ Rcpp::List run_noisewalker(
         const float freqRisk, 
         const double freqRes,
         const float landsize,
-        const float clamp) {
+        const float clamp,
+        const bool random_traits) {
     
     // set up seed etc
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
@@ -89,7 +91,9 @@ Rcpp::List run_noisewalker(
     // random position
     popRandomPos(pop, landsize); // landsize is fixed in parameters.hpp
     // random weights
-    // popRandomTraits(pop);
+    if (random_traits) {
+        popRandomTraits(pop);
+    }
     
     // make the ancestral landscape
     FastNoiseLite noise;

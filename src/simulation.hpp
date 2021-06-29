@@ -24,4 +24,5 @@ Rcpp::List run_noisewalker(const int popsize,
                 const int freqRisk, 
                 const double freqRes,
                 const float landsize,
-                const float clamp);
+                const float clamp,
+                const bool random_traits);
