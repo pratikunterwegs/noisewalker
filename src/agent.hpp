@@ -26,7 +26,7 @@ class Agent {
 public:
     Agent() :
         // count agents correctly heritable parameter is s_range
-        energy(0.01f),
+        energy(1e-5f),
         x(0.f),
         y(0.f),
         coefFood(0.f),
@@ -44,13 +44,13 @@ public:
                     const float xloc, const float yloc,
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree);
     void doSenseMove(FastNoiseLite &noise, 
-                    FastNoiseLite &risk, const int t_, const float perception,
+                    FastNoiseLite &risk, const float t_, const float perception,
                     const int directions, const float landsize,
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove);
     void doEnergetics(FastNoiseLite &noise, FastNoiseLite &risk, 
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
                     const float perception,
-                    const int t_, const float clamp);
+                    const float t_, const float clamp);
     
     void randomTraits();
     void randomPosition(const float landsize);
@@ -64,12 +64,12 @@ void popRandomTraits(std::vector<Agent> &pop);
 
 void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
     FastNoiseLite &risk,
-    const int t_,
+    const float t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,
     const float costMove);
 
-void normaliseFitness(std::vector<double> &vecFitness);
+void handleFitness(std::vector<float> &vecFitness);
 
 void doReproduce(std::vector<Agent>& pop, const float landsize);
 

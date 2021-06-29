@@ -76,7 +76,7 @@ int Agent::countNbrsAt(const float perception,
 
 /// agent function to choose a new position
 void Agent::doSenseMove(FastNoiseLite &noise, 
-    FastNoiseLite &risk, const int t_, const float perception,
+    FastNoiseLite &risk, const float t_, const float perception,
     const int directions, const float landsize,
     bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove) {
     
@@ -137,27 +137,36 @@ void Agent::doSenseMove(FastNoiseLite &noise,
 void Agent::doEnergetics(FastNoiseLite &noise, FastNoiseLite &risk, 
     bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
     const float perception,
-    const int t_, const float clamp) {
+    const float t_, const float clamp) {
     
     // energy and risk
     float energy_here = (noise.GetNoise(x, y, static_cast<float>(t_)));
+    // Rcpp::Rcout << "energy here = " << energy_here << "\n";
     float risk_here = (risk.GetNoise(x, y, static_cast<float>(t_)));
+    // Rcpp::Rcout << "risk here = " << risk_here << "\n";
 
     // both divided by number of neighbours
-    float nbrs = static_cast<float>(countNbrsAt(perception, x, y, agentRtree));
-    energy_here = energy_here / nbrs;
-    risk_here = risk_here / nbrs;
+    int nbrs = countNbrsAt(perception, x, y, agentRtree);
 
+    float nbrs_f = nbrs > 0 ? static_cast<float>(nbrs) : 1.f;
+
+    // Rcpp::Rcout << "nbrs here = " << nbrs << "\n";
+    energy_here = energy_here / nbrs_f;
+    risk_here = risk_here / nbrs_f;
+    // Rcpp::Rcout << "scaled energy here = " << energy_here << "\n";
+    // Rcpp::Rcout << "scaled risk here = " << risk_here << "\n";
     // energetic balance
     energy +=  (energy_here < clamp ? 0.f : energy_here) + 
         (risk_here > clamp ? 0.f : risk_here);
+    
+    // Rcpp::Rcout << "overall energy here = " << (energy_here < clamp ? 0.f : energy_here) + (risk_here > clamp ? 0.f : risk_here) << "\n";
 }
 
 /* population level functions */
 /// population moves about and forages
 void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
     FastNoiseLite &risk,
-    const int t_,
+    const float t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,
     const float costMove) {
@@ -172,28 +181,31 @@ void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
     }
 }
 
-/// minor function to normalise vector
-// THIS IS AN ISSUE IF YOU WANT TO RETURN ENERGY PER GEN AS ENERGY IS NORMED
-void normaliseFitness(std::vector<double> &vecFitness) {
-    float minFitness = 0.0f;
-    float maxFitness = 0.0f;
-    // get min and max fitness
-    for (size_t vecVal = 0; vecVal < vecFitness.size(); ++vecVal) {
-        if (vecFitness[vecVal] < minFitness) {
-            minFitness = vecFitness[vecVal];
-        }
-        if (vecFitness[vecVal] > maxFitness) {
-            maxFitness = vecFitness[vecVal];
-        }
+/// minor function to handle energy
+void handleFitness(std::vector<float> &vecFitness) {
+
+    // negative energy is 0, add 1e-5 to all positive values
+    for (size_t i = 0; i < vecFitness.size(); i++)
+    {
+        // Rcpp::Rcout << "raw energy total = " << vecFitness[i] << "\n";
+        vecFitness[i] = vecFitness[i] > 0.f ? vecFitness[i] + 1e-5 : 1e-5;
+        // Rcpp::Rcout << "scaled energy total = " << vecFitness[i] << "\n";
+        assert(vecFitness[i] > 0.f && "Agent energy is 0!");
     }
-    // rescale values
-    for (size_t vecVal = 0; vecVal < vecFitness.size(); ++vecVal) {
-        vecFitness[vecVal] -= minFitness;
-        vecFitness[vecVal] = vecFitness[vecVal] / (maxFitness - minFitness);
-        // add a small value to avoid zero values
-        vecFitness[vecVal] += 0.0000000001;
-        assert(vecFitness[vecVal] > 0.0 && "Agent energy is 0!");
-    }
+
+    // std::vector<float> tmpvec = vecFitness;
+    // std::sort(tmpvec.begin(), tmpvec.end());
+
+    // // get min and max fitness
+    // float minFitness = tmpvec.begin();
+    // float maxFitness = tmpvec.end();
+
+    // // rescale values between 1e-5f and 1.f
+    // for (size_t j = 0; j < vecFitness.size(); ++j) {
+    //     vecFitness[j] -= minFitness;
+    //     vecFitness[j] = vecFitness[j] / (maxFitness - minFitness);
+    //     assert(vecFitness[j] > 0.f && "Agent energy is 0!");
+    // }
 
 }
 
@@ -204,12 +216,12 @@ std::cauchy_distribution<float> randMutSize(0.f, mutSize);
 /// pop reproduces
 void doReproduce(std::vector<Agent>& pop, const float landsize) {
     // make fitness vec
-    std::vector<double> vecFitness (pop.size());
+    std::vector<float> vecFitness (pop.size());
     for (size_t a = 0; a < pop.size(); a++)
     {
-        vecFitness[a] = (static_cast<double> (pop[a].energy));
+        vecFitness[a] = pop[a].energy;
     }
-    normaliseFitness(vecFitness);
+    handleFitness(vecFitness);
 
     // weighted lottery
     std::discrete_distribution<> weightedLottery(vecFitness.begin(), vecFitness.end());
@@ -227,7 +239,7 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
         tmpPop[a].coefFood = pop[idParent].coefFood;
         tmpPop[a].coefNbrs = pop[idParent].coefNbrs;
         tmpPop[a].coefRisk = pop[idParent].coefRisk;
-        tmpPop[a].energy = 0.001f;
+        tmpPop[a].energy = 1e-5f;
     }
 
     // mutation
