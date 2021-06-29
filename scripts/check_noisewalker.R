@@ -8,49 +8,67 @@ library(data.table)
 Rcpp::compileAttributes()
 build()
 sink("install_output.log"); install(); sink()
-document()
+# document()
 
 # load the lib, better to restart R
+detach(package:noisewalker)
 library(noisewalker)
 
 # test run
 a = noisewalker::run_noisewalker(
-    popsize = 100, 
+    popsize = 500, 
     genmax = 1000, 
-    timesteps = 50, 
+    timesteps = 100, 
     perception = 0.05,
     directions = 4,
     costMove = 0.01,
-    freqRes = 1.2,
-    freqRisk = 2,
-    landsize = 5,
+    freqRes = 0.1,
+    freqRisk = 4,
+    landsize = 50,
     clamp = 0.0
 )
 
 # get data
-data = Map(function(df, g) {
-    df$gen = g
-    df
-}, a$pop_data, a$gens)
-data = rbindlist(data)
+data = handle_rcpp_out(a)
+
+# energy plot
+ggplot(data)+
+    geom_bin2d(
+        aes(gen, energy),
+        binwidth = c(5, 1)
+    )+
+    scale_fill_viridis_c(
+        option = "F",
+        # trans = "log10",
+        direction = -1
+    )+
+    coord_cartesian(
+        # xlim = c(0, 30)
+    )
 
 # tanh transform
 data[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
-    .SD, function(x) tanh(x * 20)
+    .SD, function(x) {
+        cut_wt_lower(x, steps = 50)
+    }
 ), .SDcols = c("coef_food", "coef_nbrs", "coef_risk")]
 
 # melt data
 data = melt(data[,!"energy"], id.vars = "gen")
 
+# count by weight value
+data_summary = data[, list(.N), 
+                    by = c("gen", "variable", "value")]
+
 # bin 2d
-ggplot(data)+
-    geom_bin2d(
-        aes(gen, value),
-        binwidth = c(2, 0.01)
+ggplot(data_summary)+
+    geom_tile(
+        aes(gen, value, fill = N)
     )+
-    scale_fill_distiller(
-        palette = "Reds",
-        direction = 1
+    scale_fill_viridis_c(
+        option = "F",
+        begin = 0, end = 0.9,
+        direction = -1
     )+
     # coord_cartesian(ylim = c(-0.25, 0.25))+
     facet_wrap(~variable, scales = "free_y")
