@@ -15,6 +15,7 @@ public:
     std::vector<int> gen;
     std::vector<std::vector<float> > genCoefFood;
     std::vector<std::vector<float> > genCoefNbrs;
+    std::vector<std::vector<float> > genCoefRisk;
     std::vector<std::vector<float> > genEnergy;
     void updateGenData (std::vector<Agent> &pop, const int gen);
     Rcpp::List returnGenData ();

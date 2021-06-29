@@ -20,6 +20,9 @@ bgi::rtree< value, bgi::quadratic<16> > makeRtree (std::vector<Agent> &pop) {
 /// random trait value dist
 std::uniform_real_distribution<float> randTrait(-2.f, 2.f);
 
+// normal distr around 0
+std::normal_distribution<float> normDist(0.0f, 0.1f);
+
 /// initialise the population at random positions
 void Agent::randomPosition(const float landsize) {
     x = randTrait(rng) * static_cast<double>(landsize);
@@ -37,6 +40,7 @@ void popRandomPos(std::vector<Agent> &pop, const float landsize) {
 void Agent::randomTraits() {
     coefFood = randTrait(rng);
     coefNbrs = randTrait(rng);
+    coefRisk = randTrait(rng);
 }
 
 /// pop level random traits
@@ -70,44 +74,9 @@ int Agent::countNbrsAt(const float perception,
     return nNbrs;
 }
 
-/// random angle distribution
-std::uniform_real_distribution<float> randAngle(0.f, 2.f * M_PI);
-
-/// function to get best angle
-float Agent::pickAngle(FastNoiseLite &noise, const float perception,
-    const int nDirections, bgi::rtree< value, bgi::quadratic<16> > &agentRtree) {
-    
-    // allow staying in place
-    
-    float moveAngle = 0.f;
-    float twopi = 2.f * M_PI;
-    // what increment for nDirections samples in a circle around the agent
-    float increment = twopi / static_cast<float>(nDirections);
-    float sampleX, sampleY, foodHere, nbrsHere; 
-    float suitabilityHere = 0.f;
-    // cycle through samples and check for angle with max resources
-    for(float theta = 0.f; theta < twopi - increment; theta += increment) {
-
-        sampleX = x + (perception * static_cast<float>(cos(theta)));
-        sampleY = y + (perception * static_cast<float>(sin(theta)));
-
-        foodHere = noise.GetNoise(sampleX, sampleY);
-
-        nbrsHere = static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree));
-
-        float new_suitabilityHere = (coefFood * foodHere) + (coefNbrs * nbrsHere);
-
-        if (new_suitabilityHere > suitabilityHere) {
-            moveAngle = theta;
-            suitabilityHere = new_suitabilityHere;
-        }
-    }
-
-    return moveAngle;
-}
-
 /// agent function to choose a new position
-void Agent::doSenseMove(FastNoiseLite &noise, const int t_, const float perception,
+void Agent::doSenseMove(FastNoiseLite &noise, 
+    FastNoiseLite &risk, const int t_, const float perception,
     const int directions, const float landsize,
     bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove) {
     
@@ -115,6 +84,7 @@ void Agent::doSenseMove(FastNoiseLite &noise, const int t_, const float percepti
     float newX = x; float newY = y;
     float foodHere = noise.GetNoise(newX, newY, static_cast<float>(t_));
     float nbrsHere = static_cast<float>(countNbrsAt(perception, newX, newY, agentRtree));
+    float riskHere = risk.GetNoise(newX, newY, static_cast<float>(t_));
     float best_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere);
     
     float moveAngle = 0.f;
@@ -132,7 +102,10 @@ void Agent::doSenseMove(FastNoiseLite &noise, const int t_, const float percepti
 
         nbrsHere = static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree));
 
-        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere);
+        riskHere = risk.GetNoise(sampleX, sampleY, static_cast<float>(t_));
+
+        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) + (coefRisk * riskHere)
+            + normDist(rng);
 
         if (new_suit > best_suit) {
             newX = sampleX;
@@ -161,53 +134,41 @@ void Agent::doSenseMove(FastNoiseLite &noise, const int t_, const float percepti
 }
 
 /// agent function to forage
-void Agent::doForage(FastNoiseLite &landscape, const int t_, const float clamp) {
-    float energy_here = (landscape.GetNoise(x, y, static_cast<float>(t_)));
-    // the clamp is defined in parameters.hpp
-    energy +=  (energy_here < clamp ? 0.f : energy_here);
-}
-
-/// function to count neighbours
-void Agent::doCompete(const float perception, 
+void Agent::doEnergetics(FastNoiseLite &noise, FastNoiseLite &risk, 
     bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
-    const float costCompete) {
+    const float perception,
+    const int t_, const float clamp) {
     
-    // std::cout << "id = " << id << " at " << bg::wkt<point> (point(coordX[id], coordY[id])) << "\n";
+    // energy and risk
+    float energy_here = (noise.GetNoise(x, y, static_cast<float>(t_)));
+    float risk_here = (risk.GetNoise(x, y, static_cast<float>(t_)));
 
-    // count neighbours at current location
-    int nbrs = countNbrsAt(perception, x, y, agentRtree);
+    // both divided by number of neighbours
+    float nbrs = static_cast<float>(countNbrsAt(perception, x, y, agentRtree));
+    energy_here = energy_here / nbrs;
+    risk_here = risk_here / nbrs;
 
-    energy = energy - (static_cast<float>(nbrs) * costCompete);
+    // energetic balance
+    energy +=  (energy_here < clamp ? 0.f : energy_here) + 
+        (risk_here > clamp ? 0.f : risk_here);
 }
 
 /* population level functions */
 /// population moves about and forages
 void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
+    FastNoiseLite &risk,
     const int t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,
-    const float costMove,
-    const float costCompete) {
+    const float costMove) {
 
     // make Rtree
     bgi::rtree< value, bgi::quadratic<16> > agentRtree = makeRtree(pop);
 
     for(auto& indiv : pop) {
-        indiv.doSenseMove(noise, t_, perception, directions, landsize, 
+        indiv.doSenseMove(noise, risk, t_, perception, directions, landsize, 
             agentRtree, costMove);
-        indiv.doForage(noise, t_, clamp);
-    }
-
-    // // update Rtree as agents have moved
-    // bgi::rtree< value, bgi::quadratic<16> > newAgentRtree = makeRtree(pop);
-
-    // // swap rtrees
-    // std::swap(agentRtree, newAgentRtree);
-    // newAgentRtree.clear();
-
-    // all moves done now count neighbours
-    for(auto& indiv : pop) {
-        indiv.doCompete(perception, agentRtree, costCompete);
+        indiv.doEnergetics(noise, risk, agentRtree, perception, t_, clamp);
     }
 }
 
@@ -265,6 +226,7 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
         tmpPop[a].y = pop[idParent].y;
         tmpPop[a].coefFood = pop[idParent].coefFood;
         tmpPop[a].coefNbrs = pop[idParent].coefNbrs;
+        tmpPop[a].coefRisk = pop[idParent].coefRisk;
         tmpPop[a].energy = 0.001f;
     }
 
@@ -275,6 +237,9 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
         }
         if (randMutEvent(rng)) {
             indiv.coefNbrs += randMutSize(rng);
+        }
+        if (randMutEvent(rng)) {
+            indiv.coefRisk += randMutSize(rng);
         }
     }
 

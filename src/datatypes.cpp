@@ -7,18 +7,21 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
     // make vector of activities
     std::vector<float> vecCoefFood (pop.size(), 0.f);
     std::vector<float> vecCoefNbrs (pop.size(), 0.f);
+    std::vector<float> vecCoefRisk (pop.size(), 0.f);
     std::vector<float> vecEnrg (pop.size(), 0.f);
     
     for (size_t i = 0; i < pop.size(); i++)
     {
         vecCoefFood[i] = pop[i].coefFood;
         vecCoefNbrs[i] = pop[i].coefNbrs;
+        vecCoefRisk[i] = pop[i].coefRisk;
         vecEnrg[i] = pop[i].energy;
     }    
     // add to data
     gen.push_back(g);
     genCoefFood.push_back(vecCoefFood);
     genCoefNbrs.push_back(vecCoefNbrs);
+    genCoefRisk.push_back(vecCoefRisk);
     genEnergy.push_back(vecEnrg);
 }
 
@@ -34,6 +37,7 @@ Rcpp::List genData::returnGenData() {
         genDataList[i] = DataFrame::create(
             Named("coef_food") = genCoefFood[i],
             Named("coef_nbrs") = genCoefNbrs[i],
+            Named("coef_risk") = genCoefRisk[i],
             Named("energy") = genEnergy[i]
         );
     }
