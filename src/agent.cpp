@@ -194,19 +194,17 @@ void handleFitness(std::vector<float> &vecFitness) {
         assert(vecFitness[i] > 0.f && "Agent energy is 0!");
     }
 
-    // std::vector<float> tmpvec = vecFitness;
-    // std::sort(tmpvec.begin(), tmpvec.end());
+    std::vector<float> tmpvec = vecFitness;
+    std::sort(tmpvec.begin(), tmpvec.end());
 
-    // // get min and max fitness
-    // float minFitness = tmpvec.begin();
-    // float maxFitness = tmpvec.end();
+    // get max fitness
+    float maxFitness = tmpvec.end();
 
-    // // rescale values between 1e-5f and 1.f
-    // for (size_t j = 0; j < vecFitness.size(); ++j) {
-    //     vecFitness[j] -= minFitness;
-    //     vecFitness[j] = vecFitness[j] / (maxFitness - minFitness);
-    //     assert(vecFitness[j] > 0.f && "Agent energy is 0!");
-    // }
+    // rescale values between 1e-5f and 1.f
+    for (size_t j = 0; j < vecFitness.size(); ++j) {
+        vecFitness[j] = vecFitness[j] / (maxFitness);
+        assert(vecFitness[j] > 0.f && "Agent energy is 0!");
+    }
 
 }
 
