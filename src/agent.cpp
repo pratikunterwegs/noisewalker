@@ -198,7 +198,7 @@ void handleFitness(std::vector<float> &vecFitness) {
     std::sort(tmpvec.begin(), tmpvec.end());
 
     // get max fitness
-    float maxFitness = tmpvec.end();
+    float maxFitness = tmpvec.back();
 
     // rescale values between 1e-5f and 1.f
     for (size_t j = 0; j < vecFitness.size(); ++j) {
