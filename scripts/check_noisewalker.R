@@ -8,7 +8,7 @@ library(data.table)
 Rcpp::compileAttributes()
 build()
 sink("install_output.log"); install(); sink()
-# document()
+document()
 
 # load the lib, better to restart R
 detach(package:noisewalker)
@@ -21,11 +21,14 @@ a = noisewalker::run_noisewalker(
     timesteps = 100, 
     perception = 0.05,
     directions = 4,
-    costMove = 0.01,
-    freqRes = 0.1,
-    freqRisk = 4,
-    landsize = 50,
-    clamp = 0.0
+    costMove = 0.000001,
+    freqRes = 1,
+    freqRisk = 0.01,
+    landsize = 10,
+    clamp = 0.0,
+    random_traits = F,
+    allow_compete = T,
+    allow_coop = F
 )
 
 # get data
@@ -36,33 +39,33 @@ save(a, file = "data/output/test_data.Rds")
 
 # energy plot
 ggplot(data)+
-    # geom_bin2d(
-    #     aes(gen, energy),
-    #     binwidth = c(3, 1)
-    # )+
-    geom_point(
+    geom_bin2d(
         aes(gen, energy),
-        alpha = 0.1,
-        shape = 1
+        binwidth = c(1, 1)
     )+
+    # geom_point(
+    #     aes(gen, energy),
+    #     alpha = 0.1,
+    #     shape = 1
+    # )+
     scale_fill_viridis_c(
-        option = "F",
+        option = "Blues 2",
         # trans = "log10",
         direction = -1
     )+
     coord_cartesian(
-        xlim = c(0, 100)
+        # xlim = c(0, 500)
     )
 
 # tanh transform
 data[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
     .SD, function(x) {
-        cut_wt_lower(x, steps = 50)
+        cut_wt_lower(x, steps = 100, scale = 0)
     }
 ), .SDcols = c("coef_food", "coef_nbrs", "coef_risk")]
 
 # melt data
-data = melt(data[,!"energy"], id.vars = "gen")
+data = melt(data[,!c("energy","moved")], id.vars = "gen")
 
 # count by weight value
 data_summary = data[, list(.N), 
@@ -74,11 +77,11 @@ ggplot(data_summary)+
         aes(gen, value, fill = N)
     )+
     scale_fill_viridis_c(
-        option = "F",
-        begin = 0, end = 0.9,
+        option = "C",
+        begin = 0, end = 0.95,
         direction = -1
     )+
-    # coord_cartesian(ylim = c(-0.25, 0.25))+
+    coord_cartesian(xlim = c(0, 500))+
     facet_wrap(~variable, scales = "free_y")
 
 # do bin 2d
