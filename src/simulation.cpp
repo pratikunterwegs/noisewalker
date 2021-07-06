@@ -20,23 +20,27 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const float clamp,
                const float perception,
                const int directions,
-               const float costMove)
+               const float costMove,
+               const bool allow_compete,
+               const bool allow_coop)
 {
     genData thisGenData;
     float scale_time = 0.1f;
     // loop through generations
     for (int gen = 0; gen < genmax; ++gen) {
+        Rcpp::Rcout << "generation: " << gen << "\r";
         for (int t = 0; t < timesteps; ++t) {
             // scale t by minor value
             popMoveForageCompete(pop, noise, risk, static_cast<float>(t) * scale_time, 
                 perception, directions, landsize,
-                clamp, costMove); // set manually
+                clamp, costMove, allow_compete, allow_coop); // set manually
         }
-        // subtract cost of traits
-        for (size_t i = 0; i < pop.size(); i++)
-        {
-            pop[i].energy -= ((std::fabs(pop[i].coefFood) + std::fabs(pop[i].coefNbrs)));
-        }
+
+        // subtract cost of traits?
+        // for (size_t i = 0; i < pop.size(); i++)
+        // {
+        //     pop[i].energy -= ((std::fabs(pop[i].coefFood) + std::fabs(pop[i].coefNbrs)));
+        // }
         
         thisGenData.updateGenData(pop, gen);
         // reproduce once generation is done
@@ -67,6 +71,8 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' @param clamp The threshold value of the landscape below which, the agents
 //' sense and receive zero resources. Needed because noise has values -1 to +1.
 //' @param random_traits Should traits be initialised -1 to +1 or at 0.
+//' @param allow_compete Should agents compete. Controls downstream functions.
+//' @param allow_coop Should agents share costs on the risk landscape.
 //' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
 Rcpp::List run_noisewalker(
@@ -80,7 +86,13 @@ Rcpp::List run_noisewalker(
         const double freqRes,
         const float landsize,
         const float clamp,
-        const bool random_traits) {
+        const bool random_traits,
+        const bool allow_compete,
+        const bool allow_coop) {
+
+    if(allow_coop) {
+        assert(allow_compete && "allow coop TRUE requires allow compete TRUE");
+    }
     
     // set up seed etc
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
@@ -106,7 +118,8 @@ Rcpp::List run_noisewalker(
     // do evolution
     Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise,
                                     risk, landsize, clamp, perception,
-                                    directions, costMove);
+                                    directions, costMove, allow_compete, 
+                                    allow_coop);
 
     return thisData;
 }
