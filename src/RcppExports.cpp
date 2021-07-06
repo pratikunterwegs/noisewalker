@@ -21,8 +21,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // run_noisewalker
-Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float perception, const int directions, const float costMove, const float freqRisk, const double freqRes, const float landsize, const float clamp, const bool random_traits);
-RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP perceptionSEXP, SEXP directionsSEXP, SEXP costMoveSEXP, SEXP freqRiskSEXP, SEXP freqResSEXP, SEXP landsizeSEXP, SEXP clampSEXP, SEXP random_traitsSEXP) {
+Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float perception, const int directions, const float costMove, const float freqRisk, const double freqRes, const float landsize, const float clamp, const bool random_traits, const bool allow_compete, const bool allow_coop);
+RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP perceptionSEXP, SEXP directionsSEXP, SEXP costMoveSEXP, SEXP freqRiskSEXP, SEXP freqResSEXP, SEXP landsizeSEXP, SEXP clampSEXP, SEXP random_traitsSEXP, SEXP allow_competeSEXP, SEXP allow_coopSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -37,14 +37,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const float >::type landsize(landsizeSEXP);
     Rcpp::traits::input_parameter< const float >::type clamp(clampSEXP);
     Rcpp::traits::input_parameter< const bool >::type random_traits(random_traitsSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits));
+    Rcpp::traits::input_parameter< const bool >::type allow_compete(allow_competeSEXP);
+    Rcpp::traits::input_parameter< const bool >::type allow_coop(allow_coopSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_noisewalker(popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits, allow_compete, allow_coop));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_noisewalker_getLandscape", (DL_FUNC) &_noisewalker_getLandscape, 5},
-    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 11},
+    {"_noisewalker_run_noisewalker", (DL_FUNC) &_noisewalker_run_noisewalker, 13},
     {NULL, NULL, 0}
 };
 

@@ -40,8 +40,10 @@ getLandscape <- function(landsize, octaves, frequency, increment, clamp) {
 #' @param clamp The threshold value of the landscape below which, the agents
 #' sense and receive zero resources. Needed because noise has values -1 to +1.
 #' @param random_traits Should traits be initialised -1 to +1 or at 0.
+#' @param allow_compete Should agents compete. Controls downstream functions.
+#' @param allow_coop Should agents share costs on the risk landscape.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits)
+run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits, allow_compete, allow_coop) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits, allow_compete, allow_coop)
 }
 
