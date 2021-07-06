@@ -78,16 +78,16 @@ int Agent::countNbrsAt(const float perception,
 void Agent::doSenseMove(FastNoiseLite &noise, 
     FastNoiseLite &risk, const float t_, const float perception,
     const int directions, const float landsize,
-    bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove) {
+    bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove,
+    const bool allow_compete) {
     
     // set default values --- stay in place
     float newX = x; float newY = y;
     float foodHere = noise.GetNoise(newX, newY, static_cast<float>(t_));
-    float nbrsHere = static_cast<float>(countNbrsAt(perception, newX, newY, agentRtree));
+    float nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, newX, newY, agentRtree)) : 0.f;
     float riskHere = risk.GetNoise(newX, newY, static_cast<float>(t_));
     float best_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere);
     
-    float moveAngle = 0.f;
     float twopi = 2.f * M_PI;
     // what increment for nDirections samples in a circle around the agent
     float increment = twopi / static_cast<float>(directions);
@@ -100,7 +100,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
 
         foodHere = noise.GetNoise(sampleX, sampleY, static_cast<float>(t_));
 
-        nbrsHere = static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree));
+        nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree)) : 0.f;
 
         riskHere = risk.GetNoise(sampleX, sampleY, static_cast<float>(t_));
 
@@ -123,7 +123,6 @@ void Agent::doSenseMove(FastNoiseLite &noise,
 
     // get new position
     x = newX; y = newY;
-    y = y + (perception * static_cast<float>(sin(moveAngle)));
 
     // crudely wrap movement
     if((x > landsize) | (x < 0.f)) {
@@ -138,7 +137,9 @@ void Agent::doSenseMove(FastNoiseLite &noise,
 void Agent::doEnergetics(FastNoiseLite &noise, FastNoiseLite &risk, 
     bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
     const float perception,
-    const float t_, const float clamp) {
+    const float t_, const float clamp,
+    const bool allow_compete,
+    const bool allow_coop) {
     
     // energy and risk
     float energy_here = (noise.GetNoise(x, y, static_cast<float>(t_)));
@@ -147,13 +148,15 @@ void Agent::doEnergetics(FastNoiseLite &noise, FastNoiseLite &risk,
     // Rcpp::Rcout << "risk here = " << risk_here << "\n";
 
     // both divided by number of neighbours
-    int nbrs = countNbrsAt(perception, x, y, agentRtree);
+    int nbrs = allow_compete ? countNbrsAt(perception, x, y, agentRtree) : 0;
 
-    float nbrs_f = nbrs > 0 ? static_cast<float>(nbrs) : 1.f;
+    float nbrs_f = static_cast<float>(nbrs) + 1.f; // to prevent divisions by 0
 
     // Rcpp::Rcout << "nbrs here = " << nbrs << "\n";
     energy_here = energy_here / nbrs_f;
-    risk_here = risk_here / nbrs_f;
+
+    // risk shared if cooperation allowed
+    if (allow_coop) risk_here = risk_here / nbrs_f;
     // Rcpp::Rcout << "scaled energy here = " << energy_here << "\n";
     // Rcpp::Rcout << "scaled risk here = " << risk_here << "\n";
     // energetic balance
@@ -170,15 +173,21 @@ void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
     const float t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,
-    const float costMove) {
+    const float costMove,
+    const bool allow_compete,
+    const bool allow_coop) {
 
     // make Rtree
-    bgi::rtree< value, bgi::quadratic<16> > agentRtree = makeRtree(pop);
+    bgi::rtree< value, bgi::quadratic<16> > agentRtree;
+    if (allow_compete) {
+        agentRtree = makeRtree(pop);
+    }
 
     for(auto& indiv : pop) {
         indiv.doSenseMove(noise, risk, t_, perception, directions, landsize, 
-            agentRtree, costMove);
-        indiv.doEnergetics(noise, risk, agentRtree, perception, t_, clamp);
+            agentRtree, costMove, allow_compete);
+        indiv.doEnergetics(noise, risk, agentRtree, perception, t_, clamp,
+            allow_compete, allow_coop);
     }
 }
 
