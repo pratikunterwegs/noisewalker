@@ -61,3 +61,7 @@ data/output/*.Rdata
 # ignore jobs
 job_noisewalker*
 job_script*
+
+# documents
+*.docx
+*.odt*
