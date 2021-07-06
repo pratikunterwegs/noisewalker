@@ -28,11 +28,11 @@ get_acf_range <- function(z, corr_val = 0.1) {
 
 # prepare combinations
 params = CJ(
-    landsize = 5,
+    landsize = 10,
     octaves = 1,
-    frequency = c(0.1, 0.25, 0.5, 1, 2, 4),
+    frequency = c(0.1, 0.25, 0.5, 1, 2),
     increment = 0.05,
-    clamp = 0
+    clamp = -1.1
 )
 
 # get landscape data
@@ -63,22 +63,53 @@ data = lapply(seq(nrow(params)),
                   list(land = land, acfstr = acfstr)
               })
 
+# add sample agents
+agents = data.table(
+    x = runif(500, 0, 10),
+    y = runif(500, 0, 10)
+)
+
+# clamp at a value
+clamp = function(x, clamp_value) {
+    x[x < clamp_value] = 0
+    x = scales::rescale(x, 0, 1)
+    x
+}
+
 # combine and plot
 subplots = Map(function(df, p, l, i) {
-    ggplot(df$land)+
+
+    df$land$value[df$land$value > 0] = 0
+
+    pl = ggplot(df$land)+
         geom_tile(
-            aes(x,y,fill = value)
+            aes(x,y,
+                fill = value
+            )
         )+
-        scale_fill_viridis_c(
-            option = "B",
-            limits = c(0, 1),
-            name = "resource"
+        geom_point(
+            data = agents,
+            aes(x, y),
+            col = "red",
+            # size = 0.2,
+            shape = 1,
+            alpha = 0.5
         )+
-        coord_fixed()+
+        scale_fill_continuous_sequential(
+            palette = "Heat 2",
+            rev = F,
+            limits = c(-1, 0),
+            name = "resource",
+            na.value = "grey90",
+            breaks = c(0, -0.5, -1)
+        )+
+        coord_fixed(
+            expand = F
+        )+
         theme_test()+
         theme(
-            legend.key.height = unit(2, units = "mm"),
-            legend.position = "bottom",
+            legend.key.width = unit(2, units = "mm"),
+            legend.position = "right",
             legend.text = element_text(size = 4)
         )+
         labs(title = glue::glue(
@@ -86,40 +117,48 @@ subplots = Map(function(df, p, l, i) {
              landsize = {l}
              increment = {i}"
         ))
+    
+    ggsave(pl, 
+        file = sprintf("figures/fig_land_cost_%.2f.png", p),
+        width = 6.5,
+        height = 6
+    )
+
 }, data, params$frequency, params$landsize, params$increment)
 
-# make acf plots
-subplots_acf = Map(function(df, p, l, i) {
-    ggplot(df$acfstr)+
-        geom_hline(
-            yintercept = c(0, 0.1),
-            lty = c(1, 2)
-        )+
-        geom_line(
-            aes(acflag, acfval),
-            col = "red"
-        )+
-        coord_cartesian(
-            ylim = c(-0.5, 1)
-        )+
-        theme_test()+
-        labs(
-            x = "distance",
-            y = "autocorrelation",
-            title = glue::glue(
-            "frequency = {p}
-             landsize = {l}
-             increment = {i}"
-        ))
-}, data, params$frequency, params$landsize, params$increment)
+# # make acf plots
+# subplots_acf = Map(function(df, p, l, i) {
+#     ggplot(df$acfstr)+
+#         geom_hline(
+#             yintercept = c(0, 0.1),
+#             lty = c(1, 2)
+#         )+
+#         geom_line(
+#             aes(acflag, acfval),
+#             col = "red"
+#         )+
+#         coord_cartesian(
+#             ylim = c(-0.5, 1)
+#         )+
+#         theme_test()+
+#         labs(
+#             x = "distance",
+#             y = "autocorrelation",
+#             title = glue::glue(
+#             "frequency = {p}
+#              landsize = {l}
+#              increment = {i}"
+#         ))
+# }, data, params$frequency, params$landsize, params$increment)
 
 # wrap plots
-plot_land = wrap_plots(subplots, ncol = length(subplots)) +
+# plot_land = 
+wrap_plots(subplots, ncol = length(subplots)) +
     plot_layout(
         guides = "collect"
     ) &
     theme(
-        legend.position = "bottom",
+        legend.position = "right",
         title = element_text(size = 6)
     )
 plot_acf = wrap_plots(subplots_acf, ncol = length(subplots)) &
