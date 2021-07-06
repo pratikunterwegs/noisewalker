@@ -14,7 +14,10 @@ run_noisewalker(
   freqRisk,
   freqRes,
   landsize,
-  clamp
+  clamp,
+  random_traits,
+  allow_compete,
+  allow_coop
 )
 }
 \arguments{
@@ -42,6 +45,12 @@ Actually, the landscape is infinite, and does not have a repeating pattern.}
 
 \item{clamp}{The threshold value of the landscape below which, the agents
 sense and receive zero resources. Needed because noise has values -1 to +1.}
+
+\item{random_traits}{Should traits be initialised -1 to +1 or at 0.}
+
+\item{allow_compete}{Should agents compete. Controls downstream functions.}
+
+\item{allow_coop}{Should agents share costs on the risk landscape.}
 }
 \value{
 A dataframe of evolved pop strategy count.
