@@ -32,13 +32,18 @@ public:
         coefFood(0.f),
         coefNbrs(0.f),
         coefRisk(0.f),
-        moved(0.f)
+        moved(0.f),
+        infected(false),
+        timeInfected(inf)
 
     {}
     ~Agent() {}
 
     // agent attributes
     float energy, x, y, coefFood, coefNbrs, coefRisk, moved;
+    // is agent infected?
+    bool infected;
+    int timeInfected;
     
     // agent functions
     int countNbrsAt(const float perception,
