@@ -24,15 +24,8 @@ int main()
     noise.SetSeed(seed);
     noise.SetFrequency(2.0);
 
-    // risk landscape
-    FastNoiseLite risk;
-    risk.SetSeed(seed);
-    risk.SetFrequency(2.0);
-
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, 10, 10, noise,
-                                    risk, landsize, 0.f, 1.f,
-                                    8, 0.1f);
+    Rcpp::List thisData = evolvePop(pop, 10, 10, noise, 10.f, 0.f, 0.05f, 4, 0.1f, true);
 
     std::cout << "pop evolved";
     return 0;
