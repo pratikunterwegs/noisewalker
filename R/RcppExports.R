@@ -45,8 +45,10 @@ getLandscape <- function(landsize, octaves, frequency, increment, clamp) {
 #' and no pathogen is introduced. If 1, "ancestral", the pathogen is introduced
 #' from generation zero, the start of the simulation. If 2, "spillover", the
 #' pathogen is introduced after 2/3 of the simulation.
+#' @param pTransmit The probability a disease transmits.
+#' @param costInfection The per-timestep cost of being infected.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario)
+run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario, pTransmit, costInfection) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario, pTransmit, costInfection)
 }
 
