@@ -80,3 +80,11 @@ void popPathogenSpread(std::vector<Agent> &pop, const float perception,
         }   
     }
 }
+
+/// function for pathogen cost
+void popPathogenCost(std::vector<Agent> &pop, const float costInfection, const int t_) {
+    for (size_t i = 0; i < pop.size(); i++)
+    {
+        pop[i].energy -= (costInfection * static_cast<float>(t_ - pop[i].timeInfected));
+    }
+}
