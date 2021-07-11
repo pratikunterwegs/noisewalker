@@ -14,7 +14,9 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int directions,
                const float costMove,
                const bool allow_compete,
-               const int scenario);
+               const int scenario,
+               const float pTransmit,
+               const float costInfection);
 
 Rcpp::List run_noisewalker(const int popsize,
                 const int genmax, 
@@ -27,4 +29,6 @@ Rcpp::List run_noisewalker(const int popsize,
                 const float clamp,
                 const bool random_traits,
                 const bool allow_compete,
-                const int scenario);
+                const int scenario,
+               const float pTransmit,
+               const float costInfection);

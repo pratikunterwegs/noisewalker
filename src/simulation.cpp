@@ -114,7 +114,7 @@ Rcpp::List run_noisewalker(
         const float clamp,
         const bool random_traits,
         const bool allow_compete,
-        const int scenario
+        const int scenario,
         const float pTransmit,
         const float costInfection) {
     
