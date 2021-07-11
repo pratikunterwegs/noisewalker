@@ -77,13 +77,17 @@ int Agent::countNbrsAt(const float perception,
 /// agent function to choose a new position
 void Agent::doSenseMove(FastNoiseLite &noise, 
     const float t_, const float perception,
-    const int directions, const float landsize,
+    const int directions, 
+    const float clamp, const float landsize,
     bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove,
     const bool allow_compete) {
     
     // set default values --- stay in place
     float newX = x; float newY = y;
     float foodHere = noise.GetNoise(newX, newY, static_cast<float>(t_));
+
+    // food here is 0 if less than clamp (0.f)
+    foodHere = foodHere > clamp ? foodHere : 0.f;
     float nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, newX, newY, agentRtree)) : 0.f;
 
     // suitability at location is calculated as having risk = 0.0
@@ -100,7 +104,9 @@ void Agent::doSenseMove(FastNoiseLite &noise,
         sampleX = x + (perception * static_cast<float>(cos(theta)));
         sampleY = y + (perception * static_cast<float>(sin(theta)));
 
+        // agent senses 0.f if food is less than clamp
         foodHere = noise.GetNoise(sampleX, sampleY, static_cast<float>(t_));
+        foodHere = foodHere > clamp ? foodHere : 0.f;
 
         nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree)) : 0.f;
 
@@ -179,7 +185,7 @@ void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
     }
 
     for(auto& indiv : pop) {
-        indiv.doSenseMove(noise, t_, perception, directions, landsize, 
+        indiv.doSenseMove(noise, t_, perception, directions, clamp, landsize, 
             agentRtree, costMove, allow_compete);
         indiv.doEnergetics(noise, agentRtree, perception, t_, clamp,
             allow_compete);
