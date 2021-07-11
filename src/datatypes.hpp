@@ -18,7 +18,7 @@ public:
     std::vector<std::vector<float> > genCoefRisk;
     std::vector<std::vector<float> > genEnergy;
     std::vector<std::vector<float> > genMoved;
-    std::vector<std::vector<float> > genTimeInfc;
+    std::vector<std::vector<int> > genTimeInfc;
     void updateGenData (std::vector<Agent> &pop, const int gen);
     Rcpp::List returnGenData ();
 };
