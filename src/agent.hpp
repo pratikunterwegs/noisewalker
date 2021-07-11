@@ -45,16 +45,15 @@ public:
                     const float xloc, const float yloc,
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree);
     void doSenseMove(FastNoiseLite &noise, 
-                    FastNoiseLite &risk, const float t_, const float perception,
+                    const float t_, const float perception,
                     const int directions, const float landsize,
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove,
                     const bool allow_compete);
-    void doEnergetics(FastNoiseLite &noise, FastNoiseLite &risk, 
+    void doEnergetics(FastNoiseLite &noise, 
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
                     const float perception,
                     const float t_, const float clamp,
-                    const bool allow_compete,
-                    const bool allow_coop);
+                    const bool allow_compete);
     
     void randomTraits();
     void randomPosition(const float landsize);
@@ -67,13 +66,11 @@ void popRandomPos(std::vector<Agent> &pop, const float landsize);
 void popRandomTraits(std::vector<Agent> &pop);
 
 void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
-    FastNoiseLite &risk,
     const float t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,
     const float costMove,
-    const bool allow_compete,
-    const bool allow_coop);
+    const bool allow_compete);
 
 void handleFitness(std::vector<float> &vecFitness);
 
