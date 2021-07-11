@@ -49,6 +49,9 @@ public:
     int countNbrsAt(const float perception,
                     const float xloc, const float yloc,
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree);
+    std::vector<int> Agent::getNbrsId(const float perception, 
+                    const float xloc, const float yloc,
+                    bgi::rtree< value, bgi::quadratic<16> > &agentRtree);
     void doSenseMove(FastNoiseLite &noise, 
                     const float t_, const float perception,
                     const int directions, const float landsize,

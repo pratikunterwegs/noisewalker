@@ -74,6 +74,29 @@ int Agent::countNbrsAt(const float perception,
     return nNbrs;
 }
 
+/// function to get neighbour identities
+std::vector<int> Agent::getNbrsId(const float perception, 
+    const float xloc, const float yloc,
+    bgi::rtree< value, bgi::quadratic<16> > &agentRtree) {
+    // work in progress
+    int nNbrs = 0;
+    std::vector<value> nearAgents;
+
+    std::vector<int> nearAgentId;
+    
+    // query for a simple box
+    agentRtree.query(bgi::satisfies([&](value const& v) {
+        return bg::distance(v.first, point(xloc, yloc)) < perception;}),
+        std::back_inserter(nearAgents));
+
+    BOOST_FOREACH(value const& v, nearAgents) {
+        nearAgentId.push_back(v.second);
+    }
+    nearAgents.clear();
+
+    return nearAgentId;
+}
+
 /// agent function to choose a new position
 void Agent::doSenseMove(FastNoiseLite &noise, 
     const float t_, const float perception,
