@@ -34,7 +34,7 @@ public:
         coefRisk(0.f),
         moved(0.f),
         infected(false),
-        timeInfected(inf)
+        timeInfected(-1)
 
     {}
     ~Agent() {}
@@ -49,12 +49,12 @@ public:
     int countNbrsAt(const float perception,
                     const float xloc, const float yloc,
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree);
-    std::vector<int> Agent::getNbrsId(const float perception, 
+    std::vector<int> getNbrsId(const float perception,
                     const float xloc, const float yloc,
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree);
     void doSenseMove(FastNoiseLite &noise, 
                     const float t_, const float perception,
-                    const int directions, const float landsize,
+                    const int directions, const float clamp, const float landsize,
                     bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove,
                     const bool allow_compete);
     void doEnergetics(FastNoiseLite &noise, 
