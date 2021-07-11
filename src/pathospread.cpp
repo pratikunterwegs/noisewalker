@@ -32,7 +32,51 @@ void popIntroPathogen(std::vector<Agent> &pop, const int nInfected) {
 
             // toggle infected agents boolean for infected
             pop[infectedAgentIndex].infected = true;
+            pop[infectedAgentIndex].timeInfected = 0;
             i++;
         }
+    }
+}
+
+/// function to spread pathogen
+void popPathogenSpread(std::vector<Agent> &pop, const float perception,
+                       const float pTransmit, const int t_) {
+
+    // bernoulli distribution of transmission
+    std::bernoulli_distribution<> pathogenTransmits(pTransmit);
+    
+    // make Rtree
+    bgi::rtree< value, bgi::quadratic<16> > agentRtree;
+    if (allow_compete) {
+        agentRtree = makeRtree(pop);
+    }
+
+    // looping through agents, query rtree for neighbours
+    for (size_t i = 0; i < pop.size(); i++)
+    {
+        // spread to neighbours if self infected
+        if (pop[i].infected) 
+        {
+            // get neigbour ids
+            std::vector<int> nbrsId = getNbrsId(perception,
+                pop[i].x, pop[i].y, agentRtree);
+
+            if (nbrsId.size() > 0) 
+            {
+                // loop through neighbours
+                for(size_t j = 0; j < nbrsId.size(); j++) 
+                {
+                    if (!pop[j].infected) 
+                    {
+                        // infect neighbours with prob p
+                        if(pathogenTransmits(pTransmit)) 
+                        {
+                            pop[j].infected = true;
+                            pop[j].timeInfected = t_;
+                        }
+                    }
+                }
+            }
+        }   
     }
 }
