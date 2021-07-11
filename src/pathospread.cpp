@@ -3,12 +3,13 @@
 #include "parameters.hpp"
 #include "agent.hpp"
 #include "pathospread.hpp"
+#include <unordered_set>
 
 /// function to infect n individuals
 void popIntroPathogen(std::vector<Agent> &pop, const int nInfected) {
 
     // discrete distribution
-    std::uniform_int_distribution<int> pickAgent(0, static_cast<int>(pop.size()));
+    std::uniform_int_distribution<int> pickAgent(0, static_cast<int>(pop.size()) - 1);
 
     // sample the population indices without replacement
     // using an unordered set
