@@ -15,14 +15,12 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int genmax,
                const int timesteps,
                FastNoiseLite &noise,
-               FastNoiseLite &risk,
                const float landsize,
                const float clamp,
                const float perception,
                const int directions,
                const float costMove,
-               const bool allow_compete,
-               const bool allow_coop)
+               const bool allow_compete)
 {
     genData thisGenData;
     float scale_time = 0.1f;
@@ -31,9 +29,9 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         Rcpp::Rcout << "generation: " << gen << "\r";
         for (int t = 0; t < timesteps; ++t) {
             // scale t by minor value
-            popMoveForageCompete(pop, noise, risk, static_cast<float>(t) * scale_time, 
+            popMoveForageCompete(pop, noise, static_cast<float>(t) * scale_time,
                 perception, directions, landsize,
-                clamp, costMove, allow_compete, allow_coop); // set manually
+                clamp, costMove, allow_compete); // set manually
         }
 
         // subtract cost of traits?
@@ -81,18 +79,12 @@ Rcpp::List run_noisewalker(
         const int timesteps,
         const float perception,
         const int directions,
-        const float costMove,
-        const float freqRisk, 
+        const float costMove, 
         const double freqRes,
         const float landsize,
         const float clamp,
         const bool random_traits,
-        const bool allow_compete,
-        const bool allow_coop) {
-
-    if(allow_coop) {
-        assert(allow_compete && "allow coop TRUE requires allow compete TRUE");
-    }
+        const bool allow_compete) {
     
     // set up seed etc
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
@@ -109,17 +101,12 @@ Rcpp::List run_noisewalker(
     
     // make the ancestral landscape
     FastNoiseLite noise;
-    FastNoiseLite risk;
     noise.SetSeed(seed);
-    risk.SetSeed(seed + 1);
     noise.SetFrequency(freqRes);
-    risk.SetFrequency(freqRisk);
     
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise,
-                                    risk, landsize, clamp, perception,
-                                    directions, costMove, allow_compete, 
-                                    allow_coop);
+    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, clamp, perception,
+                                    directions, costMove, allow_compete);
 
     return thisData;
 }
