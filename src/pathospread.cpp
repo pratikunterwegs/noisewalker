@@ -1,16 +1,14 @@
 /// define functions for pathogen spread
 
+#include "parameters.hpp"
 #include "agent.hpp"
 #include "pathospread.hpp"
-
-/// random number generator
-std::mt19937 rng;
 
 /// function to infect n individuals
 void popIntroPathogen(std::vector<Agent> &pop, const int nInfected) {
 
     // discrete distribution
-    std::uniform_int_distribution<> pickAgent(0, pop.size());
+    std::uniform_int_distribution<int> pickAgent(0, static_cast<int>(pop.size()));
 
     // sample the population indices without replacement
     // using an unordered set
@@ -43,13 +41,11 @@ void popPathogenSpread(std::vector<Agent> &pop, const float perception,
                        const float pTransmit, const int t_) {
 
     // bernoulli distribution of transmission
-    std::bernoulli_distribution<> pathogenTransmits(pTransmit);
+    std::bernoulli_distribution pathogenTransmits(pTransmit);
     
     // make Rtree
     bgi::rtree< value, bgi::quadratic<16> > agentRtree;
-    if (allow_compete) {
-        agentRtree = makeRtree(pop);
-    }
+    agentRtree = makeRtree(pop);
 
     // looping through agents, query rtree for neighbours
     for (size_t i = 0; i < pop.size(); i++)
@@ -58,7 +54,7 @@ void popPathogenSpread(std::vector<Agent> &pop, const float perception,
         if (pop[i].infected) 
         {
             // get neigbour ids
-            std::vector<int> nbrsId = getNbrsId(perception,
+            std::vector<int> nbrsId = pop[i].getNbrsId(perception,
                 pop[i].x, pop[i].y, agentRtree);
 
             if (nbrsId.size() > 0) 
@@ -69,7 +65,7 @@ void popPathogenSpread(std::vector<Agent> &pop, const float perception,
                     if (!pop[j].infected) 
                     {
                         // infect neighbours with prob p
-                        if(pathogenTransmits(pTransmit)) 
+                        if(pathogenTransmits(rng))
                         {
                             pop[j].infected = true;
                             pop[j].timeInfected = t_;
