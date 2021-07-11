@@ -41,9 +41,12 @@ getLandscape <- function(landsize, octaves, frequency, increment, clamp) {
 #' sense and receive zero resources. Needed because noise has values -1 to +1.
 #' @param random_traits Should traits be initialised -1 to +1 or at 0.
 #' @param allow_compete Should agents compete. Controls downstream functions.
-#' @param allow_coop Should agents share costs on the risk landscape.
+#' @param scenario The pathogen co-evolution scenario. Defaults to 0, "none",
+#' and no pathogen is introduced. If 1, "ancestral", the pathogen is introduced
+#' from generation zero, the start of the simulation. If 2, "spillover", the
+#' pathogen is introduced after 2/3 of the simulation.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits, allow_compete, allow_coop) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRisk, freqRes, landsize, clamp, random_traits, allow_compete, allow_coop)
+run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario)
 }
 
