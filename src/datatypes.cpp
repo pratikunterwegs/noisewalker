@@ -1,21 +1,35 @@
-
+#include "agent.hpp"
 #include "datatypes.hpp"
 
 /// function to update generation data
 void genData::updateGenData (std::vector<Agent> &pop, const int g) {
 
     // make vector of activities
-    std::vector<float> vecActv (pop.size(), 0.f);
-    std::vector<float> vecResp (pop.size(), 0.f);
+    std::vector<float> vecCoefFood (pop.size(), 0.f);
+    std::vector<float> vecCoefNbrs (pop.size(), 0.f);
+    std::vector<float> vecCoefRisk (pop.size(), 0.f);
+    std::vector<float> vecEnrg (pop.size(), 1e-5f);
+    std::vector<float> vecMoved (pop.size(), 0.f);
+    std::vector<int> vecTimeInfc (pop.size(), 0);
+    
     for (size_t i = 0; i < pop.size(); i++)
     {
-        vecActv[i] = pop[i].actv;
-        vecResp[i] = pop[i].resp;
+        vecCoefFood[i] = pop[i].coefFood;
+        vecCoefNbrs[i] = pop[i].coefNbrs;
+        vecCoefRisk[i] = pop[i].coefRisk;
+        // Rcpp::Rcout << "raw energy total recorded in data = " << pop[i].energy << "\n";
+        vecEnrg[i] = pop[i].energy;
+        vecMoved[i] = pop[i].moved;
+        vecTimeInfc[i] = pop[i].timeInfected;
     }    
     // add to data
     gen.push_back(g);
-    genActv.push_back(vecActv);
-    genResp.push_back(vecResp);
+    genCoefFood.push_back(vecCoefFood);
+    genCoefNbrs.push_back(vecCoefNbrs);
+    genCoefRisk.push_back(vecCoefRisk);
+    genEnergy.push_back(vecEnrg); // return absolute, not transformed energy
+    genMoved.push_back(vecMoved);
+    genTimeInfc.push_back(vecTimeInfc);
 }
 
 /// function to get all generations data
@@ -28,8 +42,12 @@ Rcpp::List genData::returnGenData() {
     for (size_t i = 0; i < gen.size(); i++)
     {
         genDataList[i] = DataFrame::create(
-            Named("actv") = genActv[i],
-            Named("resp") = genResp[i]
+            Named("coef_food") = genCoefFood[i],
+            Named("coef_nbrs") = genCoefNbrs[i],
+            Named("coef_risk") = genCoefRisk[i],
+            Named("energy") = genEnergy[i],
+            Named("moved") = genMoved[i],
+            Named("time_infected") = genTimeInfc[i]
         );
     }
     List dataToReturn = List::create(

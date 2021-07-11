@@ -44,6 +44,7 @@ data/password
 .Rproj.user
 inst/doc
 data/*.Rdata
+*.Rds
 
 # qmake files
 .qmake.stash
@@ -60,3 +61,7 @@ data/output/*.Rdata
 # ignore jobs
 job_noisewalker*
 job_script*
+
+# documents
+*.docx
+*.odt*

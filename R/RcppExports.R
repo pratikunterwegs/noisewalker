@@ -31,20 +31,22 @@ getLandscape <- function(landsize, octaves, frequency, increment, clamp) {
 #' @param directions The number of points at which agents sense resources,
 #' at a fixed distance of \code{perception} units away from them.
 #' @param costMove The cost per move; distance moved is assumed constant.
-#' @param costSensing The cost per sensing event.
-#' @param costCompete The cost per neighbour within the perception range.
-#' @param nOctaves Number of octaves. May be thought of as small scale 
-#' variability. Must be an integer value between 1 and 8. Higher values
-#' result in landscapes with more small scale noise.
-#' @param frequency Frequency of noise. May be thought of as large scale
+#' @param freqRisk The patchiness of the landscape of costs.
+#' @param freqRes Frequency of noise. May be thought of as large scale
 #' variability. May be any double value between 1.0 and 16.0. Higher values
 #' mean more patchy landscapes.
 #' @param landsize The size of the landscape after which movement is wrapped.
 #' Actually, the landscape is infinite, and does not have a repeating pattern.
 #' @param clamp The threshold value of the landscape below which, the agents
 #' sense and receive zero resources. Needed because noise has values -1 to +1.
+#' @param random_traits Should traits be initialised -1 to +1 or at 0.
+#' @param allow_compete Should agents compete. Controls downstream functions.
+#' @param scenario The pathogen co-evolution scenario. Defaults to 0, "none",
+#' and no pathogen is introduced. If 1, "ancestral", the pathogen is introduced
+#' from generation zero, the start of the simulation. If 2, "spillover", the
+#' pathogen is introduced after 2/3 of the simulation.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, costSensing, costCompete, nOctaves, frequency, landsize, clamp) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, costSensing, costCompete, nOctaves, frequency, landsize, clamp)
+run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario)
 }
 

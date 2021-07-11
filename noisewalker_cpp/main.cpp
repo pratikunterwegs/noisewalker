@@ -23,12 +23,9 @@ int main()
     FastNoiseLite noise;
     noise.SetSeed(seed);
     noise.SetFrequency(2.0);
-    noise.SetFractalOctaves(2);
 
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, 10, 10, noise,
-                                    landsize, 0.f, 1.f,
-                                    8, 0.1f, 0.1f, 0.1f);
+    Rcpp::List thisData = evolvePop(pop, 10, 10, noise, 10.f, 0.f, 0.05f, 4, 0.1f, true);
 
     std::cout << "pop evolved";
     return 0;

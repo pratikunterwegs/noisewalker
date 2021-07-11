@@ -1,18 +1,20 @@
 #pragma once
+#include "landscape.hpp"
+#include "agent.hpp"
 
 #include <Rcpp.h>
 
 Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int genmax,
                const int timesteps,
-               FastNoiseLite noise,
+               FastNoiseLite &noise,
                const float landsize,
                const float clamp,
                const float perception,
                const int directions,
                const float costMove,
-               const float costSensing,
-               const float costCompete);
+               const bool allow_compete,
+               const int scenario);
 
 Rcpp::List run_noisewalker(const int popsize,
                 const int genmax, 
@@ -20,9 +22,9 @@ Rcpp::List run_noisewalker(const int popsize,
                 const float perception,
                 const int directions,
                 const float costMove,
-                const float costSensing,
-                const float costCompete,
-                const int nOctaves, 
-                const double frequency,
+                const double freqRes,
                 const float landsize,
-                const float clamp);
+                const float clamp,
+                const bool random_traits,
+                const bool allow_compete,
+                const int scenario);

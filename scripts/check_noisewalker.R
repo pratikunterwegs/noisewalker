@@ -11,35 +11,84 @@ sink("install_output.log"); install(); sink()
 document()
 
 # load the lib, better to restart R
+detach(package:noisewalker)
 library(noisewalker)
+
 # test run
 a = noisewalker::run_noisewalker(
-    popsize = 1000, 
-    genmax = 200, 
+    popsize = 500, 
+    genmax = 1000, 
     timesteps = 100, 
     perception = 0.05,
-    directions = 8,
-    costMove = 0.01,
-    costSensing = 0.01,
-    costCompete = 0.01,
-    nOctaves = 2, 
-    frequency = 2,
-    landsize = 5,
-    clamp = 0.0
+    directions = 4,
+    costMove = 0.000001,
+    freqRes = 1,
+    freqRisk = 0.01,
+    landsize = 10,
+    clamp = 0.0,
+    random_traits = F,
+    allow_compete = T,
+    allow_coop = F
 )
 
 # get data
-data = Map(function(df, g) {
-    df$gen = g
-    df
-}, a$pop_data, a$gens)
-data = rbindlist(data)
+data = handle_rcpp_out(a)
+
+# save data
+save(a, file = "data/output/test_data.Rds")
+
+# energy plot
+ggplot(data)+
+    geom_bin2d(
+        aes(gen, energy),
+        binwidth = c(1, 1)
+    )+
+    # geom_point(
+    #     aes(gen, energy),
+    #     alpha = 0.1,
+    #     shape = 1
+    # )+
+    scale_fill_viridis_c(
+        option = "Blues 2",
+        # trans = "log10",
+        direction = -1
+    )+
+    coord_cartesian(
+        # xlim = c(0, 500)
+    )
+
+# tanh transform
+data[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
+    .SD, function(x) {
+        cut_wt_lower(x, steps = 100, scale = 0)
+    }
+), .SDcols = c("coef_food", "coef_nbrs", "coef_risk")]
+
+# melt data
+data = melt(data[,!c("energy","moved")], id.vars = "gen")
+
+# count by weight value
+data_summary = data[, list(.N), 
+                    by = c("gen", "variable", "value")]
+
+# bin 2d
+ggplot(data_summary)+
+    geom_tile(
+        aes(gen, value, fill = N)
+    )+
+    scale_fill_viridis_c(
+        option = "C",
+        begin = 0, end = 0.95,
+        direction = -1
+    )+
+    coord_cartesian(xlim = c(0, 500))+
+    facet_wrap(~variable, scales = "free_y")
 
 # do bin 2d
 ggplot(data[gen %% 10 == 0, ])+
     geom_bin2d(
-        aes(actv, resp),
-        binwidth = c(0.1, 0.1)
+        aes(coef_food, coef_nbrs),
+        binwidth = c(0.05, 0.05)
     )+
     scale_fill_viridis_c(option = "C", direction = -1)+
     facet_wrap(~gen)+
@@ -52,7 +101,7 @@ ggplot(data[gen %% 10 == 0, ])+
         axis.title = element_text(size = 12)
     )+
     labs(
-        x = "Activity [p(Move)]", y = "Responsiveness [p(Sense)]"
+        x = "coef(Food)", y = "coef(Nbrs)"
     )
 ggsave(
     filename = "figures/fig_prelim_plot.png"

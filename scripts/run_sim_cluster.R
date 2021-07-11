@@ -26,7 +26,6 @@ data_evolved_pop = run_noisewalker(
     perception = params$perception[row_n],    
     directions = params$directions[row_n],  
     costMove = params$costMove[row_n],
-    costSensing = params$costSensing[row_n],
     costCompete = params$costCompete[row_n],
     nOctaves = params$nOctaves[row_n],   
     frequency = params$frequency[row_n],  
