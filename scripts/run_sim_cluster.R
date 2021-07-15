@@ -47,7 +47,7 @@ data_evolved_pop = data.table::rbindlist(data_evolved_pop)
 these_params = unlist(params[row_n,])
 
 # append list of params
-data_evolved_pop = append(
+data_evolved_pop = list(
   data_evolved_pop,
   these_params
 )
