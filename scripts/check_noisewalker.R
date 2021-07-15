@@ -23,12 +23,13 @@ a = noisewalker::run_noisewalker(
     directions = 4,
     costMove = 0.000001,
     freqRes = 1,
-    freqRisk = 0.01,
     landsize = 10,
     clamp = 0.0,
     random_traits = F,
     allow_compete = T,
-    allow_coop = F
+    scenario = 2,
+    pTransmit = 0.5,
+    costInfection = 0.01
 )
 
 # get data
@@ -49,30 +50,30 @@ ggplot(data)+
     #     shape = 1
     # )+
     scale_fill_viridis_c(
-        option = "Blues 2",
         # trans = "log10",
         direction = -1
     )+
     coord_cartesian(
-        # xlim = c(0, 500)
+        # ylim = c(0, 10)
     )
+
 
 # tanh transform
 data[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
     .SD, function(x) {
-        cut_wt_lower(x, steps = 100, scale = 0)
+        cut_wt_lower(x, steps = 100, scale = 40)
     }
 ), .SDcols = c("coef_food", "coef_nbrs", "coef_risk")]
 
 # melt data
-data = melt(data[,!c("energy","moved")], id.vars = "gen")
+data = melt(data[,!c("energy","moved","time_infected")], id.vars = "gen")
 
 # count by weight value
 data_summary = data[, list(.N), 
                     by = c("gen", "variable", "value")]
 
 # bin 2d
-ggplot(data_summary)+
+ggplot(data_summary[N > 10,])+
     geom_tile(
         aes(gen, value, fill = N)
     )+
@@ -81,7 +82,7 @@ ggplot(data_summary)+
         begin = 0, end = 0.95,
         direction = -1
     )+
-    coord_cartesian(xlim = c(0, 500))+
+    # coord_cartesian(xlim = c(0, 500))+
     facet_wrap(~variable, scales = "free_y")
 
 # do bin 2d
