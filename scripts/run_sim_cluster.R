@@ -32,7 +32,7 @@ data_evolved_pop = run_noisewalker(
     random_traits = params$random_traits[row_n],
     allow_compete = params$allow_compete[row_n],
     scenario = params$scenario[row_n],
-    pTransmit = params$scenario[pTransmit],
+    pTransmit = params$pTransmit[row_n],
     costInfection = params$costInfection[row_n]
 )
 
