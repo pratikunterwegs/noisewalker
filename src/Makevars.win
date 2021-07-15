@@ -3,4 +3,6 @@ CXX14FLAGS=-O3 -Wno-unused-variable -Wno-unused-function
 CXX14 = $(BINPREF)g++ -m$(WIN) -std=c++1y
 CXX11FLAGS=-O3 -Wno-unused-variable -Wno-unused-function
 
-PKG_LIBS = -I /ann-lib-linux
+## This assumes that the LIB_GSL variable points to working GSL libraries
+PKG_CPPFLAGS=-I$(LIB_GSL)/include -I../inst/include
+PKG_LIBS=-L$(LIB_GSL)/lib -lgsl -lgslcblas 

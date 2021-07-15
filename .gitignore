@@ -30,9 +30,12 @@
 *.exe
 *.out
 *.app
+noisewalker_cpp/noisewalker_cpp
 
 # ignore built libraries
 inst/noise
+# Makefile
+install_output.log
 
 # ignore data
 data/*.csv
@@ -41,6 +44,19 @@ data/password
 .Rproj.user
 inst/doc
 data/*.Rdata
+*.Rds
+
+# qmake files
+.qmake.stash
+
+# ignore parameters data
+data/parameters
+
+# ignore data
+data/output/*.Rdata
+
+# ignore R files
+.Rhistory
 
 # ignore ann-lib-linux
 src/ann-lib-linux/*
@@ -48,3 +64,8 @@ src/ann-lib-windows/*
 
 # ignore jobs
 job_noisewalker*
+job_script*
+
+# documents
+*.docx
+*.odt*

@@ -4,7 +4,21 @@
 \alias{run_noisewalker}
 \title{Runs the noisewalker simulation.}
 \usage{
-run_noisewalker(popsize, genmax, timesteps, nOctaves, frequency, landsize)
+run_noisewalker(
+  popsize,
+  genmax,
+  timesteps,
+  perception,
+  directions,
+  costMove,
+  freqRisk,
+  freqRes,
+  landsize,
+  clamp,
+  random_traits,
+  allow_compete,
+  allow_coop
+)
 }
 \arguments{
 \item{popsize}{The population size.}
@@ -13,15 +27,30 @@ run_noisewalker(popsize, genmax, timesteps, nOctaves, frequency, landsize)
 
 \item{timesteps}{The number of timesteps per generation.}
 
-\item{nOctaves}{Number of octaves. May be thought of as small scale 
-variability. Must be an integer value between 1 and 8. Higher values
-result in landscapes with more small scale noise.}
+\item{perception}{The perception range.}
 
-\item{frequency}{Frequency of noise. May be thought of as large scale
+\item{directions}{The number of points at which agents sense resources,
+at a fixed distance of \code{perception} units away from them.}
+
+\item{costMove}{The cost per move; distance moved is assumed constant.}
+
+\item{freqRisk}{The patchiness of the landscape of costs.}
+
+\item{freqRes}{Frequency of noise. May be thought of as large scale
 variability. May be any double value between 1.0 and 16.0. Higher values
 mean more patchy landscapes.}
 
-\item{landsize}{The landscape size.}
+\item{landsize}{The size of the landscape after which movement is wrapped.
+Actually, the landscape is infinite, and does not have a repeating pattern.}
+
+\item{clamp}{The threshold value of the landscape below which, the agents
+sense and receive zero resources. Needed because noise has values -1 to +1.}
+
+\item{random_traits}{Should traits be initialised -1 to +1 or at 0.}
+
+\item{allow_compete}{Should agents compete. Controls downstream functions.}
+
+\item{allow_coop}{Should agents share costs on the risk landscape.}
 }
 \value{
 A dataframe of evolved pop strategy count.

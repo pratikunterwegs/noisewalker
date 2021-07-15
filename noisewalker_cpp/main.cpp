@@ -1,35 +1,31 @@
-#include <QCoreApplication>
-#include "../src/parameters.h"
+#include "../src/parameters.hpp"
 #include "../src/FastNoiseLite.h"
-#include "../src/agent.h"
-#include "../src/noisewalker_tools.h"
-#include "../src/simulation.cpp"
+#include "../src/agent.hpp"
+#include "../src/datatypes.hpp"
+#include "../src/simulation.hpp"
+#include <chrono>
 
 int main()
 {
     // set the random number generation etc
-    const gsl_rng_type * T;
-    gsl_rng_env_setup();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);
-
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
+    rng.seed(seed);
 
     // init pop
-    std::vector<Agent> pop (50, Agent(1, 1.f));
+    std::vector<Agent> pop (10);
     // random position
+    float landsize = 10.f;
     popRandomPos(pop, landsize);
     // random weights
-    popRandomWeights(pop);
+    popRandomTraits(pop);
 
     // make the ancestral landscape
     FastNoiseLite noise;
     noise.SetSeed(seed);
     noise.SetFrequency(2.0);
-    noise.SetFractalOctaves(2);
 
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, 50, 10, 0.01, noise);
+    Rcpp::List thisData = evolvePop(pop, 10, 10, noise, 10.f, 0.f, 0.05f, 4, 0.1f, true);
 
     std::cout << "pop evolved";
     return 0;

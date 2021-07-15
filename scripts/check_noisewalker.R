@@ -1,38 +1,158 @@
 # check the simulation
+# libraries for data and plots
 library(devtools)
 library(ggplot2)
 library(data.table)
 
+# libraries to build and install
+Rcpp::compileAttributes()
 build()
-install()
+sink("install_output.log"); install(); sink()
+document()
 
+# load the lib, better to restart R
+detach(package:noisewalker)
 library(noisewalker)
+
+# test run
 a = noisewalker::run_noisewalker(
-    popsize = 100,
-    genmax = 60,
-    timesteps = 100,
-    t_increment = 1,
-    nOctaves = 2,
-    frequency = 2,
-    landsize = 200
+    popsize = 500, 
+    genmax = 1000, 
+    timesteps = 100, 
+    perception = 0.05,
+    directions = 4,
+    costMove = 0.000001,
+    freqRes = 1,
+    freqRisk = 0.01,
+    landsize = 10,
+    clamp = 0.0,
+    random_traits = F,
+    allow_compete = T,
+    allow_coop = F
 )
 
-params = CJ(t_increment = c(0.5, 1, 2),
-            frequency = c(1, 4, 8),
-            replicate = seq(5))
+# get data
+data = handle_rcpp_out(a)
+
+# save data
+save(a, file = "data/output/test_data.Rds")
+
+# energy plot
+ggplot(data)+
+    geom_bin2d(
+        aes(gen, energy),
+        binwidth = c(1, 1)
+    )+
+    # geom_point(
+    #     aes(gen, energy),
+    #     alpha = 0.1,
+    #     shape = 1
+    # )+
+    scale_fill_viridis_c(
+        option = "Blues 2",
+        # trans = "log10",
+        direction = -1
+    )+
+    coord_cartesian(
+        # xlim = c(0, 500)
+    )
+
+# tanh transform
+data[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
+    .SD, function(x) {
+        cut_wt_lower(x, steps = 100, scale = 0)
+    }
+), .SDcols = c("coef_food", "coef_nbrs", "coef_risk")]
+
+# melt data
+data = melt(data[,!c("energy","moved")], id.vars = "gen")
+
+# count by weight value
+data_summary = data[, list(.N), 
+                    by = c("gen", "variable", "value")]
+
+# bin 2d
+ggplot(data_summary)+
+    geom_tile(
+        aes(gen, value, fill = N)
+    )+
+    scale_fill_viridis_c(
+        option = "C",
+        begin = 0, end = 0.95,
+        direction = -1
+    )+
+    coord_cartesian(xlim = c(0, 500))+
+    facet_wrap(~variable, scales = "free_y")
+
+# do bin 2d
+ggplot(data[gen %% 10 == 0, ])+
+    geom_bin2d(
+        aes(coef_food, coef_nbrs),
+        binwidth = c(0.05, 0.05)
+    )+
+    scale_fill_viridis_c(option = "C", direction = -1)+
+    facet_wrap(~gen)+
+    coord_fixed(
+        xlim = c(0, 1),
+        ylim = c(0, 1)
+    )+
+    theme_test(base_size = 6)+
+    theme(
+        axis.title = element_text(size = 12)
+    )+
+    labs(
+        x = "coef(Food)", y = "coef(Nbrs)"
+    )
+ggsave(
+    filename = "figures/fig_prelim_plot.png"
+)
+
+# summarise
+data[,c("actv", "resp") := list(
+    plyr::round_any(actv, 0.05), plyr::round_any(resp, 0.05)
+)]
+data_summary = data[,.N, by = c("gen", "actv", "resp")]
+
+# plot as tile for some generations
+# data_summary = data_summary[gen %% 10 == 0,]
+
+ggplot(data_summary)+
+    geom_tile(
+        aes(actv, resp, fill = N)
+    )+
+    scale_fill_viridis_c(option = "F", direction = -1,
+                         trans = "log10")+
+    # coord_fixed(
+    #     xlim = c(0, 1),
+    #     ylim = c(0, 1)
+    # )+
+    theme_grey(base_size = 6)+
+    facet_wrap(~gen, ncol = 16)
+
+ggplot(d)+
+    geom_line(
+        aes(gen, prop,
+            colour = factor(strategy))
+    )+
+    scale_x_log10()
+
+params = CJ(t_increment = c(0.1, 0.5, 1),
+            frequency = c(1, 2, 3),
+            replicate = seq(3))
 
 data = Map(function(ti, fr) {
     noisewalker::run_noisewalker(
         popsize = 500,
         genmax = 1000,
-        timesteps = 50,
+        timesteps = 1000,
         t_increment = ti,
         nOctaves = 2,
         frequency = fr,
-        landsize = 100)  
+        percep_range = 0.1,
+        burnin = 200)  
 }, params$t_increment, params$frequency)
 
-save(data, file = "data/data_sim_19_04_2021.Rdata")
+save(data, file = "data/data_sim_27_04_2021.Rdata")
 
 data_fitness = lapply(data, function(l) {
     rbindlist(l[["fitness"]])
@@ -77,16 +197,20 @@ ggplot(data_copy)+
     facet_grid(t_increment ~ frequency)+
     scale_x_sqrt()
 
-# see distance moved
-ggplot(data_copy[!is.infinite(mean_distance)])+
-    geom_hline(yintercept = 0.33,
-               col = "grey")+
-    geom_point(
-        aes(gen, mean_distance,
-            colour = factor(strategy),
-            group = interaction(strategy, replicate)),
-        shape = 1
+# get data on movement
+data_move = lapply(data, function(l) {
+    (l[["movement"]])
+})
+data_copy = copy(params)
+data_copy$move = data_move
+
+# unlist
+data_copy = data_copy[,unlist(move, recursive = F),
+    by = c("t_increment", "frequency", "replicate")]
+
+ggplot(data_copy)+
+    geom_boxplot(
+        aes(factor(strategy), moved)
     )+
-    facet_grid(t_increment ~ frequency)+
-    scale_x_sqrt()+
-    scale_y_log10(lim = c(0.1, 1000))
+    facet_grid(t_increment ~ frequency)#+
+    scale_y_sqrt()

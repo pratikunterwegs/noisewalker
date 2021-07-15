@@ -3,6 +3,7 @@
 ^\.Rproj\.user$
 ^figures$
 ^data$
+^bash$
 ^noisewalker_cpp$
 ^.*\.out$
 ^.*\.yml$
