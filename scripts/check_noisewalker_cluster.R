@@ -3,14 +3,14 @@ library(noisewalker)
 password = readLines("data/password")
 
 # check cluster
-noisewalker::check_prepare_cluster(
-  ssh_con = "p284074@peregrine.hpc.rug.nl",
-  password = password
-)
+# noisewalker::check_prepare_cluster(
+#   ssh_con = "p284074@peregrine.hpc.rug.nl",
+#   password = password
+# )
 
 # prepare parameters
 noisewalker::make_parameter_file(
-    replicates = 5,
+    replicates = 10,
     popsize = 1000, 
     genmax = 1000, 
     timesteps = 100, 
@@ -23,7 +23,7 @@ noisewalker::make_parameter_file(
     random_traits = F,
     allow_compete = c(T),
     scenario = c(0, 1, 2),
-    pTransmit = 0.5,
+    pTransmit = c(0.1, 0.5, 1),
     costInfection = 0.01,
     which_file = "data/parameters/parameters_full.csv"
 )
