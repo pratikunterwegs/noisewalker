@@ -1,0 +1,76 @@
+---
+editor_options: 
+  chunk_output_type: console
+---
+
+# Mean Energy and Movement Across Scenarios
+
+```{r}
+# load libraries
+library(data.table)
+```
+
+## Load data and get mean per data
+
+```{r}
+# list files
+files = list.files(path = "data/output", pattern = "Rds", full.names = T)
+
+# custom summary function
+custom_summary = function(x) {
+  list(
+    mean = mean(x),
+    sd = sd(x)
+  )
+}
+
+# load and get mean per gen
+data = lapply(files, function(file) {
+  load(file)
+  
+  dt_ = data_evolved_pop[[1]]
+  params = data_evolved_pop[[2]]
+  morph_threshold = 0.05
+  
+  # movement and energy
+  dt_energy_move = dt_[, c("gen", "energy", "moved")]
+  dt_energy_move = melt(dt_energy_move, id.vars = "gen")
+  dt_energy_move = dt_energy_move[, list(
+    mean = mean(value),
+    sd = sd(value)
+  ), by = c("gen", "variable")]
+  
+  # count positive proportion values for coefs
+  dt_coefs = dt_[, c("gen", "coef_food", "coef_nbrs", "coef_risk")]
+  dt_coefs = melt(dt_coefs, id.vars = "gen")
+  dt_coefs_summary = dt_coefs[, list(
+    prop_pos = sum(value > 0) / params["popsize"]
+  ), by = c("gen", "variable")]
+  
+  # count morphs (prop > 0.01)
+  dt_morphs = copy(dt_coefs)
+  dt_morphs[, value := cut_wt_lower(value)]
+  dt_morphs = dt_morphs[, list(prop = .N / params["popsize"]), 
+            by = c("gen", "value", "variable")]
+  dt_morphs = dt_morphs[prop > morph_threshold, .N, by = c("gen", "variable")]
+  
+  # time infected, mean and last
+  dt_infected = dt_[, c("gen", "time_infected")]
+  dt_infected = dt_[, list(
+    mean_ti = mean(time_infected),
+    sd_ti = sd(time_infected),
+    last_ti = max(time_infected)
+  ), by = "gen"]
+  
+  # make params dataframe
+  list(
+    summary_energy_move = dt_energy_move,
+    coefs_summary = dt_coefs_summary,
+    morph_count = dt_morphs,
+    time_infected = dt_infected,
+    params = data.frame(as.list(params))
+  )
+})
+
+```
+
