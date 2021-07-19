@@ -60,6 +60,9 @@ data/parameters
 # ignore data
 data/output/*.Rdata
 
+# ignore some figures
+figures/weight_evol
+
 # ignore R files
 .Rhistory
 
