@@ -80,7 +80,7 @@ lapply(output, function(file) {
       direction = -1
     )+
     # coord_cartesian(xlim = c(0, 500))+
-    facet_wrap(~variable, scales = "free_y")+
+    facet_wrap(~variable)+
     theme(
       # axis.text = element_blank(),
       title = element_text(size = 8),
