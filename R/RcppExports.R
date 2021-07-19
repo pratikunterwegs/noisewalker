@@ -31,7 +31,6 @@ getLandscape <- function(landsize, octaves, frequency, increment, clamp) {
 #' @param directions The number of points at which agents sense resources,
 #' at a fixed distance of \code{perception} units away from them.
 #' @param costMove The cost per move; distance moved is assumed constant.
-#' @param freqRisk The patchiness of the landscape of costs.
 #' @param freqRes Frequency of noise. May be thought of as large scale
 #' variability. May be any double value between 1.0 and 16.0. Higher values
 #' mean more patchy landscapes.
