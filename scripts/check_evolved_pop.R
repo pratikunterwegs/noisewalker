@@ -96,7 +96,7 @@ lapply(output, function(file) {
     )
   
   fig = wrap_plots(p, p2, design = "ABBB")
-  filename = glue::glue("figures/fig_frq_{params['freqRes']}\\
+  filename = glue::glue("figures/weight_evol/fig_frq_{params['freqRes']}\\
       _sc_{params['scenario']}_comp_{params['allow_compete']}\\
       _rep_{params['replicate']}.png")
   
