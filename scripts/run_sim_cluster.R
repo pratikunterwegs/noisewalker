@@ -52,6 +52,8 @@ data_evolved_pop = list(
   these_params
 )
 
+row_n = stringr::str_pad(row_n, 4, "left", 0)
+
 # name of rdata file and export
 output_file = glue::glue(
   'data/output/output_file_{row_n}.Rds'
