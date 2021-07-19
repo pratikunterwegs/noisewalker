@@ -72,5 +72,60 @@ data = lapply(files, function(file) {
   )
 })
 
+# save data
+save(
+  data,
+  file = "data/data_sim_summaries.Rds"
+)
 ```
 
+### Make Parameter Frame
+
+```{r}
+params = lapply(data, `[[`, "params")
+params = rbindlist(params)
+```
+
+### Extract energy data
+
+```{r}
+# save summary energy
+data_energy = copy(params)
+data_energy[, dt := lapply(data, `[[`, "summary_energy_move")]
+
+# save as Rds
+save(data_energy, file = "data/data_energy_move.Rds")
+```
+
+### Coefs summary
+
+```{r}
+# save coefs energy
+data_coefs = copy(params)
+data_coefs[, dt := lapply(data, `[[`, "coefs_summary")]
+
+# save as Rds
+save(data_coefs, file = "data/data_coefs.Rds")
+```
+
+### Morphs summary
+
+```{r}
+# save morphs summary
+data_morphs = copy(params)
+data_morphs[, dt := lapply(data, `[[`, "morph_count")]
+
+# save as Rds
+save(data_morphs, file = "data/data_morphs.Rds")
+```
+
+### Time infected
+
+```{r}
+# save time infected summary
+data_infected = copy(params)
+data_infected[, dt := lapply(data, `[[`, "time_infected")]
+
+# save as Rds
+save(data_infected, file = "data/data_infected.Rds")
+```
