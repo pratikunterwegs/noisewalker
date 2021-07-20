@@ -139,3 +139,81 @@ ggsave(
 )
 ```
 
+### Plot movement
+
+```{r}
+plot_movement = lapply(data_energy[["moved"]], function(df) {
+  
+  scenario = unique(df$scenario)
+  scenario = dplyr::case_when(
+    scenario == 0 ~ "no pathogen",
+    scenario == 1 ~ "ancestral pathogen",
+    scenario == 2 ~ "spillover pathogen",
+    TRUE ~ NA_character_
+  )
+  
+  genmax = max(df$gen)
+  
+  p = df |>
+    ggplot()+
+    geom_ribbon(
+      aes(
+        x = gen,  
+        ymin = mean - sd,
+        ymax = mean + sd,
+        group = replicate
+      ),
+      fill = alpha("grey", alpha = 0.1)
+    )+
+    geom_line(
+      aes(
+        gen, mean, 
+        group = replicate,
+        col = bi_class
+      ),
+      show.legend = F
+    )+
+    bi_scale_color(
+      pal = "DkCyan"
+    )+
+    # coord_cartesian(
+    #   expand = F,
+    #   ylim = c(5, 20)
+    # )+
+    facet_grid(
+      pTransmit ~ freqRes, 
+      scales = "fixed",
+      labeller = label_both,
+      switch = "y"
+    )+
+    theme_test()+
+    labs(
+      x = "Gen.",
+      y = "Mean per-capita movement",
+      title = glue::glue(
+        "scenario: {scenario}"
+      )
+    )
+  
+  if (scenario == "spillover pathogen") {
+    p = p + geom_vline(
+      xintercept = genmax * (2/3),
+      col = "red",
+      lty = 2
+    )
+  }
+  p
+})
+```
+
+
+```{r}
+plot = wrap_plots(
+  plot_movement
+)
+
+ggsave(
+  plot = plot,
+  filename = "figures/fig_movement_scenario.png"
+)
+```
