@@ -3,7 +3,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Mean Energy and Movement Across Scenarios
+# Summarise simulation output
 
 ```{r}
 # load libraries
