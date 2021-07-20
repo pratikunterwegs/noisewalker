@@ -1,0 +1,141 @@
+---
+editor_options: 
+  chunk_output_type: console
+---
+
+# Mean Energy and Movement Across Scenarios
+
+```{r}
+# load libraries
+library(data.table)
+
+# plotting
+library(ggplot2)
+library(glue)
+library(patchwork)
+library(biscale)
+```
+
+## Load energy data
+
+```{r}
+load("data/data_energy_move.Rds")
+```
+
+Unlist and make larger frame.
+
+```{r}
+# unlist
+data_energy = data_energy[, unlist(dt, recursive = FALSE), 
+            by = setdiff(names(data_energy), "dt")]
+
+# make classes
+data_energy = bi_class(
+  data_energy,
+  x = freqRes,
+  y = pTransmit
+)
+
+# remove low freq
+data_energy = data_energy[freqRes > 0.1,]
+```
+
+Select every Nth generation for plotting.
+
+```{r}
+data_energy = data_energy[gen %% 10 == 0, ]
+```
+
+## Plotting
+
+### Split data by variable and scenario
+
+```{r}
+# by variable
+data_energy = split(data_energy, by = "variable")
+
+# by scenario
+data_energy = lapply(data_energy, function(df) {
+  split(df, by = "scenario")
+})
+```
+
+### Plot energy
+
+```{r}
+plot_energy = lapply(data_energy[["energy"]], function(df) {
+  
+  scenario = unique(df$scenario)
+  scenario = dplyr::case_when(
+    scenario == 0 ~ "no pathogen",
+    scenario == 1 ~ "ancestral pathogen",
+    scenario == 2 ~ "spillover pathogen",
+    TRUE ~ NA_character_
+  )
+  
+  genmax = max(df$gen)
+  
+  p = df |>
+    ggplot()+
+    geom_ribbon(
+      aes(
+        x = gen,  
+        ymin = mean - sd,
+        ymax = mean + sd,
+        group = replicate
+      ),
+      fill = alpha("grey", alpha = 0.1)
+    )+
+    geom_line(
+      aes(
+        gen, mean, 
+        group = replicate,
+        col = bi_class
+      ),
+      show.legend = F
+    )+
+    bi_scale_color(
+      pal = "DkCyan"
+    )+
+    coord_cartesian(
+      expand = F,
+      ylim = c(5, 20)
+    )+
+    facet_grid(
+      pTransmit ~ freqRes, 
+      scales = "fixed",
+      labeller = label_both,
+      switch = "y"
+    )+
+    theme_test()+
+    labs(
+      x = "Gen.",
+      y = "Mean per-capita energy",
+      title = glue::glue(
+        "scenario: {scenario}"
+      )
+    )
+  
+  if (scenario == "spillover pathogen") {
+    p = p + geom_vline(
+      xintercept = genmax * (2/3),
+      col = "red",
+      lty = 2
+    )
+  }
+  p
+})
+```
+
+
+```{r}
+plot = wrap_plots(
+  plot_energy
+)
+
+ggsave(
+  plot = plot,
+  filename = "figures/fig_energy_scenario.png"
+)
+```
+
