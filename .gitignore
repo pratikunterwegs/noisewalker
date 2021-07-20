@@ -49,7 +49,6 @@ data/*.Rdata
 data/output/*.log
 
 # ignore figures
-figures/*.png
 
 # qmake files
 .qmake.stash
