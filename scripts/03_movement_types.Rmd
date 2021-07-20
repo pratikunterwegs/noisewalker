@@ -1,0 +1,130 @@
+---
+editor_options: 
+  chunk_output_type: console
+---
+
+# Movement types across scenarios
+
+```{r}
+# load libraries
+library(data.table)
+
+# plotting
+library(ggplot2)
+library(glue)
+library(patchwork)
+library(biscale)
+```
+
+## Load energy data
+
+```{r}
+load("data/data_coefs.Rds")
+```
+
+Unlist and make larger frame.
+
+```{r}
+# unlist
+data_coefs = data_coefs[, unlist(dt, recursive = FALSE), 
+            by = setdiff(names(data_coefs), "dt")]
+
+# make classes
+data_coefs = bi_class(
+  data_coefs,
+  x = freqRes,
+  y = pTransmit
+)
+
+# remove low freq
+data_coefs = data_coefs[freqRes > 0.1,]
+```
+
+Select every Nth generation for plotting.
+
+```{r}
+data_coefs = data_coefs[gen %% 10 == 0, ]
+```
+
+## Plotting
+
+### Split data by scenario
+
+```{r}
+# by scenario
+data_coefs = split(data_coefs, by = "scenario")
+```
+
+```{r}
+plot_coefs = lapply(data_coefs, function(df) {
+  scenario = unique(df$scenario)
+  scenario = dplyr::case_when(
+    scenario == 0 ~ "no pathogen",
+    scenario == 1 ~ "ancestral pathogen",
+    scenario == 2 ~ "spillover pathogen",
+    TRUE ~ NA_character_
+  )
+  
+  genmax = max(df$gen)
+  
+  p = df |>
+    ggplot()+
+    geom_line(
+      aes(
+        gen, prop_pos,
+        col = variable,
+        group = interaction(variable, replicate)
+      ),
+      show.legend = F
+    )+
+    coord_cartesian(
+      expand = F,
+      ylim = c(-0.01, 1.01)
+    )+
+    scale_colour_manual(
+      values = c(
+        "coef_food" = "forestgreen",
+        "coef_nbrs" = "steelblue",
+        "coef_risk" = "indianred"
+      )
+    )+
+    scale_y_continuous(
+      labels = scales::percent
+    )+
+    facet_grid(
+      pTransmit + variable ~ freqRes, 
+      scales = "fixed",
+      labeller = label_both,
+      switch = "y"
+    )+
+    theme_test()+
+    labs(
+      x = "Gen.",
+      y = "% positive",
+      title = glue::glue(
+        "scenario: {scenario}"
+      )
+    )
+  
+  if (scenario == "spillover pathogen") {
+    p = p + geom_vline(
+      xintercept = genmax * (2/3),
+      col = "black",
+      lty = 2
+    )
+  }
+  p
+
+})
+```
+
+```{r}
+plot = wrap_plots(
+  plot_coefs
+)
+
+ggsave(
+  plot = plot,
+  filename = "figures/fig_coefs_scenario.png"
+)
+```
