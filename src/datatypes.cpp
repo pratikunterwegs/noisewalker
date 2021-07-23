@@ -63,7 +63,7 @@ Rcpp::List genData::returnGenData() {
 }
 
 /// function to update generation data
-void posData::updateGenData (std::vector<Agent> &pop, const int g) {
+void posData::updatePosData (std::vector<Agent> &pop, const int g) {
 
     // make vector of activities
     std::vector<float> vecX (pop.size(), 0.f);
