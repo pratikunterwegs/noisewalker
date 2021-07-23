@@ -290,6 +290,6 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
     // swap tmp pop for pop
     std::swap(pop, tmpPop);
     // randomise position?
-    // popRandomPos(tmpPop, landsize);
+    popRandomPos(tmpPop, landsize);
     tmpPop.clear();
 }
