@@ -27,7 +27,8 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const float costInfection)
 {
     genData thisGenData;
-    float scale_time = 0.1f;
+    posData thisPosData;
+    float scale_time = 0.0f; // no more landscape change
 
     // assign generation after which pathogen is introduced
     int genPartition = genmax; // never introduced
@@ -65,10 +66,14 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         // }
         
         thisGenData.updateGenData(pop, gen);
+        thisPosData.updatePosData(pop, gen);
         // reproduce once generation is done
         doReproduce(pop, landsize);
     }
-    return thisGenData.returnGenData();
+    return Rcpp::List(
+        thisGenData.returnGenData(),
+        thisPosData.returnPosData()
+    );
 }
 
 
@@ -136,7 +141,8 @@ Rcpp::List run_noisewalker(
     noise.SetFrequency(freqRes);
     
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, clamp, perception,
+    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, 
+                                    clamp, perception,
                                     directions, costMove, allow_compete, scenario,
                                     pTransmit, costInfection);
 
