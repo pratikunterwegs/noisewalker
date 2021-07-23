@@ -72,3 +72,6 @@ job_script*
 # documents
 *.docx
 *.odt*
+
+# saved files
+*.zip
