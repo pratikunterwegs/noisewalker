@@ -32,4 +32,4 @@ public:
 
     void updatePosData (std::vector<Agent> &pop, const int gen);
     Rcpp::List returnPosData ();
-}
+};
