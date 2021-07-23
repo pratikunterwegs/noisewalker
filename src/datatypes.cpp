@@ -11,6 +11,7 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
     std::vector<float> vecEnrg (pop.size(), 1e-5f);
     std::vector<float> vecMoved (pop.size(), 0.f);
     std::vector<int> vecTimeInfc (pop.size(), 0);
+    std::vector<int> vecInteractions (pop.size(), 0);
     
     for (size_t i = 0; i < pop.size(); i++)
     {
@@ -21,6 +22,7 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
         vecEnrg[i] = pop[i].energy;
         vecMoved[i] = pop[i].moved;
         vecTimeInfc[i] = pop[i].timeInfected;
+        vecInteractions[i] = pop[i].nbrs;
     }    
     // add to data
     gen.push_back(g);
@@ -30,6 +32,7 @@ void genData::updateGenData (std::vector<Agent> &pop, const int g) {
     genEnergy.push_back(vecEnrg); // return absolute, not transformed energy
     genMoved.push_back(vecMoved);
     genTimeInfc.push_back(vecTimeInfc);
+    genInteractions.push_back(vecInteractions);
 }
 
 /// function to get all generations data
@@ -47,7 +50,8 @@ Rcpp::List genData::returnGenData() {
             Named("coef_risk") = genCoefRisk[i],
             Named("energy") = genEnergy[i],
             Named("moved") = genMoved[i],
-            Named("time_infected") = genTimeInfc[i]
+            Named("time_infected") = genTimeInfc[i],
+            Named("interactions") = genInteractions[i]
         );
     }
     List dataToReturn = List::create(
@@ -56,4 +60,22 @@ Rcpp::List genData::returnGenData() {
     );
 
     return dataToReturn;
+}
+
+/// function to update generation data
+void posData::updateGenData (std::vector<Agent> &pop, const int g) {
+
+    // make vector of activities
+    std::vector<float> vecX (pop.size(), 0.f);
+    std::vector<float> vecY (pop.size(), 0.f);
+    
+    for (size_t i = 0; i < pop.size(); i++)
+    {
+        vecX[i] = pop[i].x;
+        vecY[i] = pop[i].y;
+    }    
+    // add to data
+    gen.push_back(g);
+    genX.push_back(vecX);
+    genY.push_back(vecY);
 }
