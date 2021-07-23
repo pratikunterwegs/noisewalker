@@ -29,13 +29,6 @@ Unlist and make larger frame.
 data_coefs = data_coefs[, unlist(dt, recursive = FALSE), 
             by = setdiff(names(data_coefs), "dt")]
 
-# make classes
-data_coefs = bi_class(
-  data_coefs,
-  x = freqRes,
-  y = pTransmit
-)
-
 # remove low freq
 data_coefs = data_coefs[freqRes > 0.1,]
 ```
@@ -45,6 +38,11 @@ Select every Nth generation for plotting.
 ```{r}
 data_coefs = data_coefs[gen %% 10 == 0, ]
 ```
+
+```{r}
+data_coefs = data_coefs[freqRes == 1, ]
+```
+
 
 ## Plotting
 
@@ -92,7 +90,7 @@ plot_coefs = lapply(data_coefs, function(df) {
       labels = scales::percent
     )+
     facet_grid(
-      pTransmit + variable ~ freqRes, 
+      pTransmit + variable ~ costInfection, 
       scales = "fixed",
       labeller = label_both,
       switch = "y"

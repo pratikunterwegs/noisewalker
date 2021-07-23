@@ -28,16 +28,6 @@ Unlist and make larger frame.
 # unlist
 data_energy = data_energy[, unlist(dt, recursive = FALSE), 
             by = setdiff(names(data_energy), "dt")]
-
-# make classes
-data_energy = bi_class(
-  data_energy,
-  x = freqRes,
-  y = pTransmit
-)
-
-# remove low freq
-data_energy = data_energy[freqRes > 0.1,]
 ```
 
 Select every Nth generation for plotting.
@@ -45,6 +35,13 @@ Select every Nth generation for plotting.
 ```{r}
 data_energy = data_energy[gen %% 10 == 0, ]
 ```
+
+## Select frequency
+
+```{r}
+data_energy = data_energy[freqRes == 1, ]
+```
+
 
 ## Plotting
 
@@ -89,20 +86,16 @@ plot_energy = lapply(data_energy[["energy"]], function(df) {
     geom_line(
       aes(
         gen, mean, 
-        group = replicate,
-        col = bi_class
+        group = replicate
       ),
       show.legend = F
     )+
-    bi_scale_color(
-      pal = "DkCyan"
-    )+
     coord_cartesian(
       expand = F,
-      ylim = c(5, 20)
+      ylim = c(0, 20)
     )+
     facet_grid(
-      pTransmit ~ freqRes, 
+      pTransmit ~ costInfection, 
       scales = "fixed",
       labeller = label_both,
       switch = "y"
@@ -168,20 +161,17 @@ plot_movement = lapply(data_energy[["moved"]], function(df) {
     geom_line(
       aes(
         gen, mean, 
-        group = replicate,
-        col = bi_class
+        group = replicate
       ),
+      col = "steelblue",
       show.legend = F
-    )+
-    bi_scale_color(
-      pal = "DkCyan"
     )+
     # coord_cartesian(
     #   expand = F,
     #   ylim = c(5, 20)
     # )+
     facet_grid(
-      pTransmit ~ freqRes, 
+      pTransmit ~ costInfection, 
       scales = "fixed",
       labeller = label_both,
       switch = "y"

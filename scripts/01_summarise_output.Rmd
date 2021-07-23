@@ -8,6 +8,7 @@ editor_options:
 ```{r}
 # load libraries
 library(data.table)
+library(noisewalker)
 ```
 
 ## Load data and get mean per data
@@ -56,7 +57,7 @@ data = lapply(files, function(file) {
   
   # time infected, mean and last
   dt_infected = dt_[, c("gen", "time_infected")]
-  dt_infected = dt_[, list(
+  dt_infected = dt_[time_infected > -1, list(
     mean_ti = mean(time_infected),
     sd_ti = sd(time_infected),
     last_ti = max(time_infected)
