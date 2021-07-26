@@ -70,7 +70,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         // reproduce once generation is done
         doReproduce(pop, landsize);
     }
-    return Rcpp::List(
+    return Rcpp::List::create(
         thisGenData.returnGenData(),
         thisPosData.returnPosData()
     );
