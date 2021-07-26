@@ -79,3 +79,25 @@ void posData::updatePosData (std::vector<Agent> &pop, const int g) {
     genX.push_back(vecX);
     genY.push_back(vecY);
 }
+
+/// function to get all generations data
+Rcpp::List posData::returnPosData() {
+    assert(gen.size() > 0 && "poor gen size");
+    // make Rcpp list
+    Rcpp::List posDataList (gen.size());
+
+    // loop through stored data
+    for (size_t i = 0; i < gen.size(); i++)
+    {
+        posDataList[i] = DataFrame::create(
+            Named("x") = genX[i],
+            Named("y") = genY[i]
+        );
+    }
+    List dataToReturn = List::create(
+        Named("pos_data") = posDataList,
+        Named("gens") = gen
+    );
+
+    return dataToReturn;
+}
