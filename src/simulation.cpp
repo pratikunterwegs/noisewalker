@@ -71,8 +71,8 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         doReproduce(pop, landsize);
     }
     return Rcpp::List::create(
-        thisGenData.returnGenData(),
-        thisPosData.returnPosData()
+        Named("gendata") = thisGenData.returnGenData(),
+        Named("posdata") = thisPosData.returnPosData()
     );
 }
 
