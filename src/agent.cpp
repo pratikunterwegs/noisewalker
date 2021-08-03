@@ -115,7 +115,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
 
     // suitability at location is calculated as having risk = 0.0
     // that is, no risk is perceived here.
-    float best_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere);
+    float best_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) + (coefRisk * (nbrsHere * nbrsHere));
     
     float twopi = 2.f * M_PI;
     // what increment for nDirections samples in a circle around the agent
@@ -134,7 +134,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
         nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree)) : 0.f;
 
         // suitability at new location is modified by individual's perceived risk
-        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) + coefRisk;
+        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) + (coefRisk * (nbrsHere * nbrsHere));
 
         if (new_suit > best_suit) {
             newX = sampleX;
