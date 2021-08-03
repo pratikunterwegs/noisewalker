@@ -30,7 +30,7 @@ data = lapply(files, function(file) {
   load(file)
   
   dt_ = data_evolved_pop[[1]]
-  params = data_evolved_pop[[2]]
+  params = data_evolved_pop[[3]]
   morph_threshold = 0.05
   
   # movement and energy
@@ -47,6 +47,13 @@ data = lapply(files, function(file) {
   dt_coefs_summary = dt_coefs[, list(
     prop_pos = sum(value > 0) / params["popsize"]
   ), by = c("gen", "variable")]
+  
+  # get node weight evolution
+  dt_coefs[, w_num := noisewalker::cut_wt_lower(value, steps = 100)]
+  dt_weight_evo = dt_coefs[, .N, by = c("gen", "variable", "w_num")]
+  dt_weight_evo = dt_weight_evo[, w_prop := N / sum(N), 
+                                by = c("gen", "variable")]
+  dt_weight_evo[, N := NULL]
   
   # count morphs (prop > 0.01)
   dt_morphs = copy(dt_coefs)
@@ -67,6 +74,7 @@ data = lapply(files, function(file) {
   list(
     summary_energy_move = dt_energy_move,
     coefs_summary = dt_coefs_summary,
+    weight_evo = dt_weight_evo,
     morph_count = dt_morphs,
     time_infected = dt_infected,
     params = data.frame(as.list(params))
