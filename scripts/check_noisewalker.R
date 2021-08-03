@@ -21,18 +21,18 @@ a = noisewalker::run_noisewalker(
     timesteps = 25, 
     perception = 0.1,
     directions = 4,
-    costMove = 0.01,
+    costMove = 0.0,
     freqRes = 1,
     landsize = 5,
     clamp = 0.0,
-    random_traits = T,
+    random_traits = F,
     allow_compete = T,
     scenario = 1,
     pTransmit = 0.5,
     costInfection = 0.01
 )
 
-data = a[[2]]
+data = a[["posdata"]]
 
 posdata = Map(function(df, g) {
     df$gen = g
@@ -58,13 +58,13 @@ ggplot(posdata[gen %% 10 == 0,])+
 save(a, file = "data/output/test_data.Rds")
 
 # get data
-data = handle_rcpp_out(a[[1]])
+data = handle_rcpp_out(a[["gendata"]])
 
 # energy plot
 ggplot(data)+
     geom_bin2d(
         aes(gen, energy),
-        binwidth = c(1, 1)
+        binwidth = c(1, 0.1)
     )+
     # geom_point(
     #     aes(gen, energy),
@@ -83,7 +83,7 @@ ggplot(data)+
 # tanh transform
 data[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
     .SD, function(x) {
-        cut_wt_lower(x, steps = 50, scale = 20)
+        cut_wt_lower(x, steps = 100, scale = 20)
     }
 ), .SDcols = c("coef_food", "coef_nbrs", "coef_risk")]
 
