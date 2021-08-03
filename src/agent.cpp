@@ -18,7 +18,7 @@ bgi::rtree< value, bgi::quadratic<16> > makeRtree (std::vector<Agent> &pop) {
 }
 
 /// random trait value dist
-std::uniform_real_distribution<float> randTrait(-2.f, 2.f);
+std::uniform_real_distribution<float> randTrait(-0.1f, 0.1f);
 
 // normal distr around 0
 std::normal_distribution<float> normDist(0.0f, 0.1f);
