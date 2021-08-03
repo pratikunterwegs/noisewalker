@@ -117,6 +117,17 @@ data_coefs[, dt := lapply(data, `[[`, "coefs_summary")]
 save(data_coefs, file = "data/data_coefs.Rds")
 ```
 
+### Weight evolution
+
+```{r}
+# save weight evolution
+data_wt_evo = copy(params)
+data_wt_evo[, dt := lapply(data, `[[`, "weight_evo")]
+
+# save as Rds
+save(data_wt_evo, file = "data/data_wt_evo.Rds")
+```
+
 ### Morphs summary
 
 ```{r}
