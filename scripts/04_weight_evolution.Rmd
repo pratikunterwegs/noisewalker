@@ -1,0 +1,96 @@
+---
+editor_options: 
+  chunk_output_type: console
+---
+
+# Weight evolution
+
+```{r}
+# load libraries
+library(data.table)
+
+# plotting
+library(ggplot2)
+library(glue)
+library(patchwork)
+```
+
+## Load energy data
+
+```{r}
+# weight evolution Rds
+load("data/data_wt_evo.Rds")
+
+# filter for freqRes == 1 and pTransmit == 0.5
+data_wt_evo = data_wt_evo[freqRes == 1 & pTransmit == 0.5,]
+```
+
+```{r}
+# unlist data
+data_wt_evo = data_wt_evo[, unlist(dt, recursive = FALSE), 
+            by = setdiff(names(data_wt_evo), "dt")]
+
+data_wt_evo = data_wt_evo[gen %% 10 == 0,]
+```
+
+### Split data by scenario
+
+```{r}
+# by scenario
+data_wt_evo = split(data_wt_evo, by = "scenario")
+```
+
+```{r}
+plot_wt_evo = lapply(data_wt_evo, function(df) {
+  scenario = unique(df$scenario)
+  scenario = dplyr::case_when(
+    scenario == 0 ~ "no pathogen",
+    scenario == 1 ~ "ancestral pathogen",
+    scenario == 2 ~ "spillover pathogen",
+    TRUE ~ NA_character_
+  )
+  
+  genmax = max(df$gen)
+  
+  # p = 
+  df[popsize == 500,] |>
+    ggplot()+
+    geom_tile(
+      aes(
+        gen, w_num, fill = w_prop
+      )
+    )+
+    facet_grid(
+      variable ~ costInfection + replicate, 
+      scales = "fixed",
+      labeller = label_both,
+      switch = "y"
+    )+
+    scale_fill_viridis_c(
+      option = "F", direction = -1
+    )+
+    labs(
+      x = "Gen.",
+      y = "% positive",
+      title = glue::glue(
+        "scenario: {scenario}"
+      )
+    )
+  
+  if (scenario == "spillover pathogen") {
+    p = p + geom_vline(
+      xintercept = genmax * (2/3),
+      col = "black",
+      lty = 2
+    )
+  }
+  p
+
+})
+```
+
+```{r}
+plot = wrap_plots(
+  plot_coefs
+)
+```
