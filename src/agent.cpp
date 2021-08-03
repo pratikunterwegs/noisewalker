@@ -134,8 +134,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
         nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree)) : 0.f;
 
         // suitability at new location is modified by individual's perceived risk
-        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) - coefRisk
-            + normDist(rng);
+        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) + coefRisk;
 
         if (new_suit > best_suit) {
             newX = sampleX;
