@@ -57,8 +57,6 @@ pathogen is introduced after 2/3 of the simulation.}
 \item{pTransmit}{The probability a disease transmits.}
 
 \item{costInfection}{The per-timestep cost of being infected.}
-
-\item{freqRisk}{The patchiness of the landscape of costs.}
 }
 \value{
 A dataframe of evolved pop strategy count.

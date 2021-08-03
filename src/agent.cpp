@@ -177,7 +177,7 @@ void Agent::doEnergetics(FastNoiseLite &noise,
     // Rcpp::Rcout << "energy here = " << energy_here << "\n";
 
     // both divided by number of neighbours
-    int nbrs = allow_compete ? countNbrsAt(perception, x, y, agentRtree) : 0;
+    int nNbrs = allow_compete ? countNbrsAt(perception, x, y, agentRtree) : 0;
 
     float nbrs_f = static_cast<float>(nbrs); // + 1.f; // to prevent divisions by 0
 
@@ -271,6 +271,7 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
         tmpPop[a].coefNbrs = pop[idParent].coefNbrs;
         tmpPop[a].coefRisk = pop[idParent].coefRisk;
         tmpPop[a].energy = 1e-5f;
+        tmpPop[a].nbrs = 0;
     }
 
     // mutation
@@ -289,6 +290,6 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
     // swap tmp pop for pop
     std::swap(pop, tmpPop);
     // randomise position?
-    // popRandomPos(tmpPop, landsize);
+    popRandomPos(tmpPop, landsize);
     tmpPop.clear();
 }

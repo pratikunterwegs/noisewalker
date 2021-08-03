@@ -40,15 +40,23 @@ data_evolved_pop = run_noisewalker(
 data_evolved_pop = Map(function(df, g) {
     df$gen = g
     df
-}, data_evolved_pop$pop_data, data_evolved_pop$gens)
+}, data_evolved_pop[["gendata"]]$pop_data, data_evolved_pop[["gendata"]]$gens)
 data_evolved_pop = data.table::rbindlist(data_evolved_pop)
+
+# add posdata to dataframe
+data_final_pos = Map(function(df, g) {
+    df$gen = g
+    df
+}, data_evolved_pop[["posdata"]]$pop_data, data_evolved_pop[["posdata"]]$gens)
+data_final_pos = data.table::rbindlist(data_final_pos)
 
 # get params as named vector
 these_params = unlist(params[row_n,])
 
 # append list of params
 data_evolved_pop = list(
-  data_evolved_pop,
+  gendata = data_evolved_pop,
+  posdata = data_final_pos,
   these_params
 )
 
