@@ -28,7 +28,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 {
     genData thisGenData;
     posData thisPosData;
-    float scale_time = 0.0f; // no more landscape change
+    float scale_time = 0.01f; // no more landscape change
 
     // assign generation after which pathogen is introduced
     int genPartition = genmax; // never introduced
