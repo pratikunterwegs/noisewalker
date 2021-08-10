@@ -24,7 +24,8 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const bool allow_compete,
                const int scenario,
                const float pTransmit,
-               const float costInfection)
+               const float costInfection,
+               const bool recordPos)
 {
     genData thisGenData;
     posData thisPosData;
@@ -66,14 +67,25 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         // }
         
         thisGenData.updateGenData(pop, gen);
-        thisPosData.updatePosData(pop, gen);
+
+        if (recordPos) thisPosData.updatePosData(pop, gen);
         // reproduce once generation is done
         doReproduce(pop, landsize);
     }
-    return Rcpp::List::create(
-        Named("gendata") = thisGenData.returnGenData(),
-        Named("posdata") = thisPosData.returnPosData()
-    );
+
+    if (recordPos)
+    {
+        return Rcpp::List::create(
+            Named("gendata") = thisGenData.returnGenData(),
+            Named("posdata") = thisPosData.returnPosData()
+        );
+    } else {
+        return Rcpp::List::create(
+            Named("gendata") = thisGenData.returnGenData()
+        );
+    }
+    
+    
 }
 
 
@@ -104,6 +116,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' pathogen is introduced after 2/3 of the simulation.
 //' @param pTransmit The probability a disease transmits.
 //' @param costInfection The per-timestep cost of being infected.
+//' @param recordPos Whether to record the final position of individuals.
 //' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
 Rcpp::List run_noisewalker(
@@ -120,7 +133,8 @@ Rcpp::List run_noisewalker(
         const bool allow_compete,
         const int scenario,
         const float pTransmit,
-        const float costInfection) {
+        const float costInfection,
+        const float recordPos) {
     
     // set up seed etc
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
@@ -144,7 +158,7 @@ Rcpp::List run_noisewalker(
     Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, 
                                     clamp, perception,
                                     directions, costMove, allow_compete, scenario,
-                                    pTransmit, costInfection);
+                                    pTransmit, costInfection, recordPos);
 
     return thisData;
 }
