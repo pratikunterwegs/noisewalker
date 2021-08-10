@@ -1,0 +1,151 @@
+---
+editor_options: 
+  chunk_output_type: console
+---
+
+# Summarise simulation output
+
+```{r}
+# load libraries
+library(data.table)
+library(noisewalker)
+```
+
+## Load data and get mean per data
+
+```{r}
+# list files
+files = list.files(path = "data/output", pattern = "Rds", full.names = T)
+
+# custom summary function
+custom_summary = function(x) {
+  list(
+    mean = mean(x),
+    sd = sd(x)
+  )
+}
+
+# load and get mean per gen
+data = lapply(files, function(file) {
+  load(file)
+  
+  dt_ = data_evolved_pop[[1]]
+  params = data_evolved_pop[[3]]
+  morph_threshold = 0.05
+  
+  # movement and energy
+  dt_energy_move = dt_[, c("gen", "energy", "moved")]
+  dt_energy_move = melt(dt_energy_move, id.vars = "gen")
+  dt_energy_move = dt_energy_move[, list(
+    mean = mean(value),
+    sd = sd(value)
+  ), by = c("gen", "variable")]
+  
+  # count positive proportion values for coefs
+  dt_coefs = dt_[, c("gen", "coef_food", "coef_nbrs", "coef_risk")]
+  dt_coefs = melt(dt_coefs, id.vars = "gen")
+  dt_coefs_summary = dt_coefs[, list(
+    prop_pos = sum(value > 0) / params["popsize"]
+  ), by = c("gen", "variable")]
+  
+  # get node weight evolution
+  dt_coefs[, w_num := noisewalker::cut_wt_lower(value, steps = 100)]
+  dt_weight_evo = dt_coefs[, .N, by = c("gen", "variable", "w_num")]
+  dt_weight_evo = dt_weight_evo[, w_prop := N / sum(N), 
+                                by = c("gen", "variable")]
+  dt_weight_evo[, N := NULL]
+  
+  # count morphs (prop > 0.01)
+  dt_morphs = copy(dt_coefs)
+  dt_morphs[, value := cut_wt_lower(value)]
+  dt_morphs = dt_morphs[, list(prop = .N / params["popsize"]), 
+            by = c("gen", "value", "variable")]
+  dt_morphs = dt_morphs[prop > morph_threshold, .N, by = c("gen", "variable")]
+  
+  # time infected, mean and last
+  dt_infected = dt_[, c("gen", "time_infected")]
+  dt_infected = dt_[time_infected > -1, list(
+    mean_ti = mean(time_infected),
+    sd_ti = sd(time_infected),
+    last_ti = max(time_infected)
+  ), by = "gen"]
+  
+  # make params dataframe
+  list(
+    summary_energy_move = dt_energy_move,
+    coefs_summary = dt_coefs_summary,
+    weight_evo = dt_weight_evo,
+    morph_count = dt_morphs,
+    time_infected = dt_infected,
+    params = data.frame(as.list(params))
+  )
+})
+
+# save data
+save(
+  data,
+  file = "data/data_sim_summaries.Rds"
+)
+```
+
+### Make Parameter Frame
+
+```{r}
+params = lapply(data, `[[`, "params")
+params = rbindlist(params)
+```
+
+### Extract energy data
+
+```{r}
+# save summary energy
+data_energy = copy(params)
+data_energy[, dt := lapply(data, `[[`, "summary_energy_move")]
+
+# save as Rds
+save(data_energy, file = "data/data_energy_move.Rds")
+```
+
+### Coefs summary
+
+```{r}
+# save coefs energy
+data_coefs = copy(params)
+data_coefs[, dt := lapply(data, `[[`, "coefs_summary")]
+
+# save as Rds
+save(data_coefs, file = "data/data_coefs.Rds")
+```
+
+### Weight evolution
+
+```{r}
+# save weight evolution
+data_wt_evo = copy(params)
+data_wt_evo[, dt := lapply(data, `[[`, "weight_evo")]
+
+# save as Rds
+save(data_wt_evo, file = "data/data_wt_evo.Rds")
+```
+
+### Morphs summary
+
+```{r}
+# save morphs summary
+data_morphs = copy(params)
+data_morphs[, dt := lapply(data, `[[`, "morph_count")]
+
+# save as Rds
+save(data_morphs, file = "data/data_morphs.Rds")
+```
+
+### Time infected
+
+```{r}
+# save time infected summary
+data_infected = copy(params)
+data_infected[, dt := lapply(data, `[[`, "time_infected")]
+
+# save as Rds
+save(data_infected, file = "data/data_infected.Rds")
+```

@@ -22,10 +22,13 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const int directions,
                const float costMove,
                const bool allow_compete,
-               const int scenario)
+               const int scenario,
+               const float pTransmit,
+               const float costInfection)
 {
     genData thisGenData;
-    float scale_time = 0.1f;
+    posData thisPosData;
+    float scale_time = 0.01f; // no more landscape change
 
     // assign generation after which pathogen is introduced
     int genPartition = genmax; // never introduced
@@ -48,6 +51,12 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
             popMoveForageCompete(pop, noise, static_cast<float>(t) * scale_time,
                 perception, directions, landsize,
                 clamp, costMove, allow_compete); // set manually
+
+            // infection dynamics
+            if (gen >= genPartition) {
+                popPathogenSpread(pop, perception, pTransmit, t);
+                popPathogenCost(pop, costInfection, t);
+            }
         }
 
         // subtract cost of traits?
@@ -57,10 +66,14 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         // }
         
         thisGenData.updateGenData(pop, gen);
+        thisPosData.updatePosData(pop, gen);
         // reproduce once generation is done
         doReproduce(pop, landsize);
     }
-    return thisGenData.returnGenData();
+    return Rcpp::List::create(
+        Named("gendata") = thisGenData.returnGenData(),
+        Named("posdata") = thisPosData.returnPosData()
+    );
 }
 
 
@@ -76,7 +89,6 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' @param directions The number of points at which agents sense resources,
 //' at a fixed distance of \code{perception} units away from them.
 //' @param costMove The cost per move; distance moved is assumed constant.
-//' @param freqRisk The patchiness of the landscape of costs.
 //' @param freqRes Frequency of noise. May be thought of as large scale
 //' variability. May be any double value between 1.0 and 16.0. Higher values
 //' mean more patchy landscapes.
@@ -90,6 +102,8 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' and no pathogen is introduced. If 1, "ancestral", the pathogen is introduced
 //' from generation zero, the start of the simulation. If 2, "spillover", the
 //' pathogen is introduced after 2/3 of the simulation.
+//' @param pTransmit The probability a disease transmits.
+//' @param costInfection The per-timestep cost of being infected.
 //' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
 Rcpp::List run_noisewalker(
@@ -104,7 +118,9 @@ Rcpp::List run_noisewalker(
         const float clamp,
         const bool random_traits,
         const bool allow_compete,
-        const int scenario) {
+        const int scenario,
+        const float pTransmit,
+        const float costInfection) {
     
     // set up seed etc
     unsigned seed = static_cast<unsigned> (std::chrono::system_clock::now().time_since_epoch().count());
@@ -125,8 +141,10 @@ Rcpp::List run_noisewalker(
     noise.SetFrequency(freqRes);
     
     // do evolution
-    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, clamp, perception,
-                                    directions, costMove, allow_compete, scenario);
+    Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, 
+                                    clamp, perception,
+                                    directions, costMove, allow_compete, scenario,
+                                    pTransmit, costInfection);
 
     return thisData;
 }

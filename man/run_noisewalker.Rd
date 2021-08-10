@@ -11,13 +11,14 @@ run_noisewalker(
   perception,
   directions,
   costMove,
-  freqRisk,
   freqRes,
   landsize,
   clamp,
   random_traits,
   allow_compete,
-  allow_coop
+  scenario,
+  pTransmit,
+  costInfection
 )
 }
 \arguments{
@@ -34,8 +35,6 @@ at a fixed distance of \code{perception} units away from them.}
 
 \item{costMove}{The cost per move; distance moved is assumed constant.}
 
-\item{freqRisk}{The patchiness of the landscape of costs.}
-
 \item{freqRes}{Frequency of noise. May be thought of as large scale
 variability. May be any double value between 1.0 and 16.0. Higher values
 mean more patchy landscapes.}
@@ -50,7 +49,14 @@ sense and receive zero resources. Needed because noise has values -1 to +1.}
 
 \item{allow_compete}{Should agents compete. Controls downstream functions.}
 
-\item{allow_coop}{Should agents share costs on the risk landscape.}
+\item{scenario}{The pathogen co-evolution scenario. Defaults to 0, "none",
+and no pathogen is introduced. If 1, "ancestral", the pathogen is introduced
+from generation zero, the start of the simulation. If 2, "spillover", the
+pathogen is introduced after 2/3 of the simulation.}
+
+\item{pTransmit}{The probability a disease transmits.}
+
+\item{costInfection}{The per-timestep cost of being infected.}
 }
 \value{
 A dataframe of evolved pop strategy count.

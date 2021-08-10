@@ -19,6 +19,6 @@
 void popIntroPathogen(std::vector<Agent> &pop, const int nInfected);
 /// function to spread pathogen
 void popPathogenSpread(std::vector<Agent> &pop, const float perception,
-                       const float pTransmit);
+                       const float pTransmit, const int t_);
 /// function for pathogen cost
 void popPathogenCost(std::vector<Agent> &pop, const float costInfection, const int t_);

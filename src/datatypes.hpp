@@ -19,6 +19,17 @@ public:
     std::vector<std::vector<float> > genEnergy;
     std::vector<std::vector<float> > genMoved;
     std::vector<std::vector<int> > genTimeInfc;
+    std::vector<std::vector<int> > genInteractions;
     void updateGenData (std::vector<Agent> &pop, const int gen);
     Rcpp::List returnGenData ();
+};
+
+struct posData{
+public:
+    std::vector<int> gen;
+    std::vector<std::vector<float> > genX;
+    std::vector<std::vector<float> > genY;
+
+    void updatePosData (std::vector<Agent> &pop, const int gen);
+    Rcpp::List returnPosData ();
 };

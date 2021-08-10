@@ -18,7 +18,7 @@ bgi::rtree< value, bgi::quadratic<16> > makeRtree (std::vector<Agent> &pop) {
 }
 
 /// random trait value dist
-std::uniform_real_distribution<float> randTrait(-2.f, 2.f);
+std::uniform_real_distribution<float> randTrait(-0.1f, 0.1f);
 
 // normal distr around 0
 std::normal_distribution<float> normDist(0.0f, 0.1f);
@@ -115,7 +115,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
 
     // suitability at location is calculated as having risk = 0.0
     // that is, no risk is perceived here.
-    float best_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere);
+    float best_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) + (coefRisk * (nbrsHere * nbrsHere));
     
     float twopi = 2.f * M_PI;
     // what increment for nDirections samples in a circle around the agent
@@ -134,8 +134,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
         nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree)) : 0.f;
 
         // suitability at new location is modified by individual's perceived risk
-        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) - coefRisk
-            + normDist(rng);
+        float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) + (coefRisk * (nbrsHere * nbrsHere));
 
         if (new_suit > best_suit) {
             newX = sampleX;
@@ -178,12 +177,12 @@ void Agent::doEnergetics(FastNoiseLite &noise,
     // Rcpp::Rcout << "energy here = " << energy_here << "\n";
 
     // both divided by number of neighbours
-    int nbrs = allow_compete ? countNbrsAt(perception, x, y, agentRtree) : 0;
+    int nNbrs = allow_compete ? countNbrsAt(perception, x, y, agentRtree) : 0;
 
-    float nbrs_f = static_cast<float>(nbrs) + 1.f; // to prevent divisions by 0
+    float nbrs_f = static_cast<float>(nbrs); // + 1.f; // to prevent divisions by 0
 
     // Rcpp::Rcout << "nbrs here = " << nbrs << "\n";
-    energy_here = energy_here / nbrs_f;
+    energy_here = energy_here + (1.f - (1.f / nbrs_f));
 
     // Rcpp::Rcout << "scaled energy here = " << energy_here << "\n";
     // energetic balance
@@ -272,6 +271,7 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
         tmpPop[a].coefNbrs = pop[idParent].coefNbrs;
         tmpPop[a].coefRisk = pop[idParent].coefRisk;
         tmpPop[a].energy = 1e-5f;
+        tmpPop[a].nbrs = 0;
     }
 
     // mutation
@@ -290,6 +290,6 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
     // swap tmp pop for pop
     std::swap(pop, tmpPop);
     // randomise position?
-    // popRandomPos(tmpPop, landsize);
+    popRandomPos(tmpPop, landsize);
     tmpPop.clear();
 }

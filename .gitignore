@@ -46,6 +46,10 @@ inst/doc
 data/*.Rdata
 *.Rds
 
+data/output/*.log
+
+# ignore figures
+
 # qmake files
 .qmake.stash
 
@@ -54,6 +58,9 @@ data/parameters
 
 # ignore data
 data/output/*.Rdata
+
+# ignore some figures
+figures/weight_evol
 
 # ignore R files
 .Rhistory
@@ -65,3 +72,6 @@ job_script*
 # documents
 *.docx
 *.odt*
+
+# saved files
+*.zip

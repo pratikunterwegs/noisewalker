@@ -10,18 +10,21 @@ noisewalker::check_prepare_cluster(
 
 # prepare parameters
 noisewalker::make_parameter_file(
-    replicates = 5,
-    popsize = 5000, 
-    genmax = 10000, 
+    replicates = 10,
+    popsize = 1000, 
+    genmax = 1000, 
     timesteps = 100, 
-    perception = 0.05,
+    perception = 0.1,
     directions = 4,
-    costMove = c(0.1, 1),
-    costCompete = c(0.1, 1),
-    nOctaves = 1, 
-    frequency = c(1, 2, 8),
+    costMove = 0.001,
+    freqRes = c(0.5, 1),
     landsize = 10,
-    clamp = 0,
+    clamp = 0.0,
+    random_traits = F,
+    allow_compete = c(T),
+    scenario = c(0, 1, 2),
+    pTransmit = c(0.5, 1),
+    costInfection = c(0.1, 0.5),
     which_file = "data/parameters/parameters_full.csv"
 )
 

@@ -5,182 +5,104 @@ library(patchwork)
 
 # list output
 output = list.files(path = "data/output/",
-                    pattern = "frequency_1",
+                    pattern = "output_file",
                     full.names = T)
 
 # check single trait
 # load files
-invisible(
-  lapply(output, function(file) {
-    load(file)
-    df = as.data.table(
-      data_evolved_pop[c("actv", "gen")]
-    )
-    
-    # plot and check
-    p = ggplot(df)+
-      geom_bin2d(
-        aes(gen, actv), 
-        binwidth = c(5, 0.025),
-        show.legend = F
-      )+
-      scale_fill_viridis_c(
-        option = "F", direction = -1,
-        trans = "log10",
-        begin = 0.1, end = 1
-      )+
-      coord_cartesian(expand = T,
-                      # xlim = c(0, 1),
-                      ylim = c(0, 1))+
-      theme_grey()+
-      theme(
-        axis.text = element_blank(),
-        title = element_text(size = 8)
-      )+
-      # facet_wrap(~gen, nrow = 1)+
-      labs(
-        title = glue::glue(
-          "frq = {data_evolved_pop$frequency} \\
-        cM = {data_evolved_pop$costMove} \\
-        cS = {data_evolved_pop$costMove} \\
-        cC = {data_evolved_pop$costCompete} \\
-        rep = {data_evolved_pop$replicate}",
-        ),
-        x = "generation", y = "activity"
-      )
-    
-    ggsave(
-      p,
-      filename = glue::glue(
-        "figures/fig_actv_frq{data_evolved_pop$frequency}_\\
-      cM_{data_evolved_pop$costMove}_\\
-      cS_{data_evolved_pop$costMove}_\\
-      cC_{data_evolved_pop$costCompete}_\\
-      rep_{data_evolved_pop$replicate}.png"
-      )
-    )
-    rm(p)
-  })
-)
-
-# plot responsiveness
-invisible(
-  lapply(output, function(file) {
-    load(file)
-    df = as.data.table(
-      data_evolved_pop[c("resp", "gen")]
-    )
-    
-    # plot and check
-    p = ggplot(df)+
-      geom_bin2d(
-        aes(gen, resp), 
-        binwidth = c(5, 0.025),
-        show.legend = F
-      )+
-      scale_fill_viridis_c(
-        option = "G", direction = -1,
-        trans = "log10",
-        begin = 0.1, end = 1
-      )+
-      coord_cartesian(expand = T,
-                      # xlim = c(0, 1),
-                      ylim = c(0, 1))+
-      theme_grey()+
-      theme(
-        axis.text = element_blank(),
-        title = element_text(size = 8)
-      )+
-      # facet_wrap(~gen, nrow = 1)+
-      labs(
-        title = glue::glue(
-          "frq = {data_evolved_pop$frequency} \\
-        cM = {data_evolved_pop$costMove} \\
-        cS = {data_evolved_pop$costSensing} \\
-        cC = {data_evolved_pop$costCompete}",
-        ),
-        x = "generation", y = "response"
-      )
-    ggsave(
-      p,
-      filename = glue::glue(
-        "figures/fig_resp_frq{data_evolved_pop$frequency}_\\
-      cM_{data_evolved_pop$costMove}_\\
-      cS_{data_evolved_pop$costMove}_\\
-      cC_{data_evolved_pop$costCompete}_\\
-      rep_{data_evolved_pop$replicate}.png"
-      )
-    )
-    rm(p)
-  })
-)
-
-# wrap plots
-wrap_plots(plots_resp, ncol = 5)
-
-
-# load files
-invisible(
 lapply(output, function(file) {
-  load(file)
-  df = as.data.table(
-    data_evolved_pop[c("actv", "resp", "gen")]
+  message(
+    glue::glue(
+      "reading {file}"
+    )
   )
+  load(file)
+  df = data_evolved_pop[[1]]
+  data.table::setDT(df)
+  
+  params = data_evolved_pop[[2]]
   
   # plot and check
-  p = ggplot(df[gen %in% c(0, 100, 500, max(gen))])+
+  p =
+    ggplot(df)+
     geom_bin2d(
-      aes(actv, resp),
-      col = "grey20",
-      size = 0.1,
-      binwidth = c(0.05, 0.05),
+      aes(gen, energy), 
+      binwidth = c(2, 0.5),
       show.legend = F
     )+
-    geom_hline(
-      yintercept = 0.5,
-      size = 0.2
-    )+
-    geom_vline(
-      xintercept = 0.5,
-      size = 0.2
-    )+
     scale_fill_viridis_c(
-      option = "D", direction = -1
+      option = "C", 
+      direction = -1
     )+
-    coord_cartesian(expand = T,
-                xlim = c(0, 1),
-                ylim = c(0, 1))+
-    theme_grey()+
+    coord_cartesian(
+      expand = T
+      # xlim = c(0, 1)
+    )+
     theme(
-      axis.text = element_blank(),
+      # axis.text = element_blank(),
       title = element_text(size = 8)
     )+
-    facet_wrap(~gen, nrow = 1)+
+    # facet_wrap(~gen, nrow = 1)+
     labs(
       title = glue::glue(
-        "frq = {data_evolved_pop$frequency} \\
-        cM = {data_evolved_pop$costMove} \\
-        cS = {data_evolved_pop$costSensing} \\
-        cC = {data_evolved_pop$costCompete}",
+        "frq = {params['freqRes']} \\
+        sc = {params['scenario']} \\
+        compete = {params['allow_compete']} \\
+        rep = {params['replicate']}",
+      ),
+      x = "generation", y = "energy"
+    )
+  
+  # process figures for weight evol
+  # tanh transform
+  df[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
+    .SD, function(x) {
+      cut_wt_lower(x, steps = 100, scale = 40)
+    }
+  ), .SDcols = c("coef_food", "coef_nbrs", "coef_risk")]
+  
+  # melt data
+  df = data.table::melt(df[,!c("energy","moved","time_infected")], 
+                        id.vars = "gen")
+  
+  # count by weight value
+  data_summary = df[, list(N = .N / params['popsize']), 
+                    by = c("gen", "variable", "value")]
+  
+  # bin 2d
+  p2 = ggplot(data_summary[N > 0.01,])+
+    geom_tile(
+      aes(gen, value, fill = N)
+    )+
+    scale_fill_viridis_c(
+      option = "C",
+      begin = 0, end = 0.95,
+      direction = -1
+    )+
+    # coord_cartesian(xlim = c(0, 500))+
+    facet_wrap(~variable)+
+    theme(
+      # axis.text = element_blank(),
+      title = element_text(size = 8),
+      legend.key.width = unit(2, units = "mm")
+    )+
+    labs(
+      title = glue::glue(
+        "frq = {params['freqRes']} \\
+        sc = {params['scenario']} \\
+        compete = {params['allow_compete']} \\
+        rep = {params['replicate']}",
       )
     )
+  
+  fig = wrap_plots(p, p2, design = "ABBB")
+  filename = glue::glue("figures/weight_evol/fig_frq_{params['freqRes']}\\
+      _sc_{params['scenario']}_comp_{params['allow_compete']}\\
+      _rep_{params['replicate']}.png")
+  
   ggsave(
-    p,
-    filename = glue::glue(
-      "figures/fig_2d_frq{data_evolved_pop$frequency}_\\
-      cM_{data_evolved_pop$costMove}_\\
-      cS_{data_evolved_pop$costMove}_\\
-      cC_{data_evolved_pop$costCompete}_\\
-      rep_{data_evolved_pop$replicate}.png"
-    ),
-    height = 2,
-    width = 6
+    fig, height = 3, width = 12,
+    filename = filename
   )
-  rm(p)
 })
-)
 
-# wrap plots
-wrap_plots(
-  plots, ncol = 5
-)
