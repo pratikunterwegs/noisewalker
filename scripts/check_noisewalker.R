@@ -29,8 +29,8 @@ a = noisewalker::run_noisewalker(
     random_traits = T,
     allow_compete = T,
     scenario = 1,
-    pTransmit = 0.5,
-    costInfection = 0.01,
+    pTransmit = 0.25,
+    costInfection = 0.02,
     recordPos = F
 )
 
@@ -43,11 +43,6 @@ ggplot(data)+
         aes(gen, energy),
         binwidth = c(1, 0.5)
     )+
-    # geom_point(
-    #     aes(gen, energy),
-    #     alpha = 0.1,
-    #     shape = 1
-    # )+
     scale_fill_viridis_c(
         # trans = "log10",
         direction = -1
@@ -60,10 +55,11 @@ ggplot(data)+
 data_last = data[gen %in% c(max(gen), min(gen)),]
 data_last[, resp := Map(agent_response, coef_nbrs, coef_risk)]
 data_last[, id := rep(seq(nrow(data_last) / 2), 2)]
+data_last[, grp_size_pref := (vapply(resp, which.max, FUN.VALUE = 1L) * 2) - 2]
 
 data_summary = data_last[, list(
     resp = unlist(resp, recursive = F),
-    grpsize = seq(from = 0, to = 20, by = 5)
+    grpsize = seq(from = 0, to = 20, by = 2)
 ), by = c("id", "gen")]
 
 ggplot(data_summary)+
@@ -72,6 +68,15 @@ ggplot(data_summary)+
             group = interaction(id, gen), 
             colour = factor(gen)),
         alpha = 0.2
+    )+
+    geom_hline(
+        yintercept = 0
+    )+
+    scale_y_continuous(
+        trans = ggallin::pseudolog10_trans
+    )+
+    scale_x_continuous(
+        trans = ggallin::ssqrt_trans
     )+
     coord_cartesian(expand = F)
 
