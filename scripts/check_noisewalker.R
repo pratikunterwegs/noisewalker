@@ -8,25 +8,29 @@ library(data.table)
 Rcpp::compileAttributes()
 Sys.setenv("LIB_GSL" = "C:/local323")
 build()
-sink("install_output.log"); install(quick = T, upgrade = "never"); sink()
+sink("install_output.log"); install(upgrade = "never"); sink()
 document()
 
 # load the lib, better to restart R
 detach(package:noisewalker)
 library(noisewalker)
 
+noisewalker::agent_response(
+    -0.2, 0.02, plot = T, stepsize = 2
+)
+
 # test run
 a = noisewalker::run_noisewalker(
     popsize = 500, 
-    genmax = 100, 
+    genmax = 1000, 
     timesteps = 25, 
     perception = 0.1,
     directions = 4,
     costMove = 0.01,
     freqRes = 1,
-    landsize = 10,
+    landsize = 2.5,
     clamp = 0.0,
-    random_traits = T,
+    random_traits = F,
     allow_compete = T,
     scenario = 1,
     pTransmit = 0.25,
@@ -37,24 +41,28 @@ a = noisewalker::run_noisewalker(
 # get data
 data = handle_rcpp_out(a[["gendata"]])
 
-# energy plot
-ggplot(data)+
-    geom_bin2d(
-        aes(gen, energy),
-        binwidth = c(1, 0.5)
-    )+
-    scale_fill_viridis_c(
-        # trans = "log10",
-        direction = -1
-    )+
-    coord_cartesian(
-        # xlim = c(0, 100)
-    )
+# get max grp size preference
+# data[, resp := Map(agent_response, coef_nbrs, coef_risk)]
+# data[, grp_size_pref := (vapply(resp, which.max, FUN.VALUE = 1L) * 2) - 2]
+# data[, resp := NULL]
+# 
+# # count grp size preference per gen
+# data_grp_size = data[, .N, by = c("gen", "grp_size_pref")]
+# 
+# # plot
+# ggplot(data_grp_size)+
+#     geom_tile(
+#         aes(gen, grp_size_pref, fill = N)
+#     )+
+#     colorspace::scale_fill_continuous_sequential(
+#         palette = "Reds"
+#     )
 
+#### some ####
 # get last gen pop
-data_last = data[gen %in% c(max(gen), min(gen)),]
+data_last = data[gen %in% c(max(gen)),]
 data_last[, resp := Map(agent_response, coef_nbrs, coef_risk)]
-data_last[, id := rep(seq(nrow(data_last) / 2), 2)]
+data_last[, id := seq(nrow(data_last))]
 data_last[, grp_size_pref := (vapply(resp, which.max, FUN.VALUE = 1L) * 2) - 2]
 
 data_summary = data_last[, list(
@@ -65,18 +73,21 @@ data_summary = data_last[, list(
 ggplot(data_summary)+
     geom_path(
         aes(grpsize, resp, 
-            group = interaction(id, gen), 
-            colour = factor(gen)),
-        alpha = 0.2
+            group = interaction(id, gen)
+        ),
+        alpha = 0.2,
+        colour = "steelblue"
     )+
     geom_hline(
         yintercept = 0
     )+
     scale_y_continuous(
-        trans = ggallin::pseudolog10_trans
+        trans = ggallin::pseudolog10_trans,
+        limits = c(-2, 2)
     )+
     scale_x_continuous(
-        trans = ggallin::ssqrt_trans
+        trans = ggallin::ssqrt_trans,
+        limits = c(0, 20)
     )+
     coord_cartesian(expand = F)
 
