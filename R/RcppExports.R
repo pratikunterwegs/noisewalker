@@ -46,8 +46,9 @@ getLandscape <- function(landsize, octaves, frequency, increment, clamp) {
 #' pathogen is introduced after 2/3 of the simulation.
 #' @param pTransmit The probability a disease transmits.
 #' @param costInfection The per-timestep cost of being infected.
+#' @param recordPos Whether to record the final position of individuals.
 #' @return A dataframe of evolved pop strategy count.
-run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario, pTransmit, costInfection) {
-    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario, pTransmit, costInfection)
+run_noisewalker <- function(popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario, pTransmit, costInfection, recordPos) {
+    .Call(`_noisewalker_run_noisewalker`, popsize, genmax, timesteps, perception, directions, costMove, freqRes, landsize, clamp, random_traits, allow_compete, scenario, pTransmit, costInfection, recordPos)
 }
 
