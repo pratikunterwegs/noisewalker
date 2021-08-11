@@ -223,13 +223,13 @@ void handleFitness(std::vector<float> &vecFitness) {
     // get max fitness
     float maxEnergy = tmpvec.back();
     float minEnergy = tmpvec[0];
-    float range = maxEnergy - minEnergy;
+    float range = (maxEnergy - minEnergy) + 1e-5f;
 
     // make all 
     for (size_t i = 0; i < vecFitness.size(); i++)
     {
         // Rcpp::Rcout << "raw energy total = " << vecFitness[i] << "\n";
-        vecFitness[i] = ((vecFitness[i] - minEnergy) / range) + 1e5f;
+        vecFitness[i] = (((vecFitness[i] - minEnergy) + 1e-5f) / range) + 1e-5f;
         // Rcpp::Rcout << "scaled energy total = " << vecFitness[i] << "\n";
         assert(vecFitness[i] > 0.f && "Agent energy is 0!");
     }
