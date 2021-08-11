@@ -21,10 +21,11 @@ optimal_group_size = function(coef_agents, coef_agents_sq) {
 #' @return A vector of group size preferences.
 #' @export
 #' 
-agent_response = function(coef_agents, coef_agents_sq, plot = FALSE) {
+agent_response = function(coef_agents, coef_agents_sq, 
+                          stepsize = 2, plot = FALSE) {
 
-  resp = (coef_agents * (seq(from = 0, to = 20, by = 5))) + 
-    (coef_agents_sq * (seq(from = 0, to = 20, by = 5))^2)
+  resp = (coef_agents * (seq(from = 0, to = 20, by = stepsize))) + 
+    (coef_agents_sq * (seq(from = 0, to = 20, by = stepsize))^2)
 
   if(plot) {
     plot(resp, type = "b", xlab = "group size", ylab = "pref", pch = 16,
