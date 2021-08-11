@@ -217,25 +217,21 @@ void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
 /// minor function to handle energy
 void handleFitness(std::vector<float> &vecFitness) {
 
-    // negative energy is 0, add 1e-5 to all positive values
-    for (size_t i = 0; i < vecFitness.size(); i++)
-    {
-        // Rcpp::Rcout << "raw energy total = " << vecFitness[i] << "\n";
-        vecFitness[i] = vecFitness[i] > 0.f ? vecFitness[i] + 1e-5 : 1e-5;
-        // Rcpp::Rcout << "scaled energy total = " << vecFitness[i] << "\n";
-        assert(vecFitness[i] > 0.f && "Agent energy is 0!");
-    }
-
     std::vector<float> tmpvec = vecFitness;
     std::sort(tmpvec.begin(), tmpvec.end());
 
     // get max fitness
-    float maxFitness = tmpvec.back();
+    float maxEnergy = tmpvec.back();
+    float minEnergy = tmpvec[0];
+    float range = maxEnergy - minEnergy;
 
-    // rescale values between 1e-5f and 1.f
-    for (size_t j = 0; j < vecFitness.size(); ++j) {
-        vecFitness[j] = vecFitness[j] / (maxFitness);
-        assert(vecFitness[j] > 0.f && "Agent energy is 0!");
+    // make all 
+    for (size_t i = 0; i < vecFitness.size(); i++)
+    {
+        // Rcpp::Rcout << "raw energy total = " << vecFitness[i] << "\n";
+        vecFitness[i] = ((vecFitness[i] - minEnergy) / range) + 1e5f;
+        // Rcpp::Rcout << "scaled energy total = " << vecFitness[i] << "\n";
+        assert(vecFitness[i] > 0.f && "Agent energy is 0!");
     }
 
 }
