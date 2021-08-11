@@ -179,7 +179,7 @@ void Agent::doEnergetics(FastNoiseLite &noise,
     // both divided by number of neighbours
     int nNbrs = allow_compete ? countNbrsAt(perception, x, y, agentRtree) : 0;
 
-    float nbrs_f = static_cast<float>(nbrs); // + 1.f; // to prevent divisions by 0
+    float nbrs_f = static_cast<float>(nbrs) + 1.f; // to prevent divisions by 0
 
     // Rcpp::Rcout << "nbrs here = " << nbrs << "\n";
     energy_here = energy_here + (1.f - (1.f / nbrs_f));
