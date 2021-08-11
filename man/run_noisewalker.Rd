@@ -18,7 +18,8 @@ run_noisewalker(
   allow_compete,
   scenario,
   pTransmit,
-  costInfection
+  costInfection,
+  recordPos
 )
 }
 \arguments{
@@ -57,6 +58,8 @@ pathogen is introduced after 2/3 of the simulation.}
 \item{pTransmit}{The probability a disease transmits.}
 
 \item{costInfection}{The per-timestep cost of being infected.}
+
+\item{recordPos}{Whether to record the final position of individuals.}
 }
 \value{
 A dataframe of evolved pop strategy count.

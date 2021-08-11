@@ -13,7 +13,6 @@ library(data.table)
 library(ggplot2)
 library(glue)
 library(patchwork)
-library(biscale)
 ```
 
 ## Load energy data
@@ -39,9 +38,8 @@ data_energy = data_energy[gen %% 10 == 0, ]
 ## Select frequency
 
 ```{r}
-data_energy = data_energy[freqRes == 1, ]
+data_energy = data_energy[freqRes == 1 & pTransmit == 0.5, ]
 ```
-
 
 ## Plotting
 
@@ -72,35 +70,35 @@ plot_energy = lapply(data_energy[["energy"]], function(df) {
   
   genmax = max(df$gen)
   
-  p = df |>
+  p =
+    df |>
     ggplot()+
-    geom_ribbon(
-      aes(
-        x = gen,  
-        ymin = mean - sd,
-        ymax = mean + sd,
-        group = replicate
-      ),
-      fill = alpha("grey", alpha = 0.1)
-    )+
+    # geom_ribbon(
+    #   aes(
+    #     x = gen,  
+    #     ymin = mean - sd,
+    #     ymax = mean + sd,
+    #     group = interaction(replicate, popsize)
+    #   ),
+    #   fill = alpha("grey", alpha = 0.1)
+    # )+
     geom_line(
       aes(
         gen, mean, 
-        group = replicate
+        group = interaction(replicate, popsize)
       ),
       show.legend = F
     )+
     coord_cartesian(
       expand = F,
-      ylim = c(0, 20)
+      # ylim = c(0, 20)
     )+
     facet_grid(
-      pTransmit ~ costInfection, 
+      popsize ~ costInfection, 
       scales = "fixed",
       labeller = label_both,
       switch = "y"
     )+
-    theme_test()+
     labs(
       x = "Gen.",
       y = "Mean per-capita energy",
@@ -149,15 +147,15 @@ plot_movement = lapply(data_energy[["moved"]], function(df) {
   
   p = df |>
     ggplot()+
-    geom_ribbon(
-      aes(
-        x = gen,  
-        ymin = mean - sd,
-        ymax = mean + sd,
-        group = replicate
-      ),
-      fill = alpha("grey", alpha = 0.1)
-    )+
+    # geom_ribbon(
+    #   aes(
+    #     x = gen,  
+    #     ymin = mean - sd,
+    #     ymax = mean + sd,
+    #     group = replicate
+    #   ),
+    #   fill = alpha("grey", alpha = 0.1)
+    # )+
     geom_line(
       aes(
         gen, mean, 
@@ -171,7 +169,7 @@ plot_movement = lapply(data_energy[["moved"]], function(df) {
     #   ylim = c(5, 20)
     # )+
     facet_grid(
-      pTransmit ~ costInfection, 
+      popsize ~ costInfection, 
       scales = "fixed",
       labeller = label_both,
       switch = "y"

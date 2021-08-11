@@ -13,7 +13,6 @@ library(data.table)
 library(ggplot2)
 library(glue)
 library(patchwork)
-library(biscale)
 ```
 
 ## Load energy data
@@ -36,7 +35,7 @@ data_coefs = data_coefs[freqRes > 0.1,]
 Select every Nth generation for plotting.
 
 ```{r}
-data_coefs = data_coefs[gen %% 10 == 0, ]
+data_coefs = data_coefs[gen %% 10 == 0 & pTransmit == 0.5, ]
 ```
 
 ```{r}
@@ -90,12 +89,11 @@ plot_coefs = lapply(data_coefs, function(df) {
       labels = scales::percent
     )+
     facet_grid(
-      pTransmit + variable ~ costInfection, 
+      popsize + variable ~ costInfection, 
       scales = "fixed",
       labeller = label_both,
       switch = "y"
     )+
-    theme_test()+
     labs(
       x = "Gen.",
       y = "% positive",
