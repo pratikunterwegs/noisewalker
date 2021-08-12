@@ -181,8 +181,7 @@ void Agent::doEnergetics(FastNoiseLite &noise,
 
     float nbrs_f = static_cast<float>(nbrs) + 1.f; // to prevent divisions by 0
 
-    // Rcpp::Rcout << "nbrs here = " << nbrs << "\n";
-    energy_here = energy_here + (1.f - (1.f / nbrs_f));
+    energy_here = energy_here + (energy_here - (energy_here / nbrs_f));
 
     // Rcpp::Rcout << "scaled energy here = " << energy_here << "\n";
     // energetic balance
