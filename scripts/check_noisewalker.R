@@ -22,7 +22,7 @@ noisewalker::agent_response(
 # test run
 a = noisewalker::run_noisewalker(
     popsize = 500, 
-    genmax = 1000, 
+    genmax = 5000, 
     timesteps = 25, 
     perception = 0.1,
     directions = 4,
@@ -34,36 +34,46 @@ a = noisewalker::run_noisewalker(
     allow_compete = T,
     scenario = 1,
     pTransmit = 0.25,
-    costInfection = 0.02,
+    costInfection = 0.1,
     recordPos = F
 )
 
 # get data
 data = handle_rcpp_out(a[["gendata"]])
 
-# get max grp size preference
-# data[, resp := Map(agent_response, coef_nbrs, coef_risk)]
-# data[, grp_size_pref := (vapply(resp, which.max, FUN.VALUE = 1L) * 2) - 2]
-# data[, resp := NULL]
-# 
-# # count grp size preference per gen
-# data_grp_size = data[, .N, by = c("gen", "grp_size_pref")]
-# 
-# # plot
-# ggplot(data_grp_size)+
-#     geom_tile(
-#         aes(gen, grp_size_pref, fill = N)
-#     )+
-#     colorspace::scale_fill_continuous_sequential(
-#         palette = "Reds"
-#     )
+# classify based on coef risk
+data[, d2y := coef_risk > 0]
+
+# check dev over time
+data_d2y = data[, .N, by = c("d2y", "gen")]
+
+ggplot(data_d2y)+
+    geom_path(
+        aes(gen, N, col = d2y)
+    )
+
+# classify on inflection
+data[, inflection := inflection_point(coef_nbrs, coef_risk)]
+data$inflection[data$inflection > 10] = 10
+
+# count inflection points
+data_inflection = data[, .N, by = c("inflection", "gen", "d2y")]
+
+ggplot(data_inflection)+
+    geom_tile(
+        aes(gen, inflection, fill = N/500)
+    )+
+    scale_fill_viridis_c()+
+    facet_grid(~d2y)+
+    coord_cartesian(
+        ylim = c(0, 10)
+    )
 
 #### some ####
 # get last gen pop
-data_last = data[gen %in% c(max(gen)),]
+data_last = data[gen %in% c(min(gen), max(gen), 800),]
 data_last[, resp := Map(agent_response, coef_nbrs, coef_risk)]
-data_last[, id := seq(nrow(data_last))]
-data_last[, grp_size_pref := (vapply(resp, which.max, FUN.VALUE = 1L) * 2) - 2]
+data_last[, id := rep(seq(nrow(data_last) / 3), 3)]
 
 data_summary = data_last[, list(
     resp = unlist(resp, recursive = F),
@@ -75,21 +85,23 @@ ggplot(data_summary)+
         aes(grpsize, resp, 
             group = interaction(id, gen)
         ),
-        alpha = 0.2,
+        alpha = 0.5,
         colour = "steelblue"
     )+
     geom_hline(
         yintercept = 0
     )+
     scale_y_continuous(
-        trans = ggallin::pseudolog10_trans,
-        limits = c(-2, 2)
+        # trans = ggallin::pseudolog10_trans
     )+
     scale_x_continuous(
-        trans = ggallin::ssqrt_trans,
-        limits = c(0, 20)
+        # trans = ggallin::ssqrt_trans,
+        # limits = c(0, 10)
     )+
-    coord_cartesian(expand = F)
+    facet_grid(~gen)+
+    coord_cartesian(expand = F, 
+                    ylim = c(-0.5, 0.5),
+                    xlim = c(0, 10))
 
 # tanh transform
 data[, c("coef_food", "coef_nbrs", "coef_risk") := lapply(
