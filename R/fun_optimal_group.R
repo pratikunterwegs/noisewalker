@@ -5,11 +5,16 @@
 #' @return A vector of optimal group sizes
 #' @export
 #'
-optimal_group_size = function(coef_agents, coef_agents_sq) {
+inflection_point = function(coef_agents, coef_agents_sq) {
   
   # formula for the X-coord of the axis of symmetry of a parabola
   # -b/(2a)
-  - coef_agents_sq / (2 * coef_agents)
+  x = -coef_agents_sq / (2 * coef_agents)
+  
+  x[is.na(x) | is.infinite(x)] = 0
+  x[x < 0] = 0
+  
+  floor(x)
 
 }
 
