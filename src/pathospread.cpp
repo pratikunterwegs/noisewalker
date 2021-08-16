@@ -63,13 +63,14 @@ void popPathogenSpread(std::vector<Agent> &pop, const float perception,
                 // loop through neighbours
                 for(size_t j = 0; j < nbrsId.size(); j++) 
                 {
-                    if (!pop[j].infected) 
+                    size_t toInfect = nbrsId[j];
+                    if (!pop[toInfect].infected) 
                     {
                         // infect neighbours with prob p
                         if(pathogenTransmits(rng))
                         {
-                            pop[j].infected = true;
-                            pop[j].timeInfected = t_;
+                            pop[toInfect].infected = true;
+                            pop[toInfect].timeInfected = t_;
                         }
                     }
                 }
