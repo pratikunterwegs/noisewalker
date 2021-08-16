@@ -102,8 +102,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
     const float t_, const float perception,
     const int directions, 
     const float clamp, const float landsize,
-    bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove,
-    const bool allow_compete) {
+    bgi::rtree< value, bgi::quadratic<16> > &agentRtree, const float costMove) {
     
     // set default values --- stay in place
     float newX = x; float newY = y;
@@ -111,7 +110,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
 
     // food here is 0 if less than clamp (0.f)
     foodHere = foodHere > clamp ? foodHere : 0.f;
-    float nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, newX, newY, agentRtree)) : 0.f;
+    float nbrsHere = static_cast<float>(countNbrsAt(perception, newX, newY, agentRtree));
 
     // suitability at location is calculated as having risk = 0.0
     // that is, no risk is perceived here.
@@ -131,7 +130,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
         foodHere = noise.GetNoise(sampleX, sampleY, static_cast<float>(t_));
         foodHere = foodHere > clamp ? foodHere : 0.f;
 
-        nbrsHere = allow_compete ? static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree)) : 0.f;
+        nbrsHere = static_cast<float>(countNbrsAt(perception, sampleX, sampleY, agentRtree));
 
         // suitability at new location is modified by individual's perceived risk
         float new_suit = (coefFood * foodHere) + (coefNbrs * nbrsHere) + (coefRisk * (nbrsHere * nbrsHere));
@@ -177,7 +176,7 @@ void Agent::doEnergetics(FastNoiseLite &noise,
     // Rcpp::Rcout << "energy here = " << energy_here << "\n";
 
     // both divided by number of neighbours
-    int nNbrs = allow_compete ? countNbrsAt(perception, x, y, agentRtree) : 0;
+    int nNbrs = countNbrsAt(perception, x, y, agentRtree);
 
     float nbrs_f = static_cast<float>(nbrs) + 1.f; // to prevent divisions by 0
 
@@ -193,23 +192,16 @@ void Agent::doEnergetics(FastNoiseLite &noise,
 /* population level functions */
 /// population moves about and forages
 void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
+    bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
     const float t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,
-    const float costMove,
-    const bool allow_compete) {
-
-    // make Rtree
-    bgi::rtree< value, bgi::quadratic<16> > agentRtree;
-    if (allow_compete) {
-        agentRtree = makeRtree(pop);
-    }
+    const float costMove) {
 
     for(auto& indiv : pop) {
         indiv.doSenseMove(noise, t_, perception, directions, clamp, landsize, 
-            agentRtree, costMove, allow_compete);
-        indiv.doEnergetics(noise, agentRtree, perception, t_, clamp,
-            allow_compete);
+            agentRtree, costMove);
+        indiv.doEnergetics(noise, agentRtree, perception, t_, clamp);
     }
 }
 
