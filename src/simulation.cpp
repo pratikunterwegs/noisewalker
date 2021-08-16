@@ -5,6 +5,7 @@
 #include "agent.hpp"
 #include "datatypes.hpp"
 #include "pathospread.hpp"
+#include "predation.hpp"
 #include "simulation.hpp"
 #include "FastNoiseLite.h"
 #include <Rcpp.h>
@@ -21,10 +22,10 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                const float perception,
                const int directions,
                const float costMove,
-               const bool allow_compete,
                const int scenario,
                const float pTransmit,
                const float costInfection,
+               const float costPredAvoid,
                const bool recordPos)
 {
     genData thisGenData;
@@ -48,16 +49,22 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
         }
 
         for (int t = 0; t < timesteps; ++t) {
+
+            // make rtree
+            bgi::rtree< value, bgi::quadratic<16> > agentRtree = makeRtree(pop);
             // scale t by minor value
-            popMoveForageCompete(pop, noise, static_cast<float>(t) * scale_time,
+            popMoveForageCompete(pop, agentRtree, noise, static_cast<float>(t) * scale_time,
                 perception, directions, landsize,
-                clamp, costMove, allow_compete); // set manually
+                clamp, costMove); // set manually
 
             // infection dynamics
             if (gen >= genPartition) {
-                popPathogenSpread(pop, perception, pTransmit, t);
+                popPathogenSpread(pop, perception, pTransmit, t, agentRtree);
                 popPathogenCost(pop, costInfection, t);
             }
+
+            // predation dynamics
+            popPredationRisk(pop, costPredAvoid, perception, agentRtree);
         }
 
         // subtract cost of traits?
@@ -84,8 +91,6 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
             Named("gendata") = thisGenData.returnGenData()
         );
     }
-    
-    
 }
 
 
@@ -109,13 +114,13 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' @param clamp The threshold value of the landscape below which, the agents
 //' sense and receive zero resources. Needed because noise has values -1 to +1.
 //' @param random_traits Should traits be initialised -1 to +1 or at 0.
-//' @param allow_compete Should agents compete. Controls downstream functions.
 //' @param scenario The pathogen co-evolution scenario. Defaults to 0, "none",
 //' and no pathogen is introduced. If 1, "ancestral", the pathogen is introduced
 //' from generation zero, the start of the simulation. If 2, "spillover", the
 //' pathogen is introduced after 2/3 of the simulation.
 //' @param pTransmit The probability a disease transmits.
 //' @param costInfection The per-timestep cost of being infected.
+//' @param costPredAvoid The cost of predation avoidance.
 //' @param recordPos Whether to record the final position of individuals.
 //' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
@@ -130,10 +135,10 @@ Rcpp::List run_noisewalker(
         const float landsize,
         const float clamp,
         const bool random_traits,
-        const bool allow_compete,
         const int scenario,
         const float pTransmit,
         const float costInfection,
+        const float costPredAvoid,
         const float recordPos) {
     
     // set up seed etc
@@ -157,8 +162,8 @@ Rcpp::List run_noisewalker(
     // do evolution
     Rcpp::List thisData = evolvePop(pop, genmax, timesteps, noise, landsize, 
                                     clamp, perception,
-                                    directions, costMove, allow_compete, scenario,
-                                    pTransmit, costInfection, recordPos);
+                                    directions, costMove, scenario,
+                                    pTransmit, costInfection, costPredAvoid, recordPos);
 
     return thisData;
 }
