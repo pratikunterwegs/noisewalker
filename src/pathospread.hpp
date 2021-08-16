@@ -19,6 +19,7 @@
 void popIntroPathogen(std::vector<Agent> &pop, const int nInfected);
 /// function to spread pathogen
 void popPathogenSpread(std::vector<Agent> &pop, const float perception,
-                       const float pTransmit, const int t_);
+                       const float pTransmit, const int t_,
+                       bgi::rtree< value, bgi::quadratic<16> > &agentRtree);
 /// function for pathogen cost
 void popPathogenCost(std::vector<Agent> &pop, const float costInfection, const int t_);

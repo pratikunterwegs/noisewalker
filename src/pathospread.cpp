@@ -5,11 +5,11 @@
 #include "pathospread.hpp"
 #include <unordered_set>
 
+// discrete distribution
+std::uniform_int_distribution<int> pickAgent(0, static_cast<int>(pop.size()) - 1);
+
 /// function to infect n individuals
 void popIntroPathogen(std::vector<Agent> &pop, const int nInfected) {
-
-    // discrete distribution
-    std::uniform_int_distribution<int> pickAgent(0, static_cast<int>(pop.size()) - 1);
 
     // sample the population indices without replacement
     // using an unordered set
@@ -37,16 +37,13 @@ void popIntroPathogen(std::vector<Agent> &pop, const int nInfected) {
     }
 }
 
+// bernoulli distribution of transmission
+std::bernoulli_distribution pathogenTransmits(pTransmit);
+
 /// function to spread pathogen
 void popPathogenSpread(std::vector<Agent> &pop, const float perception,
-                       const float pTransmit, const int t_) {
-
-    // bernoulli distribution of transmission
-    std::bernoulli_distribution pathogenTransmits(pTransmit);
-    
-    // make Rtree
-    bgi::rtree< value, bgi::quadratic<16> > agentRtree;
-    agentRtree = makeRtree(pop);
+                       const float pTransmit, const int t_,
+                       bgi::rtree< value, bgi::quadratic<16> > &agentRtree) {
 
     // looping through agents, query rtree for neighbours
     for (size_t i = 0; i < pop.size(); i++)
