@@ -168,8 +168,7 @@ void Agent::doSenseMove(FastNoiseLite &noise,
 void Agent::doEnergetics(FastNoiseLite &noise, 
     bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
     const float perception,
-    const float t_, const float clamp,
-    const bool allow_compete) {
+    const float t_, const float clamp) {
     
     // energy
     float energy_here = (noise.GetNoise(x, y, static_cast<float>(t_)));

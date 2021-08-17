@@ -73,6 +73,7 @@ void popRandomPos(std::vector<Agent> &pop, const float landsize);
 void popRandomTraits(std::vector<Agent> &pop);
 
 void popMoveForageCompete(std::vector<Agent>& pop, FastNoiseLite &noise,
+    bgi::rtree< value, bgi::quadratic<16> > &agentRtree,
     const float t_,
     const float perception, const int directions, 
     const float landsize, const float clamp,

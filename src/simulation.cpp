@@ -53,7 +53,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
             // make rtree
             bgi::rtree< value, bgi::quadratic<16> > agentRtree = makeRtree(pop);
             // scale t by minor value
-            popMoveForageCompete(pop, agentRtree, noise, static_cast<float>(t) * scale_time,
+            popMoveForageCompete(pop, noise, agentRtree, static_cast<float>(t) * scale_time,
                 perception, directions, landsize,
                 clamp, costMove); // set manually
 
