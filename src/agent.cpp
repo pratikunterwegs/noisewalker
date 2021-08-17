@@ -18,15 +18,16 @@ bgi::rtree< value, bgi::quadratic<16> > makeRtree (std::vector<Agent> &pop) {
 }
 
 /// random trait value dist
-std::uniform_real_distribution<float> randTrait(-0.1f, 0.1f);
+std::uniform_real_distribution<float> randTrait(-0.01f, 0.01f);
+std::uniform_real_distribution<float> randTrait2(-0.2f, 0.2f);
 
 // normal distr around 0
-std::normal_distribution<float> normDist(0.0f, 0.1f);
+std::uniform_real_distribution<float> randPos(0.1f, 0.9f);
 
 /// initialise the population at random positions
 void Agent::randomPosition(const float landsize) {
-    x = randTrait(rng) * static_cast<double>(landsize);
-    y = randTrait(rng) * static_cast<double>(landsize);
+    x = randPos(rng) * static_cast<double>(landsize);
+    y = randPos(rng) * static_cast<double>(landsize);
 }
 
 /// initialise with random position
@@ -39,7 +40,7 @@ void popRandomPos(std::vector<Agent> &pop, const float landsize) {
 /// pick random traits
 void Agent::randomTraits() {
     coefFood = randTrait(rng);
-    coefNbrs = randTrait(rng);
+    coefNbrs = randTrait2(rng);
     coefRisk = randTrait(rng);
 }
 
@@ -276,6 +277,6 @@ void doReproduce(std::vector<Agent>& pop, const float landsize) {
     // swap tmp pop for pop
     std::swap(pop, tmpPop);
     // randomise position?
-    popRandomPos(tmpPop, landsize);
+    popRandomPos(pop, landsize);
     tmpPop.clear();
 }
