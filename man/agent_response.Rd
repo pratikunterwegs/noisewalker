@@ -4,7 +4,7 @@
 \alias{agent_response}
 \title{Get response to agents.}
 \usage{
-agent_response(coef_agents, coef_agents_sq, plot = FALSE)
+agent_response(coef_agents, coef_agents_sq, stepsize = 2, plot = FALSE)
 }
 \arguments{
 \item{coef_agents}{The agent preference.}

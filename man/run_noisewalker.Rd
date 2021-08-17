@@ -15,10 +15,10 @@ run_noisewalker(
   landsize,
   clamp,
   random_traits,
-  allow_compete,
   scenario,
   pTransmit,
   costInfection,
+  costPredAvoid,
   recordPos
 )
 }
@@ -48,8 +48,6 @@ sense and receive zero resources. Needed because noise has values -1 to +1.}
 
 \item{random_traits}{Should traits be initialised -1 to +1 or at 0.}
 
-\item{allow_compete}{Should agents compete. Controls downstream functions.}
-
 \item{scenario}{The pathogen co-evolution scenario. Defaults to 0, "none",
 and no pathogen is introduced. If 1, "ancestral", the pathogen is introduced
 from generation zero, the start of the simulation. If 2, "spillover", the
@@ -58,6 +56,8 @@ pathogen is introduced after 2/3 of the simulation.}
 \item{pTransmit}{The probability a disease transmits.}
 
 \item{costInfection}{The per-timestep cost of being infected.}
+
+\item{costPredAvoid}{The cost of predation avoidance.}
 
 \item{recordPos}{Whether to record the final position of individuals.}
 }
