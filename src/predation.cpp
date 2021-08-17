@@ -18,7 +18,7 @@ void popPredationRisk(std::vector<Agent> &pop, const float costPredAvoid,
         pop[focalId].x, pop[focalId].y, agentRtree);
 
     //loop over and assign cost
-    const float costPred_ = costPredAvoid / static_cast<float>(nbrsId.size() + 1.f);
+    const float costPred_ = costPredAvoid / (static_cast<float>(nbrsId.size()) + 1.f);
 
     pop[focalId].energy -= costPred_;
 
