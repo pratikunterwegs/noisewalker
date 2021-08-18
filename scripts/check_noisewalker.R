@@ -21,8 +21,8 @@ noisewalker::agent_response(
 
 # test run
 a = noisewalker::run_noisewalker(
-    popsize = 200, 
-    genmax = 1000, 
+    popsize = 500, 
+    genmax = 10000, 
     timesteps = 25, 
     perception = 1,
     directions = 4,
@@ -34,30 +34,12 @@ a = noisewalker::run_noisewalker(
     scenario = 0,
     pTransmit = 0.25,
     costInfection = 0.1, 
-    costPredAvoid = 0,
+    costPredAvoid = 10,
     recordPos = F
 )
 
-# pos data
-# data = a[["posdata"]]
-# data = Map(function(df, g) {
-#     df$g = g
-#     df
-# }, data$pos_data, data$gens)
-
-# data = rbindlist(data)
-# ggplot(data[g %% 10 == 0])+
-#     geom_point(aes(x,y))+
-#     facet_wrap(~g)
-
 # get data
 data = handle_rcpp_out(a[["gendata"]])
-
-ggplot(data)+
-    geom_bin2d(
-        aes(gen, energy),
-        binwidth = c(1, 0.5)
-    )
 
 # classify based on coef risk
 data[, d2y := coef_risk > 0]
@@ -80,7 +62,7 @@ ggplot(data_dy)+
 # get last gen pop
 data_last = data[gen %in% floor(seq(0, 1000, length.out = 10)),]
 data_last[, resp := Map(agent_response, coef_nbrs, coef_risk)]
-data_last[, id := rep(seq(200), 9)]
+data_last[, id := rep(seq(500), 10)]
 
 data_summary = data_last[, list(
     resp = unlist(resp, recursive = F),
@@ -93,13 +75,14 @@ ggplot(data_summary)+
     )+
     geom_path(
         aes(grpsize, resp, 
-            group = interaction(id, gen),
-            col = (-coef_nbrs / (2*coef_risk)) > 1
+            group = interaction(id, gen)
+            # col = (-coef_nbrs / (2*coef_risk)) > 1
         ),
-        alpha = 0.5
+        col = "steelblue",
+        alpha = 0.1
     )+
     scale_y_continuous(
-        # trans = ggallin::pseudolog10_trans
+        trans = ggallin::pseudolog10_trans
     )+
     scale_x_continuous(
         # trans = ggallin::ssqrt_trans,
@@ -137,4 +120,7 @@ ggplot(data_summary)+
         direction = -1
     )+
     # coord_cartesian(xlim = c(0, 500))+
-    facet_wrap(~variable, scales = "free_y")
+    facet_wrap(~variable, scales = "free_y")+
+    theme(
+        legend.key.width = unit(2, "mm")
+    )
