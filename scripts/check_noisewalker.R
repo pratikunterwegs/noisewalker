@@ -7,8 +7,9 @@ library(data.table)
 # libraries to build and install
 Rcpp::compileAttributes()
 Sys.setenv("LIB_GSL" = "C:/local323")
-build()
-sink("install_output.log"); install(upgrade = "never"); sink()
+{
+    sink("install_output.log"); devtools::install(upgrade = "never"); sink()
+}
 document()
 
 # load the lib, better to restart R
@@ -19,79 +20,113 @@ noisewalker::agent_response(
     -0.2, 0.01, plot = T, stepsize = 2
 )
 
-# test run
-a = noisewalker::run_noisewalker(
-    popsize = 500, 
-    genmax = 10000, 
-    timesteps = 25, 
-    perception = 1,
-    directions = 4,
-    costMove = 0.01,
-    freqRes = 2.0,
-    landsize = 50,
-    clamp = 0.0,
-    random_traits = T,
-    scenario = 0,
-    pTransmit = 0.25,
-    costInfection = 0.1, 
-    costPredAvoid = 10,
-    recordPos = F
+params = CJ(
+    ptransmit = c(0, 1),
+    costInfection = c(seq(0, 1, 0.2)),
+    costPredAvoid = c(seq(0.1, 1, 0.2), 1)
 )
+params[ptransmit == 0, costInfection := 0]
+params = unique(params)
 
-# get data
-data = handle_rcpp_out(a[["gendata"]])
+# test run
+data = Map(params$ptransmit, params$costInfection, params$costPredAvoid, 
+           f = function(ptransmit, ci, cpred) {
+               d_ = noisewalker::run_noisewalker(
+                   popsize = 200, 
+                   genmax = 1000, 
+                   timesteps = 25, 
+                   perception = 0.1,
+                   directions = 4,
+                   costMove = 0.01,
+                   freqRes = 1.0,
+                   landsize = 5,
+                   clamp = 0.0,
+                   random_traits = F,
+                   scenario = 1,
+                   pTransmit = ptransmit,
+                   costInfection = ci, 
+                   costPredAvoid = cpred,
+                   recordPos = F
+               )
+               
+               d_ = handle_rcpp_out(d_[["gendata"]])
+               d_
+           })
 
-# classify based on coef risk
-data[, d2y := coef_risk > 0]
-data[, dy := coef_nbrs > 0]
+# get last gen and compare
+data_summary = lapply(data, function(df) {
+    df = df[gen >= max(gen) - 200]
+    df[, resp := Map(coef_nbrs, coef_risk, f = agent_response)]
+    df[, id := seq(length(coef_food)), by = "gen"]
+    df = df[, list(
+        resp = unlist(resp, recursive = F),
+        grpsize = seq(from = 0, to = 20, by = 2)
+    ), by = c("id", "gen", "coef_risk", "coef_nbrs")]
+    df[, resp := tanh(resp), by = "gen"]
+    df
+})
 
-# check dev over time
-data_d2y = data[, .N, by = c("d2y", "gen")]
-data_dy = data[, .N, by = c("dy", "gen")]
+# number sim
+params$sim_id = seq(nrow(params))
+data_summary = Map(data_summary, seq(length(data_summary)), 
+                   f = function(df, index) {
+                       df$sim_id = index
+                       df
+                   })
 
-ggplot(data_d2y)+
-    geom_path(
-        aes(gen, N, col = d2y)
-    )
-ggplot(data_dy)+
-    geom_path(
-        aes(gen, N, col = dy)
-    )
+# join data summary
+data_summary = rbindlist(data_summary)
+data_summary = merge(data_summary, params, by = "sim_id")
 
-#### some ####
-# get last gen pop
-data_last = data[gen %in% floor(seq(0, 1000, length.out = 10)),]
-data_last[, resp := Map(agent_response, coef_nbrs, coef_risk)]
-data_last[, id := rep(seq(500), 10)]
+data_summary = split(data_summary, by = "ptransmit")
 
-data_summary = data_last[, list(
-    resp = unlist(resp, recursive = F),
-    grpsize = seq(from = 0, to = 20, by = 2)
-), by = c("id", "gen", "coef_risk", "coef_nbrs")]
+# plot
+plots = Map(data_summary, f = function(df) {
+    ggplot(df)+
+        geom_path(
+            aes(grpsize, resp, 
+                group = interaction(id, gen)
+                # col = (-coef_nbrs / (2*coef_risk)) > 1
+            ),
+            show.legend = F,
+            alpha = 0.1
+        )+
+        geom_hline(
+            yintercept = 0,
+            col = 2
+        )+
+        scale_x_continuous(
+            # trans = ggallin::ssqrt_trans,
+        )+
+        facet_grid(
+            costInfection ~ costPredAvoid,
+            labeller = label_both
+        )+
+        coord_cartesian(
+            expand = T, 
+            # ylim = c(-0.05, 0.05),
+            xlim = c(0, 10)
+        )+
+        theme_test()+
+        # theme(
+        #     strip.background = element_rect(
+        #         fill = NA,
+        #         colour = NA
+        #     ),
+        #     axis.text.y = element_blank()
+        # )+
+        labs(
+            x = "Group size",
+            y = "Preference",
+            title = glue::glue(
+                "P transmit = {unique(df$ptransmit)}"
+            )
+        )
+})
 
-ggplot(data_summary)+
-    geom_hline(
-        yintercept = 0
-    )+
-    geom_path(
-        aes(grpsize, resp, 
-            group = interaction(id, gen)
-            # col = (-coef_nbrs / (2*coef_risk)) > 1
-        ),
-        col = "steelblue",
-        alpha = 0.1
-    )+
-    scale_y_continuous(
-        trans = ggallin::pseudolog10_trans
-    )+
-    scale_x_continuous(
-        # trans = ggallin::ssqrt_trans,
-        # limits = c(0, 10)
-    )+
-    facet_wrap(~gen, scales = "free_y")+
-    coord_cartesian(expand = F, 
-                    # ylim = c(-0.05, 0.05),
-                    xlim = c(0, 20))
+# wrap plots
+library(patchwork)
+wrap_plots(plots)
 
 #### weight evolution ####
 # tanh transform
