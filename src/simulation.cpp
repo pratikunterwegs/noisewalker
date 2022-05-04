@@ -58,13 +58,13 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
                 clamp, costMove); // set manually
 
             // infection dynamics
-            if (gen >= genPartition) {
-                popPathogenSpread(pop, perception, pTransmit, t, agentRtree);
-                popPathogenCost(pop, costInfection, t);
-            }
+            // if (gen >= genPartition) {
+            //     // popPathogenSpread(pop, perception, pTransmit, t, agentRtree);
+            //     // popPathogenCost(pop, costInfection, t);
+            // }
 
             // predation dynamics
-            popPredationRisk(pop, costPredAvoid, perception, agentRtree);
+            // popPredationRisk(pop, costPredAvoid, perception, agentRtree);
         }
 
         // subtract cost of traits?
@@ -124,7 +124,7 @@ Rcpp::List evolvePop(std::vector<Agent> &pop,
 //' @param recordPos Whether to record the final position of individuals.
 //' @return A dataframe of evolved pop strategy count.
 // [[Rcpp::export]]
-Rcpp::List run_noisewalker(
+S4 run_noisewalker(
         const int popsize,
         const int genmax, 
         const int timesteps,
@@ -164,7 +164,24 @@ Rcpp::List run_noisewalker(
                                     clamp, perception,
                                     directions, costMove, scenario,
                                     pTransmit, costInfection, costPredAvoid, recordPos);
+    // generation data
+    Rcpp::List gendata = thisData["gendata"];
 
-    return thisData;
+    // parameter list
+    Rcpp::List param_list = Rcpp::List::create(
+        Named("generations") = genmax,
+        Named("pop_size") = popsize,
+        Named("pop_density") = static_cast<float>(popsize) / landsize,
+        Named("patchiness") = freqRes
+        // Named("dispersal") = dispersal,
+    );
+
+    // create S4 class pathomove output and fill slots
+    S4 x("sim_output");
+    x.slot("parameters") = Rcpp::wrap(param_list);
+    x.slot("generations") = Rcpp::wrap(thisData["gens"]);
+    x.slot("trait_data") = Rcpp::wrap(gendata["pop_data"]);
+
+    return(x);
 }
 

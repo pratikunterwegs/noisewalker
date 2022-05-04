@@ -26,7 +26,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // run_noisewalker
-Rcpp::List run_noisewalker(const int popsize, const int genmax, const int timesteps, const float perception, const int directions, const float costMove, const double freqRes, const float landsize, const float clamp, const bool random_traits, const int scenario, const float pTransmit, const float costInfection, const float costPredAvoid, const float recordPos);
+S4 run_noisewalker(const int popsize, const int genmax, const int timesteps, const float perception, const int directions, const float costMove, const double freqRes, const float landsize, const float clamp, const bool random_traits, const int scenario, const float pTransmit, const float costInfection, const float costPredAvoid, const float recordPos);
 RcppExport SEXP _noisewalker_run_noisewalker(SEXP popsizeSEXP, SEXP genmaxSEXP, SEXP timestepsSEXP, SEXP perceptionSEXP, SEXP directionsSEXP, SEXP costMoveSEXP, SEXP freqResSEXP, SEXP landsizeSEXP, SEXP clampSEXP, SEXP random_traitsSEXP, SEXP scenarioSEXP, SEXP pTransmitSEXP, SEXP costInfectionSEXP, SEXP costPredAvoidSEXP, SEXP recordPosSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
